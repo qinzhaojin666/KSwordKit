@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 1749398780
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: kswordkit__examples__exampleslitjson__litjsonscene_unity
+      Dependencies: {}

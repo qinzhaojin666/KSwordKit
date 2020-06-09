@@ -1,0 +1,40 @@
+ManifestFileVersion: 0
+CRC: 2596705985
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 705bd87ccb52549883fb9ede2441beba
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/5.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/7.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u56FE\u7247\u80CC\u666F.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u6309\u94AE\u7070.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u6807\u9898\u80CC\u666F.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/4.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u6761.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/11.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/12.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u8FDB\u5EA6\u6761.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/8.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/9.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/10.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8F6C\u5708.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u56FE\u6807.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/6.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u6309\u94AE.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/1.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/2.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u8FDB\u5EA6\u6846.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/3.png"
+- "Assets/Resources/Textures/\u8D25\u5BB6\u4E4B\u8DEF/\u8D25\u5BB6\u4E4B\u8DEF\u6807\u9898.png"
+Dependencies: []

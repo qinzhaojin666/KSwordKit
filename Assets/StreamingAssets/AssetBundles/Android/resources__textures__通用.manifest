@@ -1,0 +1,42 @@
+ManifestFileVersion: 0
+CRC: 1019617305
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d195a491b17f61adc1d274e5c41f107b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Resources/Textures/\u901A\u7528/room3.png"
+- "Assets/Resources/Textures/\u901A\u7528/room8.png"
+- "Assets/Resources/Textures/\u901A\u7528/room10.png"
+- "Assets/Resources/Textures/\u901A\u7528/room2.png"
+- "Assets/Resources/Textures/\u901A\u7528/4room.png"
+- "Assets/Resources/Textures/\u901A\u7528/di.png"
+- "Assets/Resources/Textures/\u901A\u7528/room6.png"
+- "Assets/Resources/Textures/\u901A\u7528/room5.png"
+- "Assets/Resources/Textures/\u901A\u7528/4\u5B57\u5E7F\u544A.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u52A8\u6548.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u89C6\u5C4F.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u9762\u677F.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u6309\u94AE.png"
+- "Assets/Resources/Textures/\u901A\u7528/4\u5B57\u9EC4.png"
+- "Assets/Resources/Textures/\u901A\u7528/room7.png"
+- "Assets/Resources/Textures/\u901A\u7528/room1.png"
+- "Assets/Resources/Textures/\u901A\u7528/di\u957F.png"
+- "Assets/Resources/Textures/\u901A\u7528/room9.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u77ED.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u80CC\u666F\u5149\u6548.png"
+- "Assets/Resources/Textures/\u901A\u7528/room4.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u4E8B\u4EF6.png"
+- "Assets/Resources/Textures/\u901A\u7528/kuang.png"
+- "Assets/Resources/Textures/\u901A\u7528/\u7EA2\u70B9.png"
+- "Assets/Resources/Textures/\u901A\u7528/gb.png"
+Dependencies: []
