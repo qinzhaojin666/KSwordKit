@@ -1,0 +1,18 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+
+namespace KSwordKit.Editor
+{
+    public class KSwordKitEditor
+    {
+        [InitializeOnLoadMethod]
+        static void InitializeOnLoadMethod()
+        {
+
+
+        }
+    }
+}
+
