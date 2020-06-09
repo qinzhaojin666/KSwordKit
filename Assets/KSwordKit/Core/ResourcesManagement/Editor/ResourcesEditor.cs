@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Diagnostics;
 
-namespace KSwordKit.Core.Editor 
+namespace KSwordKit.Core.ResourcesManagement.Editor
 {
     public class ResourcesEditor
     {

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace KSwordKit.Core
+namespace KSwordKit.Core.ResourcesManagement
 {
     public class ResourcesManagement : MonoBehaviour
     {

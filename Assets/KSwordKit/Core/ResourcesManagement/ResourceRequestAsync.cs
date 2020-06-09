@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 
-namespace KSwordKit.Core
+namespace KSwordKit.Core.ResourcesManagement
 {
     public class ResourceRequestAsync : MonoBehaviour
     {

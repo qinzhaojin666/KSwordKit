@@ -11,7 +11,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IResourcesRequest
+namespace KSwordKit.Core.ResourcesManagement
 {
-    
+    public class ResourcesRequestAsyncOperation : AsyncOperation
+    {
+
+    }
+    public class ResourcesRequestAsyncOperation<T> : AsyncOperation where T: UnityEngine.Object
+    {
+
+    }
+
 }
+
