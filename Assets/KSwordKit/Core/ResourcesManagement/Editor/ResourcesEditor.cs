@@ -29,8 +29,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// 如果选中的是文件夹，则递归子目录，且每个目录单独打包，以经过转换后的相对路径命名目录内的所有文件
         /// 如果选中的是场景，则所有场景被单独打包，场景以经过转换后的相对路径命名
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/设置资源包名", false, 10)]
-        [MenuItem("KSwordKit/资源打包/设置资源包名", false, 10)]
+        [MenuItem("Assets/KSwordKit/资源打包/设置资源包名", false, -10)]
+        [MenuItem("KSwordKit/资源打包/设置资源包名", false, -10)]
         public static void ResourcesSetNames()
         {
             EditorUtility.DisplayProgressBar("正在设置资源包名...", "等待程序执行..", 0);
@@ -89,8 +89,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// 按当前目标平台生成AssetBundle
         /// 如果有被选中的文件或文件夹，则对被选中的对象进行打包（如果已被AssetBundleName 有值）。
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源包", false, 30)]
-        [MenuItem("KSwordKit/资源打包/生成资源包", false, 30)]
+        [MenuItem("Assets/KSwordKit/资源打包/生成资源包", false, 10)]
+        [MenuItem("KSwordKit/资源打包/生成资源包", false, 10)]
         public static void AssetBundleBuildAll()
         {
             EditorUtility.DisplayProgressBar("正在生成资源包..", "程序执行中...", 0);
@@ -161,8 +161,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 生成资源清单
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源清单", false, 30)]
-        [MenuItem("KSwordKit/资源打包/生成资源清单", false, 30)]
+        [MenuItem("Assets/KSwordKit/资源打包/生成资源清单", false, 10)]
+        [MenuItem("KSwordKit/资源打包/生成资源清单", false, 10)]
         public static void GenResourceList()
         {
             EditorUtility.DisplayProgressBar("正在生成资源清单..", "程序执行中...", 0);
@@ -187,8 +187,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 按当前目标平台生成资源包和资源清单
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源包和资源清单", false, 30)]
-        [MenuItem("KSwordKit/资源打包/生成资源包和资源清单", false, 30)]
+        [MenuItem("Assets/KSwordKit/资源打包/生成资源包和资源清单", false, 10)]
+        [MenuItem("KSwordKit/资源打包/生成资源包和资源清单", false, 10)]
         public static void BuildAllAndGenResourceList()
         {
             EditorUtility.DisplayProgressBar("正在生成资源包和资源清单..", "程序执行中...", 0);
@@ -212,8 +212,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 拷贝资源包到StreamingAssets中
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/拷贝到 StreamingAssets", false, 50)]
-        [MenuItem("KSwordKit/资源打包/拷贝到 StreamingAssets", false, 50)]
+        [MenuItem("Assets/KSwordKit/资源打包/拷贝到 StreamingAssets", false, 70)]
+        [MenuItem("KSwordKit/资源打包/拷贝到 StreamingAssets", false, 70)]
         static void CopyResourcesToStreamingAssets()
         {
             EditorUtility.DisplayProgressBar("正在拷贝到 StreamingAssets..", "程序执行中...", 0);
@@ -236,8 +236,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 清理资源包名
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/清理资源包名", false, 70)]
-        [MenuItem("KSwordKit/资源打包/清理资源包名", false, 70)]
+        [MenuItem("Assets/KSwordKit/资源打包/清理资源包名")]
+        [MenuItem("KSwordKit/资源打包/清理资源包名")]
         public static void AssetBundlesCleanUpAssetBundleName()
         {            
             EditorUtility.DisplayProgressBar("正在清除资源包名...", "等待程序执行..", 0);

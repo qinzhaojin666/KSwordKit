@@ -14,38 +14,84 @@ using UnityEngine.Playables;
 
 namespace KSwordKit.Core.ResourcesManagement
 {
-    public class ResourcesRequestAsyncOperation : CustomYieldInstruction
+    public class ResourcesRequestAsyncOperation
     {
-        public ResourcesRequestAsyncOperation(string path)
-        {
-            
-        }
+        protected string _resourcePath;
+        /// <summary>
+        /// 加载的资源路径
+        /// </summary>
+        public string resourcePath { get { return _resourcePath; } }
+        protected bool _isdone;
+        /// <summary>
+        /// 指示异步操作是否完成
+        /// </summary>
+        public bool isDone { get { return _isdone; } }
+        protected float _progress;
+        /// <summary>
+        /// 指示异步操作的进度
+        /// </summary>
+        public float progress { get { return _progress; } }
+        protected bool _allowSceneActivation;
+        /// <summary>
+        /// 当加载的资源是场景时，指示是否在场景加载完毕后激活场景
+        /// </summary>
+        public bool allowSceneActivation { get; set; }
+        protected string _error = null;
+        /// <summary>
+        /// 错误信息
+        /// </summary>
+        public string error { get { return _error; } }
+        protected UnityEngine.Object _asset;
+        /// <summary>
+        /// 加载到的资源
+        /// </summary>
+        public UnityEngine.Object asset;
+        protected UnityEngine.Object[] _assets;
+        /// <summary>
+        /// 加载到的所有资源
+        /// </summary>
+        public UnityEngine.Object[] assets;
 
-        public override bool keepWaiting
-        {
-            get
-            {
-                return true;
-            }
-        }
     }
 
 
-    public class ResourcesRequestAsyncOperation<T> : CustomYieldInstruction where T: UnityEngine.Object
+    public class ResourcesRequestAsyncOperation<T> where T: UnityEngine.Object
     {
-        public ResourcesRequestAsyncOperation(string path)
-        {
-
-        }
-
-        public override bool keepWaiting
-        {
-            get
-            {
-                return true;
-            }
-        }
+        protected string _resourcePath;
+        /// <summary>
+        /// 加载的资源路径
+        /// </summary>
+        public string resourcePath { get { return _resourcePath; } }
+        protected bool _isdone;
+        /// <summary>
+        /// 指示异步操作是否完成
+        /// </summary>
+        public bool isDone { get { return _isdone; } }
+        protected float _progress;
+        /// <summary>
+        /// 指示异步操作的进度
+        /// </summary>
+        public float progress { get { return _progress; } }
+        protected bool _allowSceneActivation;
+        /// <summary>
+        /// 当加载的资源是场景时，指示是否在场景加载完毕后激活场景
+        /// </summary>
+        public bool allowSceneActivation { get; set; }
+        protected string _error = null;
+        /// <summary>
+        /// 错误信息
+        /// </summary>
+        public string error { get { return _error; } }
+        protected T _asset;
+        /// <summary>
+        /// 加载到的资源
+        /// </summary>
+        public T asset;
+        protected T[] _assets;
+        /// <summary>
+        /// 加载到的所有资源
+        /// </summary>
+        public T[] assets;
     }
-
 }
 

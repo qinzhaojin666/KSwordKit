@@ -38,13 +38,13 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="assetPaths">资源路径</param>
         /// <returns>资源加载结果； 加载成功，返回资源对象； 如果加载出错，返回 null</returns>
         UnityEngine.Object Load(params string[] assetPaths);
-        T Load<T>(params string[] assetPaths);
+        T Load<T>(params string[] assetPaths) where T : UnityEngine.Object;
 
         UnityEngine.Object Load(string[] assetPaths, ref string error);
-        T Load<T>(string[] assetPaths, ref string error);
+        T Load<T>(string[] assetPaths, ref string error) where T : UnityEngine.Object;
 
         UnityEngine.Object Load(string assetPaths, ref string error);
-        T Load<T>(string assetPaths, ref string error);
+        T Load<T>(string assetPaths, ref string error) where T : UnityEngine.Object;
     }
 }
 

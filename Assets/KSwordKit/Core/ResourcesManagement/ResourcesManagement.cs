@@ -44,7 +44,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 assetPasth = assetPasth.Substring(7);
             else if(assetPasth.StartsWith("/Assets/"))
                 assetPasth = assetPasth.Substring(8);
-
+            
             assetPasth = assetPasth.Replace('\\', '/');
             assetPasth = assetPasth.Replace("/", "__");
             assetPasth = assetPasth.Replace('.', '_');
