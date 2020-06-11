@@ -37,7 +37,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             try{
                 var watch = watchIt(()=>{
                     AssetDatabase.RemoveUnusedAssetBundleNames();
-
+                  
                     var filepaths = new List<string>();
                     var selectionObjects = Selection.objects;
                     foreach(var o in selectionObjects)
