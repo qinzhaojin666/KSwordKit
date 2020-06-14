@@ -21,148 +21,86 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// 用于AssetBundle输出位置
         /// </summary>
         public const string AssetBundles = "AssetBundles";
-        public const string ResourcesFileName = "resourcesfile.csv";
-
-        /// <summary>
-        /// 设置资源包名
-        /// 如果选中的是文件，则以该文件的经过转换后的相对路径命名该文件
-        /// 如果选中的是文件夹，则递归子目录，且每个目录单独打包，以经过转换后的相对路径命名目录内的所有文件
-        /// 如果选中的是场景，则所有场景被单独打包，场景以经过转换后的相对路径命名
-        /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/设置资源包名", false, -10)]
-        [MenuItem("KSwordKit/资源打包/设置资源包名", false, -10)]
-        public static void ResourcesSetNames()
-        {
-            EditorUtility.DisplayProgressBar("正在设置资源包名...", "等待程序执行..", 0);
-            try{
-                var watch = watchIt(()=>{
-                    AssetDatabase.RemoveUnusedAssetBundleNames();
-                  
-                    var filepaths = new List<string>();
-                    var selectionObjects = Selection.objects;
-                    foreach(var o in selectionObjects)
-                    {
-                        var path = AssetDatabase.GetAssetPath(o);
-                        if(System.IO.File.Exists(path))
-                        {
-                            setABNameByFile(ResourcesManagement.ConvertAssetPathToAssetBundleName(path), path);
-                            filepaths.Add(path);
-                        }
-                    }
-
-                    var dirpaths = new List<string>();
-                    var objects = Selection.GetFiltered(typeof(Object), SelectionMode.DeepAssets);
-                    foreach(var o in objects)
-                    {                    
-                        var path = AssetDatabase.GetAssetPath(o);
-                        if(filepaths.Contains(path))
-                            continue;
-                        if(System.IO.File.Exists(path))
-                        {
-                            var fileinfo = new System.IO.FileInfo(path);
-                            if(dirpaths.Contains(fileinfo.Directory.FullName))
-                                continue;
-
-                            dirpaths.Add(fileinfo.Directory.FullName);
-                            foreach(var file in fileinfo.Directory.GetFiles())
-                            {
-                                var _filepath = "Assets" +  file.FullName.Substring(Application.dataPath.Length);
-                                if(filepaths.Contains(_filepath))
-                                    continue;
-                                setABNameByFile(ResourcesManagement.ConvertAssetPathToAssetBundleName(fileinfo.Directory.FullName), _filepath);
-                            }
-                        }
-                    }
-                    AssetDatabase.Refresh();
-                });
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/设置资源包名 -> 完成! (" + watch.ElapsedMilliseconds + "ms)");
-            }
-            catch(System.Exception e)
-            {
-                UnityEngine.Debug.LogError(e.Message);
-            }
-
-            EditorUtility.ClearProgressBar();
-        }
+        public const string ResourcesFileName = "resourceslist.csv";
 
         /// <summary>
         /// 按当前目标平台生成AssetBundle
         /// 如果有被选中的文件或文件夹，则对被选中的对象进行打包（如果已被AssetBundleName 有值）。
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源包", false, 10)]
-        [MenuItem("KSwordKit/资源打包/生成资源包", false, 10)]
-        public static void AssetBundleBuildAll()
-        {
-            EditorUtility.DisplayProgressBar("正在生成资源包..", "程序执行中...", 0);
+        //[MenuItem("Assets/KSwordKit/资源管理/生成资源包", false, 10)]
+        //[MenuItem("KSwordKit/资源管理/生成资源包", false, 10)]
+        //public static void AssetBundleBuildAll()
+        //{
+        //    EditorUtility.DisplayProgressBar("正在生成资源包..", "程序执行中...", 0);
 
-            try{
+        //    try{
 
-                var watch = watchIt(()=>{
-                    var outputPath = assetBundleOutputDirectory();
-                    if(Selection.objects.Length == 0){
+        //        var watch = watchIt(()=>{
+        //            var outputPath = assetBundleOutputDirectory();
+        //            if(Selection.objects.Length == 0){
                         
-                        BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-                        EditorUtility.DisplayProgressBar("正在生成资源包..", "准备写入资源清单...", 0);
+        //                BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+        //                EditorUtility.DisplayProgressBar("正在生成资源包..", "准备写入资源清单...", 0);
 
-                    }else{
+        //            }else{
 
-                        var objects = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets);
-                        Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-                        foreach(var o in objects)
-                        {
-                            var path = AssetDatabase.GetAssetPath(o);
-                            if (System.IO.File.Exists(path))
-                            {
-                                AssetImporter assetImporter = AssetImporter.GetAtPath(path);
-                                if (string.IsNullOrEmpty(assetImporter.assetBundleName))
-                                    continue;
-                                if (dic.ContainsKey(assetImporter.assetBundleName))
-                                {
-                                    dic[assetImporter.assetBundleName].Add(path);
-                                }
-                                else
-                                {
-                                    var list = new List<string>();
-                                    list.Add(path);
-                                    dic[assetImporter.assetBundleName] = list;
-                                }
-                            }
-                        }
+        //                var objects = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets);
+        //                Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+        //                foreach(var o in objects)
+        //                {
+        //                    var path = AssetDatabase.GetAssetPath(o);
+        //                    if (System.IO.File.Exists(path))
+        //                    {
+        //                        AssetImporter assetImporter = AssetImporter.GetAtPath(path);
+        //                        if (string.IsNullOrEmpty(assetImporter.assetBundleName))
+        //                            continue;
+        //                        if (dic.ContainsKey(assetImporter.assetBundleName))
+        //                        {
+        //                            dic[assetImporter.assetBundleName].Add(path);
+        //                        }
+        //                        else
+        //                        {
+        //                            var list = new List<string>();
+        //                            list.Add(path);
+        //                            dic[assetImporter.assetBundleName] = list;
+        //                        }
+        //                    }
+        //                }
 
-                        if(dic.Count != 0)
-                        {
-                            var map = new List<AssetBundleBuild>();
+        //                if(dic.Count != 0)
+        //                {
+        //                    var map = new List<AssetBundleBuild>();
 
-                            foreach(var kv in dic)
-                            {
-                                var build = new AssetBundleBuild();
-                                build.assetBundleName = kv.Key;
-                                build.assetNames = kv.Value.ToArray();
-                                map.Add(build);
-                            }
+        //                    foreach(var kv in dic)
+        //                    {
+        //                        var build = new AssetBundleBuild();
+        //                        build.assetBundleName = kv.Key;
+        //                        build.assetNames = kv.Value.ToArray();
+        //                        map.Add(build);
+        //                    }
 
-                            BuildPipeline.BuildAssetBundles(outputPath, map.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-                        }
+        //                    BuildPipeline.BuildAssetBundles(outputPath, map.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+        //                }
                         
-                        EditorUtility.DisplayProgressBar("正在生成资源包..", "准备写入资源清单...", 0);
-                    }
-                });
-                AssetDatabase.Refresh();
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/生成资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
-            }
-            catch(System.Exception e)
-            {
-                UnityEngine.Debug.LogError(e.Message);
-            }
+        //                EditorUtility.DisplayProgressBar("正在生成资源包..", "准备写入资源清单...", 0);
+        //            }
+        //        });
+        //        AssetDatabase.Refresh();
+        //        UnityEngine.Debug.Log("KSwordKit: 资源管理/生成资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+        //    }
+        //    catch(System.Exception e)
+        //    {
+        //        UnityEngine.Debug.LogError(e.Message);
+        //    }
 
-            EditorUtility.ClearProgressBar();
-        }
+        //    EditorUtility.ClearProgressBar();
+        //}
 
         /// <summary>
         /// 生成资源清单
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源清单", false, 10)]
-        [MenuItem("KSwordKit/资源打包/生成资源清单", false, 10)]
+        [MenuItem("Assets/KSwordKit/资源管理/生成资源清单", false, 10)]
+        [MenuItem("KSwordKit/资源管理/生成资源清单", false, 10)]
         public static void GenResourceList()
         {
             EditorUtility.DisplayProgressBar("正在生成资源清单..", "程序执行中...", 0);
@@ -175,7 +113,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     writeResourceListFile(resourceListfilePath);
                 });
                 AssetDatabase.Refresh();
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/生成资源清单 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/生成资源清单 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
             }
             catch(System.Exception e)
             {
@@ -187,18 +125,18 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 按当前目标平台生成资源包和资源清单
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/生成资源包和资源清单", false, 10)]
-        [MenuItem("KSwordKit/资源打包/生成资源包和资源清单", false, 10)]
+        [MenuItem("Assets/KSwordKit/资源管理/生成资源包和资源清单", false, 10)]
+        [MenuItem("KSwordKit/资源管理/生成资源包和资源清单", false, 10)]
         public static void BuildAllAndGenResourceList()
         {
             EditorUtility.DisplayProgressBar("正在生成资源包和资源清单..", "程序执行中...", 0);
 
             try{
                 var watch = watchIt(()=>{
-                    AssetBundleBuildAll();
+                    //AssetBundleBuildAll();
                     GenResourceList();
                 });
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/生成资源包和资源清单 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/生成资源包和资源清单 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
             }
             catch(System.Exception e)
             {
@@ -212,8 +150,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 拷贝资源包到StreamingAssets中
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/拷贝到 StreamingAssets", false, 70)]
-        [MenuItem("KSwordKit/资源打包/拷贝到 StreamingAssets", false, 70)]
+        [MenuItem("Assets/KSwordKit/资源管理/拷贝到 StreamingAssets", false, 70)]
+        [MenuItem("KSwordKit/资源管理/拷贝到 StreamingAssets", false, 70)]
         static void CopyResourcesToStreamingAssets()
         {
             EditorUtility.DisplayProgressBar("正在拷贝到 StreamingAssets..", "程序执行中...", 0);
@@ -224,7 +162,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     CopyFolder(assetBundleOutputDirectory(), asssetBundleStreamingAssetsDirctory());
                     AssetDatabase.Refresh();
                 });
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/拷贝到 StreamingAssets -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/拷贝到 StreamingAssets -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
             }
             catch(System.Exception e){
                 UnityEngine.Debug.LogError(e.Message);
@@ -234,58 +172,10 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         }
 
         /// <summary>
-        /// 清理资源包名
-        /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/清理资源包名")]
-        [MenuItem("KSwordKit/资源打包/清理资源包名")]
-        public static void AssetBundlesCleanUpAssetBundleName()
-        {            
-            EditorUtility.DisplayProgressBar("正在清除资源包名...", "等待程序执行..", 0);
-            try{
-                var watch = watchIt(() => {
-                    var objects = Selection.GetFiltered(typeof(Object), SelectionMode.DeepAssets);
-                    if(objects.Length  == 0)
-                    {
-                        AssetDatabase.RemoveUnusedAssetBundleNames();
-                        string[] allAssetBundleNames = AssetDatabase.GetAllAssetBundleNames();
-                        for (int i = 0; i < allAssetBundleNames.Length; i++)
-                        {
-                            string text = allAssetBundleNames[i];
-                            AssetDatabase.RemoveAssetBundleName(text, true);
-                        }
-                        abNameDic.Clear();
-                    }
-                    foreach(var o in objects)
-                    {
-                        var path = AssetDatabase.GetAssetPath(o);
-                        EditorUtility.DisplayProgressBar("正在清除资源包名...", "正在处理："+ path, Random.Range(0f,1));
-                        if (System.IO.Directory.Exists(path))
-                            continue;
-                        AssetImporter assetImporter = AssetImporter.GetAtPath(path);  //得到Asset
-                        if (assetImporter != null && assetImporter.assetBundleName != null && assetImporter.assetBundleName != string.Empty)
-                        {
-                            if(abNameDic.ContainsKey(path))
-                                abNameDic.Remove(path);
-                            assetImporter.assetBundleName = null;
-                        }
-                    }
-                    AssetDatabase.Refresh();
-                });
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/清除资源包名 -> 完成! (" + watch.ElapsedMilliseconds + "ms)");
-            }
-            catch(System.Exception e)
-            {
-                UnityEngine.Debug.LogError(e.Message);
-            }
-            EditorUtility.ClearProgressBar();
-        }
-
-
-        /// <summary>
         /// 清理清理资源包
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/清理资源包")]
-        [MenuItem("KSwordKit/资源打包/清理资源包")]
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源包")]
+        [MenuItem("KSwordKit/资源管理/清理资源包")]
         public static void AssetBundleCleanUpAssetBundles()
         {
             EditorUtility.DisplayProgressBar("正在清理资源包..", "程序执行中...", 0);
@@ -298,7 +188,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                         FileUtil.DeleteFileOrDirectory(outputPath);
                 });
                 AssetDatabase.Refresh();
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/清理资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
             }
             catch(System.Exception e){
@@ -310,8 +200,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 清理StreamingAssets文件夹
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/清理StreamingAssets中正使用的资源包")]
-        [MenuItem("KSwordKit/资源打包/清理StreamingAssets中正使用的资源包")]
+        [MenuItem("Assets/KSwordKit/资源管理/清理StreamingAssets中正使用的资源包")]
+        [MenuItem("KSwordKit/资源管理/清理StreamingAssets中正使用的资源包")]
         public static void AssetBundleCleanUpStreamingAssets()
         {
             EditorUtility.DisplayProgressBar("正在清理StreamingAssets中正使用的资源包..", "程序执行中...", 0);
@@ -327,7 +217,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                         FileUtil.DeleteFileOrDirectory(metapath);
                 });
                 AssetDatabase.Refresh();
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/清理StreamingAssets中正使用的资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理StreamingAssets中正使用的资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
             }
             catch(System.Exception e){
@@ -340,8 +230,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 清理资源包和treamingAssets文件夹
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源打包/清理资源包和StreamingAssets文件夹")]
-        [MenuItem("KSwordKit/资源打包/清理资源包和StreamingAssets文件夹")]
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源包和StreamingAssets文件夹")]
+        [MenuItem("KSwordKit/资源管理/清理资源包和StreamingAssets文件夹")]
         public static void AssetBundleCleanUpAssetBundlesAndStreamingAssets()
         {
             EditorUtility.DisplayProgressBar("正在清理资源包和treamingAssets文件夹..", "程序执行中...", 0);
@@ -351,7 +241,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     AssetBundleCleanUpStreamingAssets();
                 });
 
-                UnityEngine.Debug.Log("KSwordKit: 资源打包/清理资源包和treamingAssets文件夹 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包和treamingAssets文件夹 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
             }
             catch(System.Exception e){
                 UnityEngine.Debug.LogError(e.Message);
