@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 4114293575
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 705ec322f202c912bed2e662f023f1c0
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Examples/ResourcesManagement/Resources/texture/\u8FDB\u5EA6\u6761/lod-2.png"
+- "Assets/Examples/ResourcesManagement/Resources/texture/\u8FDB\u5EA6\u6761/lod-1.png"
+Dependencies: []

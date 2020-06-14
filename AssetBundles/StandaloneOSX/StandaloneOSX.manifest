@@ -1,0 +1,20 @@
+ManifestFileVersion: 0
+CRC: 2107946621
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: "examples__resourcesmanagement__resources__texture__\u6309\u94AE"
+      Dependencies: {}
+    Info_1:
+      Name: "examples__resourcesmanagement__resources__texture__\u4E2A\u4EBA\u4FE1\u606F"
+      Dependencies: {}
+    Info_2:
+      Name: "examples__resourcesmanagement__resources__texture__\u80CC\u666F"
+      Dependencies: {}
+    Info_3:
+      Name: "examples__resourcesmanagement__resources__texture__\u8FDB\u5EA6\u6761"
+      Dependencies: {}
+    Info_4:
+      Name: examples__resourcesmanagement__resources__prefabs
+      Dependencies:
+        Dependency_0: "examples__resourcesmanagement__resources__texture__\u6309\u94AE"

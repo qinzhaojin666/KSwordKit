@@ -1,0 +1,20 @@
+ManifestFileVersion: 0
+CRC: 1036767694
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: b5e453e4dc091c5e65e8bcb6a91547f1
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Examples/ResourcesManagement/Resources/texture/\u80CC\u666F/\u80CC\u666F\u5149\u6548.png"
+- "Assets/Examples/ResourcesManagement/Resources/texture/\u80CC\u666F/\u6D77\u5929\u80CC\u666F.png"
+- "Assets/Examples/ResourcesManagement/Resources/texture/\u80CC\u666F/\u6269\u5F20\u80CC\u666F.png"
+Dependencies: []
