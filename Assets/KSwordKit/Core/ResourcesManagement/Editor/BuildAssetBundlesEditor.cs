@@ -166,7 +166,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             }
             sw.WriteLine("ResourcesPath,AssetBundleName,AssetBundleVariant,ObjectName,ObjectExtensionName");
 
-
+            
             EditorUtility.DisplayProgressBar("正在生成资源包", "生成资源清单: 正在写入数据...", 0.2f);
 
             var outputdirpath = assetBundleOutputDirectory();
