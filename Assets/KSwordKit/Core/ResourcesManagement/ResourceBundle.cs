@@ -16,7 +16,7 @@ namespace KSwordKit.Core.ResourcesManagement
     /// <summary>
     /// 资源包数据结构
     /// </summary>
-    public class AssetBundle
+    public class ResourceBundle
     {
         /// <summary>
         /// 资源文件序列化版本号
@@ -51,6 +51,6 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <summary>
         /// 资源包对象
         /// </summary>
-        public UnityEngine.AssetBundle ABObject = null;
+        public AssetBundle AssetBundle = null;
     }
 }
