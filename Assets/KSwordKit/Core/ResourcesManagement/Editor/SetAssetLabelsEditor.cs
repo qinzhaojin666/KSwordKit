@@ -250,6 +250,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             //UnityEngine.Debug.Log(KSwordKitName + ": 待处理包名：" + abName + " 文件路径：" + assetFilePath);
             AssetImporter assetImporter = AssetImporter.GetAtPath(assetFilePath);  //得到Asset
             assetImporter.assetBundleName = abName;    //最终设置assetBundleName
+            assetImporter.assetBundleVariant = null;
 
             // if(ext.StartsWith("."))
             //     ext = "._" + ext.Substring(1);

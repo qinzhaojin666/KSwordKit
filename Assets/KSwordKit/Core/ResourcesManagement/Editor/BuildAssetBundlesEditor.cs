@@ -131,22 +131,23 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// </summary>
         public static void GenResourceList()
         {
-            //EditorUtility.DisplayProgressBar("生成资源包", "生成资源清单...", 0);
+            EditorUtility.DisplayProgressBar("生成资源包", "生成资源清单...", 0);
 
-            //try
-            //{
-            //    var watch = Watch.Do(() => {
-            //        var outputPath = assetBundleOutputDirectory();
-            //        var resourceListfilePath = System.IO.Path.Combine(outputPath, ResourcesFileName);
-            //        writeResourceListFile(resourceListfilePath);
-            //    });
-            //}
-            //catch (System.Exception e)
-            //{
-            //    UnityEngine.Debug.LogError(e.Message);
-            //}
+            try
+            {
+                var watch = Watch.Do(() =>
+                {
+                    var outputPath = assetBundleOutputDirectory();
+                    var resourceListfilePath = System.IO.Path.Combine(outputPath, ResourcesFileName);
+                    writeResourceListFile(resourceListfilePath);
+                });
+            }
+            catch (System.Exception e)
+            {
+                UnityEngine.Debug.LogError(e.Message);
+            }
 
-            //EditorUtility.ClearProgressBar();
+            EditorUtility.ClearProgressBar();
         }
 
         static void writeResourceListFile(string filepath)
@@ -168,46 +169,59 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             EditorUtility.DisplayProgressBar("正在生成资源包", "生成资源清单: 正在写入数据...", 0.2f);
 
+            var outputdirpath = assetBundleOutputDirectory();
 
-
-            foreach (var file in new System.IO.DirectoryInfo(assetBundleOutputDirectory()).GetFiles())
+            var ab = AssetBundle.LoadFromFile(System.IO.Path.Combine(outputdirpath, ResourceRootDirectoryName));
+            var abmainifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+            foreach(var name in abmainifest.GetAllAssetBundles())
             {
-                if (System.IO.Path.GetExtension(file.FullName) == ".manifest")
-                    continue;
-                if (System.IO.Path.GetFileName(file.FullName) == ResourcesFileName)
-                    continue;
-                var ab = AssetBundle.LoadFromFile(file.FullName);
-                if (ab.isStreamedSceneAssetBundle)
+                Debug.Log("资源名称："+name);
+                foreach(var dep in abmainifest.GetAllDependencies(name))
                 {
-                    var allassets = ab.GetAllScenePaths();
-                    foreach (var p in allassets)
-                    {
-                        EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + p, Random.Range(0f, 1));
-
-                        var ex = System.IO.Path.GetExtension(p);
-                        if (ex.StartsWith("."))
-                            ex = ex.Substring(1);
-                        sw.WriteLine(p + "," + file.Name + "," + ex);
-                    }
-
+                    Debug.Log("依赖: " + dep);
                 }
-                else
-                {
-                    var allassets = ab.GetAllAssetNames();
-                    foreach (var o in allassets)
-                    {
-                        EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + o, Random.Range(0f, 1));
-
-                        var ex = System.IO.Path.GetExtension(o);
-                        if (ex.StartsWith("."))
-                            ex = ex.Substring(1);
-                        sw.WriteLine(o + "," + file.Name + "," + ex);
-                    }
-                }
-
-                ab.Unload(true);
             }
 
+            ab.Unload(true);
+
+            //foreach (var file in new System.IO.DirectoryInfo(assetBundleOutputDirectory()).GetFiles())
+            //{
+            //    if (System.IO.Path.GetExtension(file.FullName) == ".manifest")
+            //        continue;
+            //    if (System.IO.Path.GetFileName(file.FullName) == ResourcesFileName)
+            //        continue;
+            //    ab = AssetBundle.LoadFromFile(file.FullName);
+            //    if (ab.isStreamedSceneAssetBundle)
+            //    {
+            //        var allassets = ab.GetAllScenePaths();
+            //        foreach (var p in allassets)
+            //        {
+            //            EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + p, Random.Range(0f, 1));
+
+            //            var ex = System.IO.Path.GetExtension(p);
+            //            if (ex.StartsWith("."))
+            //                ex = ex.Substring(1);
+            //            sw.WriteLine(p + "," + file.Name + "," + ex);
+            //        }
+
+            //    }
+            //    else
+            //    {
+            //        var allassets = ab.GetAllAssetNames();
+            //        foreach (var o in allassets)
+            //        {
+            //            EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + o, Random.Range(0f, 1));
+
+            //            var ex = System.IO.Path.GetExtension(o);
+            //            if (ex.StartsWith("."))
+            //                ex = ex.Substring(1);
+            //            sw.WriteLine(o + "," + file.Name + "," + ex);
+            //        }
+            //    }
+
+            //    ab.Unload(true);
+            //}
+            
             sw.Close();
             EditorUtility.DisplayProgressBar("正在生成资源包", "资源清单已生成！", 1f);
         }
