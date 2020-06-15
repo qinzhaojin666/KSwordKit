@@ -14,12 +14,16 @@ using UnityEditor;
 
 namespace KSwordKit.Core.ResourcesManagement.Editor
 {
-	public class BuildAssetBundlesEditor
-	{
+    public class BuildAssetBundlesEditor
+    {
         /// <summary>
         /// 用于AssetBundle输出位置
         /// </summary>
         public const string AssetBundles = "AssetBundles";
+        /// <summary>
+        /// 资源根文件夹名
+        /// </summary>
+        public const string ResourceRootDirectoryName = "resources";
         /// <summary>
         /// 资源清单文件名
         /// </summary>
@@ -41,14 +45,12 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             try
             {
-
                 var watch = Watch.Do(() => {
                     var outputPath = assetBundleOutputDirectory();
                     if (Selection.objects.Length == 0)
                     {
-
                         BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-                        EditorUtility.DisplayProgressBar("生成资源包", "生成资源清单...", 0);
+                        GenResourceList();
                     }
                     else
                     {
@@ -80,20 +82,24 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                         if (dic.Count != 0)
                         {
                             var map = new List<AssetBundleBuild>();
-
                             foreach (var kv in dic)
                             {
                                 var build = new AssetBundleBuild();
                                 build.assetBundleName = kv.Key;
                                 build.assetNames = kv.Value.ToArray();
-                                
+
                                 map.Add(build);
                             }
 
                             BuildPipeline.BuildAssetBundles(outputPath, map.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+
+                            GenResourceList();
+                        }
+                        else
+                        {
+                            Debug.LogWarning(KSwordKitName + ": 您选中了一些资源对象，但是都不可用！请检查它们的资源标签是否设置妥当。");
                         }
 
-                        EditorUtility.DisplayProgressBar("生成资源包", "生成资源清单...", 0);
                     }
                 });
                 AssetDatabase.Refresh();
@@ -114,9 +120,96 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         public static string assetBundleOutputDirectory()
         {
             var outputPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+            outputPath = System.IO.Path.Combine(outputPath, ResourceRootDirectoryName);
             if (!System.IO.Directory.Exists(outputPath))
                 System.IO.Directory.CreateDirectory(outputPath);
             return outputPath;
+        }
+
+        /// <summary>
+        /// 生成资源清单
+        /// </summary>
+        public static void GenResourceList()
+        {
+            //EditorUtility.DisplayProgressBar("生成资源包", "生成资源清单...", 0);
+
+            //try
+            //{
+            //    var watch = Watch.Do(() => {
+            //        var outputPath = assetBundleOutputDirectory();
+            //        var resourceListfilePath = System.IO.Path.Combine(outputPath, ResourcesFileName);
+            //        writeResourceListFile(resourceListfilePath);
+            //    });
+            //}
+            //catch (System.Exception e)
+            //{
+            //    UnityEngine.Debug.LogError(e.Message);
+            //}
+
+            //EditorUtility.ClearProgressBar();
+        }
+
+        static void writeResourceListFile(string filepath)
+        {
+
+            EditorUtility.DisplayProgressBar("正在生成资源包", "生成资源清单: 准备写入数据...", 0.1f);
+
+            System.IO.StreamWriter sw = null;
+            if (!System.IO.File.Exists(filepath))
+            {
+                sw = System.IO.File.CreateText(filepath);
+            }
+            else
+            {
+                sw = new System.IO.StreamWriter(filepath, false);
+            }
+            sw.WriteLine("ResourcesPath,AssetBundleName,AssetBundleVariant,ObjectName,ObjectExtensionName");
+
+
+            EditorUtility.DisplayProgressBar("正在生成资源包", "生成资源清单: 正在写入数据...", 0.2f);
+
+
+
+            foreach (var file in new System.IO.DirectoryInfo(assetBundleOutputDirectory()).GetFiles())
+            {
+                if (System.IO.Path.GetExtension(file.FullName) == ".manifest")
+                    continue;
+                if (System.IO.Path.GetFileName(file.FullName) == ResourcesFileName)
+                    continue;
+                var ab = AssetBundle.LoadFromFile(file.FullName);
+                if (ab.isStreamedSceneAssetBundle)
+                {
+                    var allassets = ab.GetAllScenePaths();
+                    foreach (var p in allassets)
+                    {
+                        EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + p, Random.Range(0f, 1));
+
+                        var ex = System.IO.Path.GetExtension(p);
+                        if (ex.StartsWith("."))
+                            ex = ex.Substring(1);
+                        sw.WriteLine(p + "," + file.Name + "," + ex);
+                    }
+
+                }
+                else
+                {
+                    var allassets = ab.GetAllAssetNames();
+                    foreach (var o in allassets)
+                    {
+                        EditorUtility.DisplayProgressBar("正在生成资源包..", "添加：" + o, Random.Range(0f, 1));
+
+                        var ex = System.IO.Path.GetExtension(o);
+                        if (ex.StartsWith("."))
+                            ex = ex.Substring(1);
+                        sw.WriteLine(o + "," + file.Name + "," + ex);
+                    }
+                }
+
+                ab.Unload(true);
+            }
+
+            sw.Close();
+            EditorUtility.DisplayProgressBar("正在生成资源包", "资源清单已生成！", 1f);
         }
     }
 }

@@ -100,7 +100,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                                     //Debug.Log("文件: " + path + ", 上层目录：" + _path);
                                     if (System.IO.File.Exists(System.IO.Path.Combine(_path, AssetBundleRuleEditor.AssetBundleGeneratesRuleFileName)))
                                     {
-                                        abname = ConvertAssetPathToAssetBundleName(_path);
+                                        abname = ConvertAssetPathToAssetBundleName(new System.IO.DirectoryInfo(_path).FullName);
                                         //Debug.Log("rule 文件存在：" + _path +", 标签："+ abname);
                                         break;
                                     }
