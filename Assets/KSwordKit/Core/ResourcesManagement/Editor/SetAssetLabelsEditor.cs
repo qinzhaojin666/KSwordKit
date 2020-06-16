@@ -263,8 +263,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
 
 
-        [MenuItem("Assets/KSwordKit/资源管理/清理资源标签🏷")]
-        [MenuItem("KSwordKit/资源管理/清理资源标签🏷")]
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源标签🏷", false, 1001)]
+        [MenuItem("KSwordKit/资源管理/清理资源标签🏷", false, 1001)]
         public static void ClearAssetLabels()
         {
             if (!EditorUtility.DisplayDialog("是否要清理资源标签🏷 ？", "清理后无法恢复！", "确认清理", "取消操作"))

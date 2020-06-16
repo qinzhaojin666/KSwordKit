@@ -7,6 +7,7 @@
  *  CreateDate: 2020-6-15
  *  File Description: Ignore.
  *************************************************************************/
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace KSwordKit.Core.ResourcesManagement
     /// <summary>
     /// 一项资源的数据结构
     /// </summary>
+    [Serializable]
     public class ResourceItem
     {
         /// <summary>
@@ -46,6 +48,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <summary>
         /// 资源对象
         /// </summary>
+        [NonSerialized]
         public UnityEngine.Object ResourceObject = null;
 
     }

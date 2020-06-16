@@ -32,19 +32,19 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
 
 
-        [MenuItem("Assets/KSwordKit/资源管理/创建生成AssetBundle规则文件", false, -10)]
-        [MenuItem("KSwordKit/资源管理/创建生成AssetBundle规则文件", false, -10)]
+        [MenuItem("Assets/KSwordKit/资源管理/创建规则文件", false, -10)]
+        [MenuItem("KSwordKit/资源管理/创建规则文件", false, -10)]
         public static void SetMakeAllResourcesMerge()
         {
             var objects = Selection.objects;
             // 没有选中任何资源
             if (objects.Length == 0)
             {
-                UnityEngine.Debug.LogWarning(KSwordKitName + ": 未选中任何资源，无法创建生成AssetBundle规则文件！");
+                UnityEngine.Debug.LogWarning(KSwordKitName + ": 未选中任何资源，无法创建规则文件！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("创建生成AssetBundle规则文件", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("创建规则文件", "程序执行中...", 0);
             bool isError = false;
             var watch = Watch.Do(() => {
                 try
@@ -56,7 +56,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                         i++;
                         var path = AssetDatabase.GetAssetPath(_object);
 
-                        EditorUtility.DisplayProgressBar("创建生成AssetBundle规则文件", "正在处理：" + path, i / objects.Length);
+                        EditorUtility.DisplayProgressBar("创建规则文件", "正在处理：" + path, i / objects.Length);
 
                         if (System.IO.File.Exists(path))
                         {
@@ -87,21 +87,21 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/创建生成AssetBundle规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/创建规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
         }
 
 
-        [MenuItem("Assets/KSwordKit/资源管理/清理生成AssetBundle规则文件")]
-        [MenuItem("KSwordKit/资源管理/清理生成AssetBundle规则文件")]
+        [MenuItem("Assets/KSwordKit/资源管理/清理规则文件", false, 1000)]
+        [MenuItem("KSwordKit/资源管理/清理规则文件", false, 1000)]
         public static void ClearMakeAllResourcesMerge()
         {
             if (!EditorUtility.DisplayDialog("是否要清理 rule 文件？", "清理后无法恢复！", "确认清理", "取消操作"))
             {
-                Debug.Log(KSwordKitName + ": 资源管理/清理生成AssetBundle规则文件 -> 已取消！");
+                Debug.Log(KSwordKitName + ": 资源管理/清理规则文件 -> 已取消！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("清理生成AssetBundle规则文件", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("清理规则文件", "程序执行中...", 0);
             bool isError = false;
 
             var watch = Watch.Do(() => {
@@ -112,7 +112,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     if (objects.Length == 0)
                     {
                         eachFile(Application.dataPath, (dir) => {
-                            EditorUtility.DisplayProgressBar("清理生成AssetBundle规则文件", "正在处理：" + dir.Name, Random.Range(0f,1f));
+                            EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + dir.Name, Random.Range(0f,1f));
 
                             var rule = System.IO.Path.Combine(dir.FullName, AssetBundleGeneratesRuleFileName);
                             if (System.IO.File.Exists(rule))
@@ -131,7 +131,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             i++;
                             var path = AssetDatabase.GetAssetPath(_object);
 
-                            EditorUtility.DisplayProgressBar("清理生成AssetBundle规则文件", "正在处理：" + path, i / objects.Length);
+                            EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + path, i / objects.Length);
 
                             if (System.IO.File.Exists(path))
                             {
@@ -144,7 +144,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             else if (System.IO.Directory.Exists(path))
                             {
                                 eachFile(path, (dir) => {
-                                    EditorUtility.DisplayProgressBar("清理生成AssetBundle规则文件", "正在处理：" + dir.Name, Random.Range(0f, 1f));
+                                    EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + dir.Name, Random.Range(0f, 1f));
                                     var rule = System.IO.Path.Combine(dir.FullName, AssetBundleGeneratesRuleFileName);
                                     if (System.IO.File.Exists(rule))
                                         FileUtil.DeleteFileOrDirectory(rule);
@@ -167,7 +167,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/清理生成AssetBundle规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/清理规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
         }
         private static void eachFile(string dirPath = null, System.Action<System.IO.DirectoryInfo> action = null)
