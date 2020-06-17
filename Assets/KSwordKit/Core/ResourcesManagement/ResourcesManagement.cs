@@ -593,6 +593,7 @@ namespace KSwordKit.Core.ResourcesManagement
 
         /// <summary>
         /// 初始化资源管理器
+        /// <para>默认初始化方式，会从参数指示的位置，按照方法<see cref="GetResourceListFilePath"/>返回的路径进行加载。</para>
         /// </summary>
         /// <param name="resourcesLoadingLocation">加载资源的位置</param>
         public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation)
@@ -813,6 +814,9 @@ namespace KSwordKit.Core.ResourcesManagement
         }
         /// <summary>
         /// 获取资源清单路径
+        /// <para>在资源位置是<see cref="ResourcesLoadingLocation.RemotePath"/>或者<see cref="ResourcesLoadingLocation.PersistentDataPath"/> 都返回由 <see cref="Application.persistentDataPath"/>拼接而成路径</para>
+        /// <para>在资源位置是<see cref="ResourcesLoadingLocation.StreamingAssetsPath"/>时，则返回由 <see cref="Application.streamingAssetsPath"/> 拼接而成的路径</para>
+        /// <para>在资源位置是<see cref="ResourcesLoadingLocation.Resources"/>时，则默认返回由 资源包生成的位置 拼接而成的路径</para>
         /// </summary>
         /// <returns>资源清单路径</returns>
         public static string GetResourceListFilePath()
