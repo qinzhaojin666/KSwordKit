@@ -107,7 +107,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             var watch = Watch.Do(() => {
                 try
                 {
-                    var objects = Selection.GetFiltered<UnityEngine.Object>(SelectionMode.DeepAssets);
+                    var objects = Selection.objects;
                     // 没有选中任何资源
                     if (objects.Length == 0)
                     {
@@ -143,13 +143,16 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             }
                             else if (System.IO.Directory.Exists(path))
                             {
-                                EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + path, Random.Range(0f, 1f));
-                                var rule = System.IO.Path.Combine(path, AssetBundleGeneratesRuleFileName);
-                                if (System.IO.File.Exists(rule))
-                                    FileUtil.DeleteFileOrDirectory(rule);
-                                var rulemeta = rule + ".meta";
-                                if (System.IO.File.Exists(rulemeta))
-                                    FileUtil.DeleteFileOrDirectory(rulemeta);
+                                eachFile(path, (dirinfo) => {
+
+                                    EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + dirinfo.Name, Random.Range(0f, 1f));
+                                    var rule = System.IO.Path.Combine(dirinfo.FullName, AssetBundleGeneratesRuleFileName);
+                                    if (System.IO.File.Exists(rule))
+                                        FileUtil.DeleteFileOrDirectory(rule);
+                                    var rulemeta = rule + ".meta";
+                                    if (System.IO.File.Exists(rulemeta))
+                                        FileUtil.DeleteFileOrDirectory(rulemeta);
+                                });
                             }
                         }
                     }
@@ -174,6 +177,9 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 dirPath = Application.dataPath;
 
             var dir = new System.IO.DirectoryInfo(dirPath);
+            if (action != null)
+                action(dir);
+
             foreach (var _dir in dir.GetDirectories())
             {
                 if (action != null)

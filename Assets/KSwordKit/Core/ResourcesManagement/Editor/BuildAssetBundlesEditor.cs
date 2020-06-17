@@ -14,6 +14,7 @@ using UnityEditor;
 using System.Text;
 using System;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace KSwordKit.Core.ResourcesManagement.Editor
 {
@@ -153,7 +154,9 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             {
                 try
                 {
-                    var outputPath = assetBundleOutputDirectory();
+                    var outputPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    if (!System.IO.Directory.Exists(outputPath))
+                        System.IO.Directory.CreateDirectory(outputPath);
                     var resourceListfilePath = System.IO.Path.Combine(outputPath, ResourcesFileName);
                     writeResourceListFile(resourceListfilePath);
                 }
@@ -210,7 +213,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             var manifest = new ResourceBundleManifest();
             manifest.AssetBundleName = assetbundleName;
             manifest.IsMain = isMain;
-            manifest.AssetBundlePath = manifestPath.Replace('\\','/');
+            var assetbundlepath = manifestPath.Replace('\\', '/');
+            manifest.AssetBundlePath = assetbundlepath.Substring(0, assetbundlepath.Length - ".manifest".Length);
             bool isNewDependencyItem = false;
             bool isResourceItem = false;
 
@@ -339,13 +343,16 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             var watch = Watch.Do(() => {
                 try
                 {
-                    var outputPath = asssetBundleStreamingAssetsDirctory();
+                    var outputPath = System.IO.Path.Combine(Application.streamingAssetsPath, AssetBundles);
+                    outputPath = System.IO.Path.Combine(outputPath, EditorUserBuildSettings.activeBuildTarget.ToString());
                     if (System.IO.Directory.Exists(outputPath))
                         FileUtil.DeleteFileOrDirectory(outputPath);
                     var metapath = outputPath + ".meta";
                     if (System.IO.File.Exists(metapath))
                         FileUtil.DeleteFileOrDirectory(metapath);
-                    CopyFolder(assetBundleOutputDirectory(), asssetBundleStreamingAssetsDirctory());
+
+                    var sPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    CopyFolder(sPath, outputPath);
                     AssetDatabase.Refresh();
                 }
                 catch (System.Exception e)
@@ -382,6 +389,11 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     EditorUtility.DisplayProgressBar("拷贝资源包到 StreamingAssets", "正在拷贝：" + fName, UnityEngine.Random.Range(0f, 1));
                     System.IO.File.Copy(System.IO.Path.Combine(sourceDir, fName), System.IO.Path.Combine(destDir, fName), true);
                 }
+                foreach(var dir in System.IO.Directory.GetDirectories(sourceDir,"*"))
+                {
+                    CopyFolder(dir, System.IO.Path.Combine(destDir, dir.Substring(sourceDir.Length + 1)));
+                    //Debug.Log(dir + ", sourceDir="+sourceDir);
+                }
             }
             catch (System.IO.DirectoryNotFoundException dirNotFound)
             {
@@ -409,7 +421,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 try
                 {
                     EditorUtility.DisplayProgressBar("清理资源包", "正在清理...", 0.5f);
-                    var outputPath = assetBundleOutputDirectory();
+                    var outputPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
                     if (System.IO.Directory.Exists(outputPath))
                         FileUtil.DeleteFileOrDirectory(outputPath);
                     AssetDatabase.Refresh();
@@ -448,7 +460,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 try
                 {
                     EditorUtility.DisplayProgressBar("清理 StreamingAssets", "正在清理...", 0.5f);
-                    var outputPath = asssetBundleStreamingAssetsDirctory();
+                    var outputPath = System.IO.Path.Combine(Application.streamingAssetsPath, AssetBundles);
+                    outputPath = System.IO.Path.Combine(outputPath, EditorUserBuildSettings.activeBuildTarget.ToString());
                     if (System.IO.Directory.Exists(outputPath))
                         FileUtil.DeleteFileOrDirectory(outputPath);
                     var metapath = outputPath + ".meta";
