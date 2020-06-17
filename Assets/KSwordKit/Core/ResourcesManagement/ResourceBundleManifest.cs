@@ -36,7 +36,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <summary>
         /// 是否是主包
         /// <para>该包记录着项目打包的所有AssetBundle</para>
-        /// <para>当值为false时，属性<see cref="ResourceItems"/> 值为 null.</para>
+        /// <para>当值为false时，属性<see cref="ResourceObjects"/> 值为 null.</para>
         /// <para>当值为true时, 属性<see cref="AssetFileHashSerializedVersion"/>、<see cref="AssetFileHash"/>、<see cref="TypeTreeHashSerializedVersion"/>、<see cref="TypeTreeHash"/> 的值均为null</para>
         /// </summary>
         public bool IsMain;
@@ -84,9 +84,9 @@ namespace KSwordKit.Core.ResourcesManagement
         public AssetBundle AssetBundle = null;
         /// <summary>
         /// 资源包内包含的所有资源项
-        /// <para>查看<see cref="ResourceItem"/>了解资源项的数据结构。</para>
+        /// <para>查看<see cref="ResourceObject"/>了解资源项的数据结构。</para>
         /// </summary>
-        public List<ResourceItem> ResourceItems = null;
+        public List<ResourceObject> ResourceObjects = null;
         /// <summary>
         /// 该资源包依赖的其他资源包
         /// </summary>

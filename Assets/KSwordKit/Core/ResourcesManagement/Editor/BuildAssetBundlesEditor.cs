@@ -216,7 +216,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             var assetbundlepath = manifestPath.Replace('\\', '/');
             manifest.AssetBundlePath = assetbundlepath.Substring(0, assetbundlepath.Length - ".manifest".Length);
             bool isNewDependencyItem = false;
-            bool isResourceItem = false;
+            bool isResourceObject = false;
 
             EditorUtility.DisplayProgressBar("生成资源清单", "正在分析资源包: " + manifest.AssetBundlePath, 0.2f);
 
@@ -306,25 +306,25 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 {
                     if (k == "Assets")
                     {
-                        isResourceItem = true;
+                        isResourceObject = true;
                         continue;
                     }
-                    else if (k == "Dependencies" && isResourceItem)
-                        isResourceItem = false;
+                    else if (k == "Dependencies" && isResourceObject)
+                        isResourceObject = false;
 
-                    if (isResourceItem)
+                    if (isResourceObject)
                     {
                         var items = k.Split(' ');
                         var resourcePath = items[1].Trim('"');
-                        var ritem = new ResourceItem();
+                        var ritem = new ResourceObject();
                         ritem.ResourcePath = resourcePath;
                         ritem.FileExtensionName = System.IO.Path.GetExtension(resourcePath).ToLower();
                         ritem.IsScene = ritem.FileExtensionName == ".unity";
                         ritem.ObjectName = System.IO.Path.GetFileNameWithoutExtension(resourcePath);
                         ritem.AssetBundleName = assetbundleName;
-                        if (manifest.ResourceItems == null)
-                            manifest.ResourceItems = new List<ResourceItem>();
-                        manifest.ResourceItems.Add(ritem);
+                        if (manifest.ResourceObjects == null)
+                            manifest.ResourceObjects = new List<ResourceObject>();
+                        manifest.ResourceObjects.Add(ritem);
                     }
                 }
             }

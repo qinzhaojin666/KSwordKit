@@ -1,7 +1,7 @@
 /*************************************************************************
  *  Copyright (C), 2020-2021. All rights reserved.
  *
- *  FileName: ResourceItem.cs
+ *  FileName: ResourceObject.cs
  *  Author: ks   
  *  Version: 1.0.0   
  *  CreateDate: 2020-6-15
@@ -18,7 +18,7 @@ namespace KSwordKit.Core.ResourcesManagement
     /// 一项资源的数据结构
     /// </summary>
     [Serializable]
-    public class ResourceItem
+    public class ResourceObject
     {
         /// <summary>
         /// 是否是场景资源
@@ -49,7 +49,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// 资源对象
         /// </summary>
         [NonSerialized]
-        public UnityEngine.Object ResourceObject = null;
+        public UnityEngine.Object Object = null;
 
     }
 }
