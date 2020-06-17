@@ -241,12 +241,13 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 ext == ".plist")
                 return;
             var datapath = new System.IO.DirectoryInfo(Application.dataPath).FullName;
-
-            if (assetFilePath.StartsWith(datapath, System.StringComparison.Ordinal))
-                assetFilePath = System.IO.Path.Combine( "Assets", assetFilePath.Substring(datapath.Length+1));
+            
             if (System.IO.Path.GetExtension(assetFilePath).ToLower() == ".unity")
                 abName = ConvertAssetPathToAssetBundleName(assetFilePath);
 
+            if (assetFilePath.StartsWith(datapath, System.StringComparison.Ordinal))
+                assetFilePath = System.IO.Path.Combine("Assets", assetFilePath.Substring(datapath.Length+1));
+            
             //UnityEngine.Debug.Log(KSwordKitName + ": 待处理包名：" + abName + " 文件路径：" + assetFilePath);
             AssetImporter assetImporter = AssetImporter.GetAtPath(assetFilePath);  //得到Asset
             assetImporter.assetBundleName = abName;    //最终设置assetBundleName

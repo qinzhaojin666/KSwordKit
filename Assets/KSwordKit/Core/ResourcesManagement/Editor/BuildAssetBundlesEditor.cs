@@ -37,6 +37,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// </summary>
         public const string KSwordKitName = "KSwordKit";
 
+
+
         /// <summary>
         /// 按当前目标平台生成AssetBundle
         /// 如果有被选中的文件或文件夹，则对被选中的对象进行打包（如果已被AssetBundleName 有值）。
@@ -187,7 +189,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 //sw.WriteLine("ResourcesPath,AssetBundleName,AssetBundleVariant,ObjectName,ObjectExtensionName");
                 EditorUtility.DisplayProgressBar("生成资源清单", "正在分析资源包...", 0.2f);
                 var outputdirpath = assetBundleOutputDirectory();
-                var manifest = Parse(System.IO.Path.Combine(outputdirpath, ResourceRootDirectoryName + ".manifest"), ResourceRootDirectoryName, true);
+                var manifest = ParseAssetBundleManifest(System.IO.Path.Combine(outputdirpath, ResourceRootDirectoryName + ".manifest"), ResourceRootDirectoryName);
                 sw.Write(JsonUtility.ToJson(manifest, true));
             }
             catch(System.Exception e)
@@ -204,19 +206,16 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// </summary>
         /// <param name="manifestPath">文件路径</param>
         /// <param name="assetbundleName">资源标签名</param>
-        /// <param name="isMain">是否是主包</param>
-        public static ResourceBundleManifest Parse(string manifestPath, string assetbundleName = null, bool isMain = false)
+        public static AssetBundleManifest ParseAssetBundleManifest(string manifestPath, string assetbundleName = null)
         {
 
             var lines = System.IO.File.ReadAllLines(manifestPath);
 
-            var manifest = new ResourceBundleManifest();
+            var manifest = new AssetBundleManifest();
             manifest.AssetBundleName = assetbundleName;
-            manifest.IsMain = isMain;
             var assetbundlepath = manifestPath.Replace('\\', '/');
             manifest.AssetBundlePath = assetbundlepath.Substring(0, assetbundlepath.Length - ".manifest".Length);
             bool isNewDependencyItem = false;
-            bool isResourceObject = false;
 
             EditorUtility.DisplayProgressBar("生成资源清单", "正在分析资源包: " + manifest.AssetBundlePath, 0.2f);
 
@@ -257,6 +256,106 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     manifest.ManifestFileVersion = v;
                 else if (k == "CRC")
                     manifest.CRC = v;
+                else if (k.StartsWith("Info", System.StringComparison.Ordinal))
+                    isNewDependencyItem = false;
+                else if (k == "Name")
+                {
+                    var name = v.Trim('"');
+                    name = Regex.Unescape(name);
+                    var r = ParseResourceManifest(System.IO.Path.Combine(assetBundleOutputDirectory(), name + ".manifest"), name);
+                    if (manifest.AssetBundleInfos == null)
+                        manifest.AssetBundleInfos = new List<ResourceManifest>();
+                    manifest.AssetBundleInfos.Add(r);
+                }
+                else if (k == "Dependencies" && v != "{}")
+                {
+                    isNewDependencyItem = true;
+                    continue;
+                }
+
+                if (isNewDependencyItem && k.StartsWith("Dependency_", StringComparison.Ordinal))
+                {
+                    var name = v.Trim('"');
+                    name = Regex.Unescape(name);
+                    var lastman = manifest.AssetBundleInfos[manifest.AssetBundleInfos.Count - 1];
+                    if (lastman.Dependencies == null)
+                        lastman.Dependencies = new List<string>();
+                    lastman.Dependencies.Add(name);
+                }
+            }
+
+            return manifest;
+        }
+        /// <summary>
+        /// 解析资源包 .manifest 的方法
+        /// </summary>
+        /// <param name="manifestPath">资源包 .manifest 文件路径 </param>
+        /// <param name="assetbundleName">资源标签名</param>
+        /// <returns></returns>
+        static ResourceManifest ParseResourceManifest(string manifestPath, string assetbundleName)
+        {
+            var lines = System.IO.File.ReadAllLines(manifestPath);
+
+            var manifest = new ResourceManifest();
+            manifest.AssetBundleName = assetbundleName;
+            var assetbundlepath = manifestPath.Replace('\\', '/');
+            manifest.AssetBundlePath = assetbundlepath.Substring(0, assetbundlepath.Length - ".manifest".Length);
+            bool isResourceObject = false;
+
+            EditorUtility.DisplayProgressBar("生成资源清单", "正在分析资源包: " + manifest.AssetBundlePath, 0.2f);
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+
+                var index = -1;
+                bool isFenhao = false;
+                for (var j = 0; j < line.Length; j++)
+                {
+                    var c = line[j];
+                    if (c == '"' && isFenhao)
+                        isFenhao = false;
+                    else if (c == '"')
+                        isFenhao = true;
+
+                    if (!isFenhao)
+                    {
+                        if (c == ':')
+                        {
+                            index = j;
+                            break;
+                        }
+                    }
+                }
+
+                string[] kv = null;
+                bool isSetd = false;
+                if (index == -1 && !isResourceObject)
+                    continue;
+                else if(index == -1)
+                {
+                    kv = new string[] {
+                        line,
+                        ""
+                    };
+                    isSetd = true;
+                }
+                if (!isSetd)
+                {
+                    kv = new string[] {
+                        line.Substring(0, index),
+                        line.Substring(index+1)
+                    };
+                }
+
+                var k = kv[0].TrimStart(' ');
+                var v = kv[1].TrimStart(' ');
+                //Debug.Log("k =" + k + "\nv =" + v + "\nassetbundleName=" + assetbundleName);
+
+                if (k == "ManifestFileVersion")
+                    manifest.ManifestFileVersion = v;
+                else if (k == "CRC")
+                    manifest.CRC = v;
                 else if (k == "serializedVersion" && string.IsNullOrEmpty(manifest.AssetFileHashSerializedVersion))
                     manifest.AssetFileHashSerializedVersion = v;
                 else if (k == "serializedVersion")
@@ -267,70 +366,36 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     manifest.TypeTreeHash = v;
                 else if (k == "HashAppended")
                     manifest.HashAppended = v;
-                else if (k == "AssetBundleManifest")
-                    manifest.IsMain = true;
-
-                if(manifest.IsMain)
+                else if (k == "Assets")
                 {
-                    if(k.StartsWith("Info", System.StringComparison.Ordinal))
-                        isNewDependencyItem = false;
-                    else if (k == "Name")
-                    {
-                        var name = v.Trim('"');
-                        name = Regex.Unescape(name);
-                        var r = Parse(System.IO.Path.Combine(assetBundleOutputDirectory(), name + ".manifest"), name);
-                        if (manifest.AssetBundleInfos == null)
-                            manifest.AssetBundleInfos = new List<ResourceBundleManifest>();
-                        manifest.AssetBundleInfos.Add(r);
-                    }
-                    else if (k == "Dependencies" && v != "{}")
-                    {
-                        isNewDependencyItem = true;
-                        continue;
-                    }
-                    
-                    if(isNewDependencyItem && k.StartsWith("Dependency_", StringComparison.Ordinal))
-                    {
-                        if (manifest.Dependencies == null)
-                            manifest.Dependencies = new List<ResourceBundleManifest>();
-                        var name = v.Trim('"');
-                        name = Regex.Unescape(name);
-                        var r = Parse(System.IO.Path.Combine(assetBundleOutputDirectory(), name + ".manifest"), name);
-                        var lastman = manifest.AssetBundleInfos[manifest.AssetBundleInfos.Count - 1];
-                        if (lastman.Dependencies == null)
-                            lastman.Dependencies = new List<ResourceBundleManifest>();
-                        lastman.Dependencies.Add(r);
-                    }
+                    isResourceObject = true;
+                    continue;
                 }
-                else if(i > 3 && !manifest.IsMain)
-                {
-                    if (k == "Assets")
-                    {
-                        isResourceObject = true;
-                        continue;
-                    }
-                    else if (k == "Dependencies" && isResourceObject)
-                        isResourceObject = false;
+                else if (k == "Dependencies" && isResourceObject)
+                    isResourceObject = false;
 
-                    if (isResourceObject)
-                    {
-                        var items = k.Split(' ');
-                        var resourcePath = items[1].Trim('"');
-                        var ritem = new ResourceObject();
-                        ritem.ResourcePath = resourcePath;
-                        ritem.FileExtensionName = System.IO.Path.GetExtension(resourcePath).ToLower();
-                        ritem.IsScene = ritem.FileExtensionName == ".unity";
-                        ritem.ObjectName = System.IO.Path.GetFileNameWithoutExtension(resourcePath);
-                        ritem.AssetBundleName = assetbundleName;
-                        if (manifest.ResourceObjects == null)
-                            manifest.ResourceObjects = new List<ResourceObject>();
-                        manifest.ResourceObjects.Add(ritem);
-                    }
+                if (isResourceObject)
+                {
+                    var resourcePath = k.Substring(2).Trim('"');
+                    resourcePath = Regex.Unescape(resourcePath);
+                    var ritem = new ResourceObject();
+                    ritem.ResourcePath = resourcePath;
+                    ritem.FileExtensionName = System.IO.Path.GetExtension(resourcePath).ToLower();
+                    ritem.IsScene = ritem.FileExtensionName == ".unity";
+                    ritem.ObjectName = System.IO.Path.GetFileNameWithoutExtension(resourcePath);
+                    ritem.AssetBundleName = assetbundleName;
+
+                    if (manifest.ResourceObjects == null)
+                        manifest.ResourceObjects = new List<ResourceObject>();
+                    manifest.ResourceObjects.Add(ritem);
                 }
             }
 
             return manifest;
         }
+
+
+
         /// <summary>
         /// 拷贝资源包到StreamingAssets中
         /// </summary>
@@ -400,7 +465,6 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 throw new System.IO.DirectoryNotFoundException(dirNotFound.Message);
             }
         }
-
         /// <summary>
         /// 清理输出目录中的资源包（当前编译平台）
         /// </summary>

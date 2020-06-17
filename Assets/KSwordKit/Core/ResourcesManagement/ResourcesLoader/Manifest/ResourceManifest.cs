@@ -14,32 +14,14 @@ using UnityEngine;
 
 namespace KSwordKit.Core.ResourcesManagement
 {
-    /// <summary>
-    /// 一组资源包的数据结构
-    /// </summary>
-    [Serializable]
-    public class ResourceBundleManifests
-    {
-        /// <summary>
-        /// 一组资源包
-        /// </summary>
-        public List<ResourceBundleManifest> Bundles;
-    }
 
     /// <summary>
     /// 一个资源包的数据结构
-    /// <para>解析 .manifest 文件得到的数据</para>
+    /// <para>特指打包的具体资源包，通过解析 .manifest 文件得到的数据</para>
     /// </summary>
     [Serializable]
-    public class ResourceBundleManifest
+    public class ResourceManifest
     {
-        /// <summary>
-        /// 是否是主包
-        /// <para>该包记录着项目打包的所有AssetBundle</para>
-        /// <para>当值为false时，属性<see cref="ResourceObjects"/> 值为 null.</para>
-        /// <para>当值为true时, 属性<see cref="AssetFileHashSerializedVersion"/>、<see cref="AssetFileHash"/>、<see cref="TypeTreeHashSerializedVersion"/>、<see cref="TypeTreeHash"/> 的值均为null</para>
-        /// </summary>
-        public bool IsMain;
         /// <summary>
         /// .manifest 文件版本号
         /// </summary>
@@ -89,12 +71,8 @@ namespace KSwordKit.Core.ResourcesManagement
         public List<ResourceObject> ResourceObjects = null;
         /// <summary>
         /// 该资源包依赖的其他资源包
+        /// <para>链表项表示依赖的包名，可在主包<see cref="AssetBundleManifest"/>中链表<see cref="AssetBundleManifest.AssetBundleInfos"/>中查找。</para>
         /// </summary>
-        public List<ResourceBundleManifest> Dependencies = null;
-        /// <summary>
-        /// 当 <see cref="IsMain"/> 为true时，该字段值有效。
-        /// 当 <see cref="IsMain"/> 为false时，该字段值为null。
-        /// </summary>
-        public List<ResourceBundleManifest> AssetBundleInfos = null;
+        public List<string> Dependencies = null;
     }
 }

@@ -215,7 +215,7 @@ GameObject:
   - component: {fileID: 667632376}
   - component: {fileID: 667632377}
   m_Layer: 0
-  m_Name: Examples
+  m_Name: Launch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -247,6 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1962162d2ee4241c6b1019e81f7d41f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ResourcesLoadingLocation: 1
 --- !u!1 &712131815
 GameObject:
   m_ObjectHideFlags: 0

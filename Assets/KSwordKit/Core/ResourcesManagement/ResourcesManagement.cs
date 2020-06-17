@@ -9,6 +9,7 @@
  *************************************************************************/
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -16,22 +17,32 @@ namespace KSwordKit.Core.ResourcesManagement
 {
     public class ResourcesManagement : MonoBehaviour
     {
-        const string KitName = "KSwordKit";
         public const string NAME = "ResourcesManagement";
         /// <summary>
         /// 用于AssetBundle输出位置
         /// </summary>
         public const string AssetBundles = "AssetBundles";
-        public const string ResourcesFileName = "resourcesfile.csv";
+        /// <summary>
+        /// 资源根文件夹名
+        /// </summary>
+        public const string ResourceRootDirectoryName = "resources";
+        /// <summary>
+        /// 资源清单文件名
+        /// </summary>
+        public const string ResourcesFileName = "resourceslist.json";
+        /// <summary>
+        /// 框架名称
+        /// </summary>
+        public const string KSwordKitName = "KSwordKit";
 
-        static ResourcesManagement _instance;
-        static ResourcesManagement instance
+        static ResourcesManagement _Instance;
+        public static ResourcesManagement Instance
         {
             get
             {
-                if(_instance == null)
-                    _instance = new GameObject(NAME).AddComponent<ResourcesManagement>();
-                return _instance;
+                if(_Instance == null)
+                    _Instance = new GameObject(NAME).AddComponent<ResourcesManagement>();
+                return _Instance;
             }
         }
 
@@ -115,7 +126,7 @@ namespace KSwordKit.Core.ResourcesManagement
             System.Action<float> progressAction = null) 
             where T: UnityEngine.Object
         {
-            instance.StartCoroutine(_LoadAssetAsync<T>(
+            Instance.StartCoroutine(_LoadAssetAsync<T>(
                 assetPath, resultAction, 
                 errorAction, 
                 progressAction)
@@ -124,7 +135,7 @@ namespace KSwordKit.Core.ResourcesManagement
         static IEnumerator _LoadAssetAsync<T>(
             string assetPath, System.Action<T> resultAction, 
             System.Action<string> errorAction = null, 
-            System.Action<float> progressAction = null) 
+            System.Action<float> progressAction = null)
             where T : UnityEngine.Object
         {
             if(objectDic.ContainsKey(assetPath))
@@ -152,7 +163,7 @@ namespace KSwordKit.Core.ResourcesManagement
 
                 if(errorAction != null)
                 {
-                    errorAction(KitName + ": 资源清单不存在！");
+                    errorAction(KSwordKitName + ": 资源清单不存在！");
                     yield break;
                 }
             }
@@ -228,7 +239,7 @@ namespace KSwordKit.Core.ResourcesManagement
                         {
                             if(errorAction != null)
                             {
-                                errorAction(KitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
+                                errorAction(KSwordKitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
                             }
                             yield break;
                         }
@@ -237,7 +248,7 @@ namespace KSwordKit.Core.ResourcesManagement
                     {
                         if(errorAction != null)
                         {
-                            errorAction(KitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
+                            errorAction(KSwordKitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
                         }
                         yield break;
                     }
@@ -281,7 +292,7 @@ namespace KSwordKit.Core.ResourcesManagement
             {                                    
                 if(errorAction != null)
                 {
-                    errorAction(KitName +": 资源不存在! path = " + assetPath);
+                    errorAction(KSwordKitName +": 资源不存在! path = " + assetPath);
                 }
             }
         }
@@ -293,7 +304,7 @@ namespace KSwordKit.Core.ResourcesManagement
             System.Action<string> errorAction = null, 
             System.Action<float> progressAction = null) 
         {
-            instance.StartCoroutine(_LoadAssetAsync<UnityEngine.Object>(
+            Instance.StartCoroutine(_LoadAssetAsync<UnityEngine.Object>(
                 assetPath, resultAction, 
                 errorAction, 
                 progressAction)
@@ -318,7 +329,7 @@ namespace KSwordKit.Core.ResourcesManagement
                     if(progressAction != null)
                         progressAction(1);
                     
-                    instance.StartCoroutine(_nextFrame(()=>{
+                    Instance.StartCoroutine(_nextFrame(()=>{
                         if(resultAction !=null && rlist.Count > 0)
                             resultAction(rlist.ToArray());
                         if(errorAction!= null && !string.IsNullOrEmpty(error))
@@ -329,7 +340,7 @@ namespace KSwordKit.Core.ResourcesManagement
 
             foreach(var path in assetPaths)
             {
-                instance.StartCoroutine(
+                Instance.StartCoroutine(
                     _LoadAssetAsync<T>(
                         path, (r)=>{
                             rlist.Add(r);
@@ -373,7 +384,7 @@ namespace KSwordKit.Core.ResourcesManagement
                     if(progressAction != null)
                         progressAction(1);
                     
-                    instance.StartCoroutine(_nextFrame(()=>{
+                    Instance.StartCoroutine(_nextFrame(()=>{
                         if(resultAction !=null && rlist.Count > 0)
                             resultAction(rlist.ToArray());
                         if(errorAction!= null && !string.IsNullOrEmpty(error))
@@ -384,7 +395,7 @@ namespace KSwordKit.Core.ResourcesManagement
 
             foreach(var path in assetPaths)
             {
-                instance.StartCoroutine(
+                Instance.StartCoroutine(
                     _LoadAssetAsync<UnityEngine.Object>(
                         path, (r)=>{
                             rlist.Add(r);
@@ -409,7 +420,7 @@ namespace KSwordKit.Core.ResourcesManagement
         public static void LoadAssetAsync(string assetPath, System.Action<ResourceRequestAsync> updateAction)
         {
             var rrAsync = ResourceRequestAsync.New(assetPath);
-            instance.StartCoroutine(
+            Instance.StartCoroutine(
                 _LoadAssetAsync(
                     assetPath,
                     updateAction
@@ -441,7 +452,7 @@ namespace KSwordKit.Core.ResourcesManagement
 
             //     if(errorAction != null)
             //     {
-            //         errorAction(KitName + ": 资源清单不存在！");
+            //         errorAction(KSwordKitName + ": 资源清单不存在！");
             //         yield break;
             //     }
             // }
@@ -517,7 +528,7 @@ namespace KSwordKit.Core.ResourcesManagement
             //             {
             //                 if(errorAction != null)
             //                 {
-            //                     errorAction(KitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
+            //                     errorAction(KSwordKitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
             //                 }
             //                 yield break;
             //             }
@@ -526,7 +537,7 @@ namespace KSwordKit.Core.ResourcesManagement
             //         {
             //             if(errorAction != null)
             //             {
-            //                 errorAction(KitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
+            //                 errorAction(KSwordKitName+": 查询值为 null！\npath = " + assetPath + "\nabname = "+abname);
             //             }
             //             yield break;
             //         }
@@ -570,11 +581,171 @@ namespace KSwordKit.Core.ResourcesManagement
             // {                                    
             //     if(errorAction != null)
             //     {
-            //         errorAction(KitName +": 资源不存在! path = " + assetPath);
+            //         errorAction(KSwordKitName +": 资源不存在! path = " + assetPath);
             //     }
             // }
 
             yield break;
+        }
+
+
+        /// <summary>
+        /// 初始化资源管理器
+        /// </summary>
+        /// <param name="resourcesLoadingLocation">加载资源的位置</param>
+        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation)
+        {
+            Instance._isInitd = false;
+            Instance._initProgress = 0;
+            Instance._initError = null;
+            _resourcesLoadingLocation = resourcesLoadingLocation;
+
+            LoadResourcesListAsync((progress, error, rbm) => {
+                if (Instance._OnInitializing != null)
+                    Instance._OnInitializing(Instance, progress);
+
+                if(progress == 1)
+                {
+                    Instance._isInitd = true;
+                    Instance._initProgress = 1;
+                    Instance._initError = error;
+
+                    if (Instance._OnInitCompleted != null)
+                        Instance._OnInitCompleted(Instance, Instance._initError);
+                }
+            });
+
+            return Instance;
+        }
+
+        /// <summary>
+        /// 初始化完成
+        /// <para>如果初始化过程中发生错误时，完成时带有错误信息回调。</para>
+        /// <para>如果初始化过程中没有任何错误，完成时带有null回调。</para>
+        /// </summary>
+        public ResourcesManagement OnInitCompleted(System.Action<ResourcesManagement, string> action)
+        {
+            _OnInitCompleted += action;
+            if (_isInitd)
+                action(this, _initError);
+            return Instance;
+        }
+        event System.Action<ResourcesManagement, string> _OnInitCompleted;
+        bool _isInitd;
+        float _initProgress;
+        string _initError = null;
+
+        public ResourcesManagement OnInitializing(System.Action<ResourcesManagement, float> progressAction)
+        {
+            _OnInitializing += progressAction;
+            if (_isInitd)
+                progressAction(this, 1);
+
+            return Instance;
+        }
+        event System.Action<ResourcesManagement, float> _OnInitializing;
+
+        static UnityEngine.Networking.UnityWebRequest _UnityWebRequest;
+        static ResourcesLoadingLocation _resourcesLoadingLocation = ResourcesLoadingLocation.Resources;
+        /// <summary>
+        /// 获得资源加载位置
+        /// </summary>
+        public static ResourcesLoadingLocation ResourcesLoadingLocation { get { return _resourcesLoadingLocation; } }
+        static AssetBundleManifest _AssetBundleManifest;
+        /// <summary>
+        /// 资源清单
+        /// </summary>
+        public AssetBundleManifest ResourcePackage { get { return _AssetBundleManifest; } }
+        static void LoadResourcesListAsync(System.Action<float, string, AssetBundleManifest> action)
+        {
+            if(_AssetBundleManifest != null)
+            {
+                action(1, null, _AssetBundleManifest);
+                return;
+            }
+            
+            var path = AssetBundles;
+#if UNITY_EDITOR
+            path = System.IO.Path.Combine(path, UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString());
+#endif
+            if(!Application.isEditor)
+            {
+                if (Application.platform == RuntimePlatform.IPhonePlayer)
+                    path = System.IO.Path.Combine(path, "iOS");
+                else
+                    path = System.IO.Path.Combine(path, Application.platform.ToString());
+            }
+            path = System.IO.Path.Combine(path, ResourcesFileName);
+            
+            switch (ResourcesLoadingLocation)
+            {
+                case ResourcesLoadingLocation.StreamingAssetsPath:
+                    path = System.IO.Path.Combine(Application.streamingAssetsPath, path);
+                    break;
+
+                case ResourcesLoadingLocation.RemotePath:
+                case ResourcesLoadingLocation.PersistentDataPath:
+                    path = System.IO.Path.Combine(Application.persistentDataPath, path);
+                    break;
+            }
+
+            if ((!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || Application.platform == RuntimePlatform.OSXEditor)
+            {
+                path = "file://" + path;
+            }
+
+            if (ResourcesLoadingLocation != ResourcesLoadingLocation.StreamingAssetsPath)
+            {
+                var text = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
+                try
+                {
+                    var r = JsonUtility.FromJson<AssetBundleManifest>(text);
+                    if (r != null)
+                        _AssetBundleManifest = r;
+                    action(1, null, r);
+
+                }
+                catch (System.Exception e)
+                {
+                    action(1, KSwordKitName + ": " + e.Message, null);
+                }
+            }
+            else
+            {
+                Instance.StartCoroutine(loadResourcesList(path, action));
+            }
+
+        }
+        static IEnumerator loadResourcesList(string path, System.Action<float, string, AssetBundleManifest> action)
+        {
+            var www = UnityEngine.Networking.UnityWebRequest.Get(path);
+            var op = www.SendWebRequest();
+            while(!op.isDone)
+            {
+                action(op.progress, null, null);
+                yield return null;
+            }
+
+            if(string.IsNullOrEmpty(www.error))
+            {
+                try
+                {
+                    var text = www.downloadHandler.text;
+                    var r = JsonUtility.FromJson<AssetBundleManifest>(text);
+                    if (r != null)
+                        _AssetBundleManifest = r;
+
+                    action(1, null, r);
+                }
+                catch (System.Exception e)
+                {
+                    action(1, KSwordKitName + ": " + e.Message, null);
+                }
+            }
+            else
+            {
+                action(1, KSwordKitName + ": " + www.error, null);
+            }
         }
     }
 }
