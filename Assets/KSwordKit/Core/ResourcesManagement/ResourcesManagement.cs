@@ -7,11 +7,13 @@
  *  CreateDate: 2020-6-7
  *  File Description: Ignore.
  *************************************************************************/
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 namespace KSwordKit.Core.ResourcesManagement
 {
@@ -617,7 +619,69 @@ namespace KSwordKit.Core.ResourcesManagement
 
             return Instance;
         }
+        /// <summary>
+        /// 资源管理器的初始化
+        /// <para>针对可以直接提供资源清单文本内容的情况</para>
+        /// </summary>
+        /// <param name="resourcesLoadingLocation">资源位置</param>
+        /// <param name="resourceslist_jsonString">资源清单的文本内容</param>
+        /// <returns></returns>
+        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, string resourceslist_jsonString)
+        {
+            Instance._isInitd = false;
+            Instance._initProgress = 0;
+            Instance._initError = null;
+            _resourcesLoadingLocation = resourcesLoadingLocation;
+            try
+            {
+                var r = JsonUtility.FromJson<AssetBundleManifest>(resourceslist_jsonString);
+                if (r != null)
+                    _AssetBundleManifest = r;
+            }
+            catch (System.Exception e)
+            {
+                Instance._initError = KSwordKitName + ": " + e.Message;
+            }
+            if (Instance._OnInitializing != null)
+                Instance._OnInitializing(Instance, 1);
+            if (Instance._OnInitCompleted != null)
+                Instance._OnInitCompleted(Instance, Instance._initError);
 
+            return Instance;
+        }
+        /// <summary>
+        /// 资源管理器的初始化
+        /// <para>针对提供自定义资源清单文件json数据的加载请求的情况</para>
+        /// <para>大多用于资源清单位于服务器的时候</para>
+        /// </summary>
+        /// <param name="resourcesLoadingLocation">资源位置</param>
+        /// <param name="resourceslistJsonFileWebRequest">配置好了的加载资源清单json数据的请求对象</param>
+        /// <returns></returns>
+        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, UnityEngine.Networking.UnityWebRequest resourceslistJsonFileWebRequest)
+        {
+            Instance._isInitd = false;
+            Instance._initProgress = 0;
+            Instance._initError = null;
+            _resourcesLoadingLocation = resourcesLoadingLocation;
+
+            Instance.StartCoroutine(loadResourcesList(resourceslistJsonFileWebRequest, (progress, error, rbm) =>
+            {
+                if (Instance._OnInitializing != null)
+                    Instance._OnInitializing(Instance, progress);
+
+                if (progress == 1)
+                {
+                    Instance._isInitd = true;
+                    Instance._initProgress = 1;
+                    Instance._initError = error;
+
+                    if (Instance._OnInitCompleted != null)
+                        Instance._OnInitCompleted(Instance, Instance._initError);
+                }
+            }));
+
+            return Instance;
+        }
         /// <summary>
         /// 初始化完成
         /// <para>如果初始化过程中发生错误时，完成时带有错误信息回调。</para>
@@ -663,36 +727,8 @@ namespace KSwordKit.Core.ResourcesManagement
                 action(1, null, _AssetBundleManifest);
                 return;
             }
-            
-            var path = AssetBundles;
-#if UNITY_EDITOR
-            path = System.IO.Path.Combine(path, UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString());
-#endif
-            if(!Application.isEditor)
-            {
-                if (Application.platform == RuntimePlatform.IPhonePlayer)
-                    path = System.IO.Path.Combine(path, "iOS");
-                else
-                    path = System.IO.Path.Combine(path, Application.platform.ToString());
-            }
-            path = System.IO.Path.Combine(path, ResourcesFileName);
-            
-            switch (ResourcesLoadingLocation)
-            {
-                case ResourcesLoadingLocation.StreamingAssetsPath:
-                    path = System.IO.Path.Combine(Application.streamingAssetsPath, path);
-                    break;
 
-                case ResourcesLoadingLocation.RemotePath:
-                case ResourcesLoadingLocation.PersistentDataPath:
-                    path = System.IO.Path.Combine(Application.persistentDataPath, path);
-                    break;
-            }
-
-            if ((!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || Application.platform == RuntimePlatform.OSXEditor)
-            {
-                path = "file://" + path;
-            }
+            var path = GetResourceListFilePath();
 
             if (ResourcesLoadingLocation != ResourcesLoadingLocation.StreamingAssetsPath)
             {
@@ -711,9 +747,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 }
             }
             else
-            {
                 Instance.StartCoroutine(loadResourcesList(path, action));
-            }
 
         }
         static IEnumerator loadResourcesList(string path, System.Action<float, string, AssetBundleManifest> action)
@@ -746,6 +780,71 @@ namespace KSwordKit.Core.ResourcesManagement
             {
                 action(1, KSwordKitName + ": " + www.error, null);
             }
+        }
+        static IEnumerator loadResourcesList(UnityEngine.Networking.UnityWebRequest www, System.Action<float, string, AssetBundleManifest> action)
+        {
+            var op = www.SendWebRequest();
+            while (!op.isDone)
+            {
+                action(op.progress, null, null);
+                yield return null;
+            }
+
+            if (string.IsNullOrEmpty(www.error))
+            {
+                try
+                {
+                    var text = www.downloadHandler.text;
+                    var r = JsonUtility.FromJson<AssetBundleManifest>(text);
+                    if (r != null)
+                        _AssetBundleManifest = r;
+
+                    action(1, null, r);
+                }
+                catch (System.Exception e)
+                {
+                    action(1, KSwordKitName + ": " + e.Message, null);
+                }
+            }
+            else
+            {
+                action(1, KSwordKitName + ": " + www.error, null);
+            }
+        }
+        /// <summary>
+        /// 获取资源清单路径
+        /// </summary>
+        /// <returns>资源清单路径</returns>
+        public static string GetResourceListFilePath()
+        {
+            var path = AssetBundles;
+#if UNITY_EDITOR
+            path = System.IO.Path.Combine(path, UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString());
+#endif
+            if (!Application.isEditor)
+            {
+                if (Application.platform == RuntimePlatform.IPhonePlayer)
+                    path = System.IO.Path.Combine(path, "iOS");
+                else
+                    path = System.IO.Path.Combine(path, Application.platform.ToString());
+            }
+            path = System.IO.Path.Combine(path, ResourcesFileName);
+            switch (ResourcesLoadingLocation)
+            {
+                case ResourcesLoadingLocation.StreamingAssetsPath:
+                    path = System.IO.Path.Combine(Application.streamingAssetsPath, path);
+                    break;
+
+                case ResourcesLoadingLocation.RemotePath:
+                case ResourcesLoadingLocation.PersistentDataPath:
+                    path = System.IO.Path.Combine(Application.persistentDataPath, path);
+                    break;
+            }
+            if ((!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || Application.platform == RuntimePlatform.OSXEditor)
+            {
+                path = "file://" + path;
+            }
+            return path;
         }
     }
 }
