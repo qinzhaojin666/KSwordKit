@@ -119,7 +119,7 @@ namespace KSwordKit.Core.ResourcesManagement
         }
 
         static Dictionary<string, GameObject> abGODic = new Dictionary<string, GameObject>();
-        static Dictionary<string, UnityEngine.Object> objectDic = new Dictionary<string, Object>(); 
+        static Dictionary<string, UnityEngine.Object> objectDic = new Dictionary<string, UnityEngine.Object>(); 
         
         public static void LoadAssetAsync<T>(
             string assetPath, 
