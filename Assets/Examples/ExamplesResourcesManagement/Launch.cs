@@ -24,12 +24,15 @@ public class Launch : MonoBehaviour
 
     void Start()
     {
+        // 初始化
         KSwordKit.Core.ResourcesManagement.ResourcesManagement.Init(ResourcesLoadingLocation)
-            .OnInitializing((management, progress) =>
+            .OnInitializing
+            ((management, progress) =>
             {
-                Debug.Log("正在初始化：进度" + progress);
+                Debug.Log("正在初始化：进度 -> " + progress);
             })
-            .OnInitCompleted((management, error) =>
+            .OnInitCompleted
+            ((management, error) =>
             {
                 Debug.Log("初始化完成：error = " + (string.IsNullOrEmpty(error) ? "null" : error));
                 if (string.IsNullOrEmpty(error))
@@ -48,6 +51,22 @@ public class Launch : MonoBehaviour
                         }
                     }
                 }
+            })
+            // 加载资源
+            .LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (management, rrao)=> { 
+                if(rrao.isDone)
+                {
+                    if (string.IsNullOrEmpty(rrao.error))
+                        Debug.Log("加载成功：" + rrao.asset.name);
+                    else
+                        Debug.LogError("加载失败：" + rrao.error);
+                }
+                else
+                {
+                    Debug.Log("加载中：" + rrao.progress);
+                }
             });
+
+
     }
 }

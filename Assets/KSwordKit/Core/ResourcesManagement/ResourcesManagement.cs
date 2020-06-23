@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -591,11 +592,19 @@ namespace KSwordKit.Core.ResourcesManagement
         }
 
 
+
+
+
+
+
+
+
         /// <summary>
         /// 初始化资源管理器
         /// <para>默认初始化方式，会从参数指示的位置，按照方法<see cref="GetResourceListFilePath"/>返回的路径进行加载。</para>
         /// </summary>
         /// <param name="resourcesLoadingLocation">加载资源的位置</param>
+        /// <returns>自身实例对象</returns>
         public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation)
         {
             Instance._isInitd = false;
@@ -626,7 +635,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         /// <param name="resourcesLoadingLocation">资源位置</param>
         /// <param name="resourceslist_jsonString">资源清单的文本内容</param>
-        /// <returns></returns>
+        /// <returns>自身实例对象</returns>
         public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, string resourceslist_jsonString)
         {
             Instance._isInitd = false;
@@ -657,7 +666,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         /// <param name="resourcesLoadingLocation">资源位置</param>
         /// <param name="resourceslistJsonFileWebRequest">配置好了的加载资源清单json数据的请求对象</param>
-        /// <returns></returns>
+        /// <returns>自身实例对象</returns>
         public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, UnityEngine.Networking.UnityWebRequest resourceslistJsonFileWebRequest)
         {
             Instance._isInitd = false;
@@ -688,6 +697,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <para>如果初始化过程中发生错误时，完成时带有错误信息回调。</para>
         /// <para>如果初始化过程中没有任何错误，完成时带有null回调。</para>
         /// </summary>
+        /// <returns>自身实例对象</returns>
         public ResourcesManagement OnInitCompleted(System.Action<ResourcesManagement, string> action)
         {
             _OnInitCompleted += action;
@@ -695,11 +705,19 @@ namespace KSwordKit.Core.ResourcesManagement
                 action(this, _initError);
             return Instance;
         }
+        /// <summary>
+        /// 初始化完成事件
+        /// </summary>
         event System.Action<ResourcesManagement, string> _OnInitCompleted;
         bool _isInitd;
         float _initProgress;
         string _initError = null;
-
+        /// <summary>
+        /// 正在初始化
+        /// <para>参数为初始化进度回调</para>
+        /// </summary>
+        /// <param name="progressAction">初始化进度回调</param>
+        /// <returns>自身实例对象</returns>
         public ResourcesManagement OnInitializing(System.Action<ResourcesManagement, float> progressAction)
         {
             _OnInitializing += progressAction;
@@ -708,8 +726,10 @@ namespace KSwordKit.Core.ResourcesManagement
 
             return Instance;
         }
+        /// <summary>
+        /// 初始化进度事件
+        /// </summary>
         event System.Action<ResourcesManagement, float> _OnInitializing;
-
         static UnityEngine.Networking.UnityWebRequest _UnityWebRequest;
         static ResourcesLoadingLocation _resourcesLoadingLocation = ResourcesLoadingLocation.Resources;
         /// <summary>
@@ -730,7 +750,7 @@ namespace KSwordKit.Core.ResourcesManagement
             }
 
             var path = GetResourceListFilePath();
-
+            // 不是 StreamingAssetsPath 都可以使用System.IO.File读取资源清单
             if (ResourcesLoadingLocation != ResourcesLoadingLocation.StreamingAssetsPath)
             {
                 var text = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
@@ -738,9 +758,11 @@ namespace KSwordKit.Core.ResourcesManagement
                 {
                     var r = JsonUtility.FromJson<AssetBundleManifest>(text);
                     if (r != null)
+                    {
                         _AssetBundleManifest = r;
-                    action(1, null, r);
-
+                        action(1, null, _AssetBundleManifest);
+                    }
+                    else throw new IOException("解析资源清单失败，filepath = " + path);
                 }
                 catch (System.Exception e)
                 {
@@ -749,7 +771,6 @@ namespace KSwordKit.Core.ResourcesManagement
             }
             else
                 Instance.StartCoroutine(loadResourcesList(path, action));
-
         }
         static IEnumerator loadResourcesList(string path, System.Action<float, string, AssetBundleManifest> action)
         {
@@ -798,9 +819,11 @@ namespace KSwordKit.Core.ResourcesManagement
                     var text = www.downloadHandler.text;
                     var r = JsonUtility.FromJson<AssetBundleManifest>(text);
                     if (r != null)
+                    {
                         _AssetBundleManifest = r;
-
-                    action(1, null, r);
+                        action(1, null, _AssetBundleManifest);
+                    }
+                    else throw new IOException("解析资源清单失败，url=" + www.url);
                 }
                 catch (System.Exception e)
                 {
@@ -850,5 +873,34 @@ namespace KSwordKit.Core.ResourcesManagement
             }
             return path;
         }
+
+        ResourcesAsyncLoader _ResourcesAsyncLoader = null;
+        /// <summary>
+        /// 异步加载资源
+        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources 也需要输入资源在项目中的相对路径</para>
+        /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
+        /// </summary>
+        /// <param name="assetPath">资产路径</param>
+        /// <param name="asyncAction">加载过程信息回调</param>
+        /// <returns>资源管理器自身实例对象</returns>
+        public ResourcesManagement LoadAssetAsync(string assetPath, System.Action<ResourcesManagement, ResourcesRequestAsyncOperation> asyncAction)
+        {
+
+
+            if (_ResourcesAsyncLoader == null)
+                _ResourcesAsyncLoader = ResourcesAsyncLoader.New(_resourcesLoadingLocation);
+           
+            if(_resourcesLoadingLocation == ResourcesLoadingLocation.Resources)
+            {
+                var index = assetPath.IndexOf("Resources/");
+            }
+
+            _ResourcesAsyncLoader.LoadAsync(assetPath, (rrao)=> {
+                if (asyncAction != null)
+                    asyncAction(this, rrao);
+            });
+            return this;
+        }
+        
     }
 }

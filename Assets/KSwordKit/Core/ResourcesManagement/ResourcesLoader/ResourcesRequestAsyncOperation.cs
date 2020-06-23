@@ -24,7 +24,6 @@ namespace KSwordKit.Core.ResourcesManagement
     public class ResourcesRequestAsyncOperation: IResourcesRequestAsyncOperation
     {
         const string KSwordKitName = "KSwordKit";
-
         internal string _resourcePath;
         /// <summary>
         /// 加载的资源路径
@@ -201,13 +200,12 @@ namespace KSwordKit.Core.ResourcesManagement
             _asset = resourceRequest.asset;
          
             if (resourceRequest.asset == null)
-                _error = KSwordKitName + ": 加载失败或者文件不存在，请检查参数 assetPath 是否正确。assetPath=" + resourcePath;
+                _error = KSwordKitName + ": 加载失败或者文件不存在! 请检查参数 assetPath 是否正确, assetPath=" + resourcePath;
 
             asyncAction(this);
         }
         internal UnityEngine.Networking.UnityWebRequest _unityWebRequest;
         public UnityEngine.Networking.UnityWebRequest UnityWebRequest { get { return _unityWebRequest; } }
-
         /// <summary>
         /// 通过 <see cref="UnityEngine.Networking.UnityWebRequest"/> 的方式异步加载资源
         /// </summary>
@@ -236,7 +234,6 @@ namespace KSwordKit.Core.ResourcesManagement
 
             asyncAction(this);
         }
-
         /// <summary>
         /// 析构方法
         /// </summary>

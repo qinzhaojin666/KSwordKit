@@ -28,18 +28,25 @@ namespace KSwordKit.Core.ResourcesManagement
 		/// <para>参数 resourcesLoadingLocation 的不同将指示实例对象使用不同的加载方式加载资源; 默认值为 Resources </para>
 		/// </summary>
 		/// <param name="resourcesLoadingLocation">指示函数加载的位置</param>
-		public ResourcesAsyncLoader(ResourcesLoadingLocation resourcesLoadingLocation = ResourcesLoadingLocation.Resources)
+		public static ResourcesAsyncLoader New(ResourcesLoadingLocation resourcesLoadingLocation = ResourcesLoadingLocation.Resources)
         {
-			_resourcesLoadingLocation = resourcesLoadingLocation;
 			if (_asyncLoaderParent == null)
 			{
 				_asyncLoaderParent = new GameObject(ClassName).transform;
 				GameObject.DontDestroyOnLoad(_asyncLoaderParent);
 			}
-			_asyncLoaderGameObject = new GameObject(AsyncLoader);
-			_asyncLoaderGameObject.transform.parent = _asyncLoaderParent;
+			var o = new GameObject(AsyncLoader);
+			var loader = o.AddComponent<ResourcesAsyncLoader>();
+			loader._resourcesLoadingLocation = resourcesLoadingLocation;
+			loader._asyncLoaderGameObject = o;
+			loader._asyncLoaderGameObject.transform.parent = _asyncLoaderParent;
+			return loader;
 		}
-
+		static Dictionary<string, ResourcesRequestAsyncOperation> _rraoDic = new Dictionary<string, ResourcesRequestAsyncOperation>();
+		/// <summary>
+		/// 缓存字典
+		/// </summary>
+		public static Dictionary<string, ResourcesRequestAsyncOperation> CacheDic { get { return _rraoDic; } }
 		private static Transform _asyncLoaderParent;
 		private GameObject _asyncLoaderGameObject;
 
@@ -77,11 +84,19 @@ namespace KSwordKit.Core.ResourcesManagement
 		/// <param name="asyncAction">异步回调；参数是异步结果，内部包含进度、错误信息、加载结果等内容； </param>
 		public void LoadAsync(string assetPath, System.Action<ResourcesRequestAsyncOperation> asyncAction)
         {
+			if(CacheDic.ContainsKey(assetPath))
+            {
+				if (asyncAction != null)
+					asyncAction(CacheDic[assetPath]);
+
+				return;
+            }
+
 			_assetPath = assetPath;
 			_resourcesRequestAsyncOperation = new ResourcesRequestAsyncOperation();
 			_resourcesRequestAsyncOperation._resourcePath = _assetPath;
-
 			_asyncLoaderGameObject.name = "assetPath:" + _assetPath;
+			CacheDic[_assetPath] = _resourcesRequestAsyncOperation;
 
 			switch(ResourcesLoadingLocation)
             {
@@ -92,18 +107,18 @@ namespace KSwordKit.Core.ResourcesManagement
 					break;
 				case ResourcesLoadingLocation.StreamingAssetsPath:
 
-                    _unityWebRequest = new UnityEngine.Networking.UnityWebRequest(_assetPath);
-                    _unityWebRequest.timeout = timeoutIfCanBeApplied;
-					StartCoroutine(_resourcesRequestAsyncOperation.AsyncByAssetBundle(_unityWebRequest, asyncAction));
+     //               _unityWebRequest = new UnityEngine.Networking.UnityWebRequest(_assetPath);
+     //               _unityWebRequest.timeout = timeoutIfCanBeApplied;
+					//StartCoroutine(_resourcesRequestAsyncOperation.AsyncByAssetBundle(_unityWebRequest, asyncAction));
 
-					break;
+					//break;
 				case ResourcesLoadingLocation.PersistentDataPath:
 					
-					_unityWebRequest = new UnityEngine.Networking.UnityWebRequest(_assetPath);
-					_unityWebRequest.timeout = timeoutIfCanBeApplied;
-					StartCoroutine(_resourcesRequestAsyncOperation.AsyncByAssetBundle(_unityWebRequest, asyncAction));
+					//_unityWebRequest = new UnityEngine.Networking.UnityWebRequest(_assetPath);
+					//_unityWebRequest.timeout = timeoutIfCanBeApplied;
+					//StartCoroutine(_resourcesRequestAsyncOperation.AsyncByAssetBundle(_unityWebRequest, asyncAction));
 					
-					break;
+					//break;
 				case ResourcesLoadingLocation.RemotePath:
 					
 					_unityWebRequest = new UnityEngine.Networking.UnityWebRequest(_assetPath);
