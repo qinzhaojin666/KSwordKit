@@ -13,7 +13,7 @@
             "TypeTreeHash": "40a9e4de37a2672cbce0e2937958d7f9",
             "HashAppended": "0",
             "AssetBundleName": "assets__examples__examplespuremvc__examplespuremvc_unity",
-            "AssetBundlePath": "AssetBundles/Android/resources/assets__examples__examplespuremvc__examplespuremvc_unity",
+            "AssetBundlePath": "assets__examples__examplespuremvc__examplespuremvc_unity",
             "ResourceObjects": [
                 {
                     "IsScene": true,
@@ -34,7 +34,7 @@
             "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__按钮",
-            "AssetBundlePath": "AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__按钮",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__按钮",
             "ResourceObjects": [
                 {
                     "IsScene": false,
@@ -153,7 +153,7 @@
             "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__个人信息",
-            "AssetBundlePath": "AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__个人信息",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__个人信息",
             "ResourceObjects": [
                 {
                     "IsScene": false,
@@ -195,7 +195,7 @@
             "TypeTreeHash": "41c7a6fefc0df9dfe9532f6e29eeaab4",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__prefabs",
-            "AssetBundlePath": "AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__prefabs",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__prefabs",
             "ResourceObjects": [
                 {
                     "IsScene": false,
@@ -218,7 +218,7 @@
             "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
-            "AssetBundlePath": "AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__背景",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__背景",
             "ResourceObjects": [
                 {
                     "IsScene": false,
@@ -253,7 +253,7 @@
             "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
-            "AssetBundlePath": "AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__进度条",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__进度条",
             "ResourceObjects": [
                 {
                     "IsScene": false,

@@ -11,7 +11,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -844,6 +843,17 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <returns>资源清单路径</returns>
         public static string GetResourceListFilePath()
         {
+            if ((!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || Application.platform == RuntimePlatform.OSXEditor)
+                return "file://" + System.IO.Path.Combine(GetResourcesFileRootDirectory(), ResourcesFileName);
+            else
+                return System.IO.Path.Combine(GetResourcesFileRootDirectory(), ResourcesFileName);
+        }
+        /// <summary>
+        /// 获得资源路径根目录
+        /// </summary>
+        /// <returns>资源根目录</returns>
+        public static string GetResourcesFileRootDirectory()
+        {
             var path = AssetBundles;
 #if UNITY_EDITOR
             path = System.IO.Path.Combine(path, UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString());
@@ -855,7 +865,6 @@ namespace KSwordKit.Core.ResourcesManagement
                 else
                     path = System.IO.Path.Combine(path, Application.platform.ToString());
             }
-            path = System.IO.Path.Combine(path, ResourcesFileName);
             switch (ResourcesLoadingLocation)
             {
                 case ResourcesLoadingLocation.StreamingAssetsPath:
@@ -867,40 +876,85 @@ namespace KSwordKit.Core.ResourcesManagement
                     path = System.IO.Path.Combine(Application.persistentDataPath, path);
                     break;
             }
-            if ((!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || Application.platform == RuntimePlatform.OSXEditor)
-            {
-                path = "file://" + path;
-            }
+
             return path;
         }
 
-        ResourcesAsyncLoader _ResourcesAsyncLoader = null;
         /// <summary>
         /// 异步加载资源
-        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources 也需要输入资源在项目中的相对路径</para>
+        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources, 参数 <paramref name="assetPath"/> 也需要输入资源在项目中的相对路径</para>
         /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
+        /// <para>路径分隔符统一为 '/'</para>
+        /// <para>当资源存在依赖时，将会自动加载依赖。</para>
         /// </summary>
         /// <param name="assetPath">资产路径</param>
-        /// <param name="asyncAction">加载过程信息回调</param>
+        /// <param name="asyncAction">加载过程中的回调信息</param>
         /// <returns>资源管理器自身实例对象</returns>
-        public ResourcesManagement LoadAssetAsync(string assetPath, System.Action<ResourcesManagement, ResourcesRequestAsyncOperation> asyncAction)
+        public ResourcesManagement LoadAssetAsync(string assetPath, System.Action<ResourcesManagement, bool, float,string, UnityEngine.Object> asyncAction)
         {
-
-
-            if (_ResourcesAsyncLoader == null)
-                _ResourcesAsyncLoader = ResourcesAsyncLoader.New(_resourcesLoadingLocation);
-           
-            if(_resourcesLoadingLocation == ResourcesLoadingLocation.Resources)
-            {
-                var index = assetPath.IndexOf("Resources/");
-            }
-
-            _ResourcesAsyncLoader.LoadAsync(assetPath, (rrao)=> {
+            ResourcesAsyncLoader<UnityEngine.Object>.ResourcePackage = ResourcePackage;
+            ResourcesAsyncLoader<UnityEngine.Object>.LoadAsync(assetPath, _resourcesLoadingLocation, (isdone, progress, error, obj)=> {
                 if (asyncAction != null)
-                    asyncAction(this, rrao);
+                    asyncAction(this, isdone, progress, error, obj);
             });
             return this;
         }
-        
+        /// <summary>
+        /// 异步加载资源
+        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources, 参数 <paramref name="assetPath"/> 也需要输入资源在项目中的相对路径</para>
+        /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
+        /// <para>路径分隔符统一为 '/'</para>
+        /// <para>当资源存在依赖时，将会自动加载依赖。</para>
+        /// </summary>
+        /// <param name="assetPath">资产路径</param>
+        /// <param name="asyncAction">加载过程中的回调信息</param>
+        /// <returns>资源管理器自身实例对象</returns>
+        public ResourcesManagement LoadAssetAsync<T>(string assetPath, System.Action<ResourcesManagement, bool, float, string, T> asyncAction) where T: UnityEngine.Object
+        {
+            ResourcesAsyncLoader<T>.ResourcePackage = ResourcePackage;
+            ResourcesAsyncLoader<T>.LoadAsync(assetPath, _resourcesLoadingLocation, (isdone, progress, error, obj) => {
+                if (asyncAction != null)
+                    asyncAction(this, isdone, progress, error, obj);
+            });
+            return this;
+        }
+        /// <summary>
+        /// 异步加载一组资源
+        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources, 参数 <paramref name="assetPaths"/> 中的每一项路径也都需要输入资源在项目中的相对路径</para>
+        /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
+        /// <para>路径分隔符统一为 '/'</para>
+        /// <para>当资源存在依赖时，将会自动加载依赖。</para>
+        /// </summary>
+        /// <param name="assetPaths">要加载的资源数组</param>
+        /// <param name="asyncAction">加载过程中的回调信息</param>
+        /// <returns>资源管理器自身实例对象</returns>
+        public ResourcesManagement LoadAssetAsync(string[] assetPaths, System.Action<ResourcesManagement, bool, float, string, UnityEngine.Object[]> asyncAction)
+        {
+            ResourcesAsyncLoader<UnityEngine.Object>.ResourcePackage = ResourcePackage;
+            ResourcesAsyncLoader<UnityEngine.Object>.LoadAsync(assetPaths, _resourcesLoadingLocation, (isdone, progress, error, objs) => {
+                if (asyncAction != null)
+                    asyncAction(this, isdone, progress, error, objs);
+            });
+            return this;
+        }
+        /// <summary>
+        /// 异步加载一组资源
+        /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources, 参数 <paramref name="assetPaths"/> 中的每一项路径也都需要输入资源在项目中的相对路径</para>
+        /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
+        /// <para>路径分隔符统一为 '/'</para>
+        /// <para>当资源存在依赖时，将会自动加载依赖。</para>
+        /// </summary>
+        /// <param name="assetPath">资产路径</param>
+        /// <param name="asyncAction">加载过程中的回调信息</param>
+        /// <returns>资源管理器自身实例对象</returns>
+        public ResourcesManagement LoadAssetAsync<T>(string[] assetPaths, System.Action<ResourcesManagement, bool, float, string, T[]> asyncAction) where T : UnityEngine.Object
+        {
+            ResourcesAsyncLoader<T>.ResourcePackage = ResourcePackage;
+            ResourcesAsyncLoader<T>.LoadAsync(assetPaths, _resourcesLoadingLocation, (isdone, progress, error, objs) => {
+                if (asyncAction != null)
+                    asyncAction(this, isdone, progress, error, objs);
+            });
+            return this;
+        }
     }
 }

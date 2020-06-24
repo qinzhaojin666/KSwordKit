@@ -225,9 +225,10 @@ namespace KSwordKit.Core.ResourcesManagement
                 asyncAction(this);
                 yield return null;
             }
+            _progress = 1;
+            asyncAction(this);
 
             _isdone = op.isDone;
-            _progress = 1;
             _bytes = _unityWebRequest.downloadedBytes;
             if (string.IsNullOrEmpty(op.webRequest.error))
                 _error = KSwordKitName + ": " + op.webRequest.error + " assetPath=" + resourcePath;

@@ -298,8 +298,11 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             var manifest = new ResourceManifest();
             manifest.AssetBundleName = assetbundleName;
-            var assetbundlepath = manifestPath.Replace('\\', '/');
+            var assetbundlepath = new System.IO.FileInfo(manifestPath).FullName; 
             manifest.AssetBundlePath = assetbundlepath.Substring(0, assetbundlepath.Length - ".manifest".Length);
+            manifest.AssetBundlePath = manifest.AssetBundlePath.Replace(new System.IO.DirectoryInfo(assetBundleOutputDirectory()).FullName, "");
+            manifest.AssetBundlePath = manifest.AssetBundlePath.Replace('\\', '/');
+            manifest.AssetBundlePath = manifest.AssetBundlePath.Substring(1);
             bool isResourceObject = false;
 
             EditorUtility.DisplayProgressBar("生成资源清单", "正在分析资源包: " + manifest.AssetBundlePath, 0.2f);
