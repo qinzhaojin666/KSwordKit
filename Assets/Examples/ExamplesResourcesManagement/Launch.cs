@@ -15,103 +15,188 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class Launch : MonoBehaviour
 {
-    [Header("×ÊÔ´¼ÓÔØÎ»ÖÃ")]
+
+    [Header("è®¾ç½®èµ„æºçš„åŠ è½½ä½ç½®")]
     public KSwordKit.Core.ResourcesManagement.ResourcesLoadingLocation ResourcesLoadingLocation;
 
-    [Header("½ø¶ÈÌõ")]
+    [Header("UI æ ¹èŠ‚ç‚¹")]
+    public GameObject UIRoot;
+
+    [Header("è¿›åº¦æ¡")]
     public GameObject ProgressPanel;
     public RectTransform ProgressParentRT;
     public Image ProgressImage;
     public Text ProgressText;
 
-    [Header("²âÊÔ¼ÓÔØ×ÊÔ´Ãæ°å")]
+    [Header("æµ‹è¯•åŠ è½½èµ„æºé¢æ¿")]
     public GameObject TestLoadAssetsPanel;
 
     void Start()
     {
         ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
-        // ³õÊ¼»¯
+        // åˆå§‹åŒ–
         KSwordKit.Core.ResourcesManagement.ResourcesManagement.Init(ResourcesLoadingLocation)
             .OnInitializing
             ((management, progress) =>
             {
-                Debug.Log("ÕıÔÚ³õÊ¼»¯£º½ø¶È -> " + progress);
+                Debug.Log("æ­£åœ¨åˆå§‹åŒ–ï¼šè¿›åº¦ -> " + progress);
                 ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                ProgressText.text = "¼ÓÔØ½ø¶È: " + (progress * 100).ToString("f2") + "%";
+                ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
             })
             .OnInitCompleted
             ((management, error) =>
             {
-                Debug.Log("³õÊ¼»¯Íê³É£ºerror = " + (string.IsNullOrEmpty(error) ? "null" : error));
+                Debug.Log("åˆå§‹åŒ–å®Œæˆï¼šerror = " + (string.IsNullOrEmpty(error) ? "null" : error));
                 if (string.IsNullOrEmpty(error))
                 {
-                    Debug.Log("µ±Ç°×ÊÔ´CRC£º" + management.ResourcePackage.CRC);
+                    Debug.Log("å½“å‰èµ„æºCRCï¼š" + management.ResourcePackage.CRC);
                     foreach (var r in management.ResourcePackage.AssetBundleInfos)
                     {
-                        Debug.Log("×ÊÔ´°ü£º" + r.AssetBundleName + "£¬Â·¾¶£º" + r.AssetBundlePath);
+                        Debug.Log("èµ„æºåŒ…ï¼š" + r.AssetBundleName + "ï¼Œè·¯å¾„ï¼š" + r.AssetBundlePath);
                         foreach (var d in r.Dependencies)
                         {
-                            Debug.Log("\tÒÀÀµ°ü£º" + d);
+                            Debug.Log("\tä¾èµ–åŒ…ï¼š" + d);
                         }
                         foreach (var item in r.ResourceObjects)
                         {
-                            Debug.Log("\tÄÚ²¿µÄ×ÊÔ´¶ÔÏó£º" + item.ObjectName + "\n\t\tÂ·¾¶£º" + item.ResourcePath);
+                            Debug.Log("\tå†…éƒ¨çš„èµ„æºå¯¹è±¡ï¼š" + item.ObjectName + "\n\t\tè·¯å¾„ï¼š" + item.ResourcePath);
                         }
                     }
 
                     ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
-                    // ¼ÓÔØ×ÊÔ´²¢ÊµÀı»¯
+                    // åŠ è½½èµ„æºå¹¶å®ä¾‹åŒ–
                     management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (_management, isdone, progress, _error, obj) =>
                     {
                         if (isdone)
                         {
                             if (string.IsNullOrEmpty(_error))
                             {
-                                Debug.Log("¼ÓÔØÔ¤ÖÆÌå loadSceneButton ³É¹¦£º" + obj.name);
-                                Instantiate(obj, GameObject.Find("Canvas").transform).name = obj.name;
+                                Debug.Log("åŠ è½½é¢„åˆ¶ä½“ loadSceneButton æˆåŠŸï¼š" + obj.name);
+                                Instantiate(obj, UIRoot.transform).name = obj.name;
                             }
                             else
-                                Debug.LogError("¼ÓÔØÔ¤ÖÆÌå loadSceneButton Ê§°Ü£º" + _error);
+                                Debug.LogError("åŠ è½½é¢„åˆ¶ä½“ loadSceneButton å¤±è´¥ï¼š" + _error);
                         }
                         else
                         {
-                            Debug.Log("ÕıÔÚ¼ÓÔØÔ¤ÖÆÌå loadSceneButton £º" + progress);
+                            Debug.Log("æ­£åœ¨åŠ è½½é¢„åˆ¶ä½“ loadSceneButton ï¼š" + progress);
                             ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                            ProgressText.text = "¼ÓÔØ½ø¶È: " + (progress*100).ToString("f2") + "%";
+                            ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
                         }
                     });
-                    // ¼ÓÔØÒ»×é×ÊÔ´£¬²¢¸³Öµ
-                    management.LoadAssetAsync<Sprite>(new string[] {
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/¸öÈËĞÅÏ¢/¸öÈËĞÅÏ¢Í¼±ê.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/¸öÈËĞÅÏ¢/¸öÈËĞÅÏ¢ĞŞ¸ÄÃû×Ö.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/°´Å¥/Í¼±ê/1.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/°´Å¥/Í¼±ê/2.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/°´Å¥/Í¼±ê/5.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/±³¾°/±³¾°¹âĞ§.png"
-                    }, (_management, isdone, progress, _error, objs) =>
+                    management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/èƒŒæ™¯/èƒŒæ™¯å…‰æ•ˆ.png", (_management, isdone, progress, _error, obj) =>{
+                        if (isdone)
                         {
-                            if (isdone)
+                            if (string.IsNullOrEmpty(_error))
                             {
-                                if (string.IsNullOrEmpty(_error))
-                                    Debug.Log("¼ÓÔØÒ»×é×ÊÔ´È«²¿³É¹¦£º" + objs.Length);
-                                else
-                                    Debug.LogError("¼ÓÔØÒ»×é×ÊÔ´ Ê§°Ü£º" + _error);
-
-                                for(var i = 0; i < TestLoadAssetsPanel.transform.childCount;i++)
-                                {
-                                    TestLoadAssetsPanel.transform.GetChild(i).GetComponent<Image>().sprite = objs[i] as Sprite;
-                                }
+                                Debug.Log("åŠ è½½ èƒŒæ™¯å›¾ç‰‡ æˆåŠŸï¼š" + obj.name);
+                                var t = obj as Texture2D;
+                                TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = Sprite.Create(t, new Rect(0,0,t.width,t.height), Vector2.zero);
+                                // TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = t;
                             }
                             else
+                                Debug.LogError("åŠ è½½ èƒŒæ™¯å›¾ç‰‡ å¤±è´¥ï¼š" + _error);
+                        }
+                        else
+                        {
+                            Debug.Log("æ­£åœ¨åŠ è½½ èƒŒæ™¯å›¾ç‰‡ ï¼š" + progress);
+                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                            ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
+                        }
+                    });
+                    // åŠ è½½ç¬¬ä¸€ç»„èµ„æºï¼Œå¹¶èµ‹å€¼
+                    management.LoadAssetAsync(new string[] {
+                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/ä¸ªäººä¿¡æ¯/ä¸ªäººä¿¡æ¯å›¾æ ‡.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/ä¸ªäººä¿¡æ¯/ä¸ªäººä¿¡æ¯ä¿®æ”¹åå­—.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/å›¾æ ‡/1.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/å›¾æ ‡/2.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/å›¾æ ‡/5.png"
+                    }, (_management, isdone, progress, _error, objs) => {
+                        if(isdone)
+                        {
+                            if (!string.IsNullOrEmpty(_error))
                             {
-                                Debug.Log("ÕıÔÚ¼ÓÔØÒ»×é×ÊÔ´£º" + progress);
-                                ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                                ProgressText.text = "¼ÓÔØ½ø¶È: " + (progress * 100).ToString("f2") + "%";
+                                Debug.LogError("åŠ è½½ç¬¬ä¸€ç»„èµ„æº å¤±è´¥ï¼š" + _error);
+                                return;
                             }
-                        });
+
+                            Debug.Log("ç¬¬ä¸€ç»„èµ„æºå…¨éƒ¨åŠ è½½æˆåŠŸ");
+
+                            for(var i =0; i < objs.Length; i++)
+                            {
+                                var t = objs[i] as Texture2D;
+                                var image = TestLoadAssetsPanel.transform.GetChild(i + 1).GetComponent<Image>();
+                                image.sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), image.rectTransform.pivot);
+                                image.SetNativeSize();
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("æ­£åœ¨åŠ è½½ç¬¬ä¸€ç»„èµ„æºï¼š" + progress);
+                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                            ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
+                        }
+                    });
+                    // ä½¿ç”¨æ³›å‹åŠ è½½èµ„æº
+                    management.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/å›¾æ ‡/6.png", (_management, isdone, progress, _error, obj) =>
+                    {
+                        if (isdone)
+                        {
+                            if (string.IsNullOrEmpty(_error))
+                            {
+                                Debug.Log("åŠ è½½ æŒ‰é’® æˆåŠŸï¼š" + obj.name);
+                                TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().sprite = obj;
+                                TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().SetNativeSize();
+                            }
+                            else
+                                Debug.LogError("åŠ è½½ æŒ‰é’® å¤±è´¥ï¼š" + _error);
+                        }
+                        else
+                        {
+                            Debug.Log("æ­£åœ¨åŠ è½½ æŒ‰é’® ï¼š" + progress);
+                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                            ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
+                        }
+                    });
+                    // åŠ è½½ç¬¬äºŒç»„èµ„æº
+                    management.LoadAssetAsync<Sprite>(new string[] {
+                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/è§†å±.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/å›¾æ ‡/8.png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/æŒ‰é’®/é¡¹ç›®å‡çº§æŒ‰é’®åŠ¨ç”».png",
+                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/ä¸ªäººä¿¡æ¯/ä¸ªäººä¿¡æ¯å›¾æ ‡.png"
+                    }, (_management, isdone, progress, _error, objs) => {
+                        if (isdone)
+                        {
+                            if (!string.IsNullOrEmpty(_error))
+                            {
+                                Debug.LogError("åŠ è½½ç¬¬äºŒç»„èµ„æº å¤±è´¥ï¼š" + _error);
+                                return;
+                            }
+
+                            Debug.Log("ç¬¬äºŒç»„èµ„æºå…¨éƒ¨åŠ è½½æˆåŠŸ");
+
+                            for (var i = 0; i < objs.Length; i++)
+                            {
+                                var image = TestLoadAssetsPanel.transform.GetChild(i + 7).GetComponent<Image>();
+                                image.sprite = objs[i];
+                                image.SetNativeSize();
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("æ­£åœ¨åŠ è½½ç¬¬äºŒç»„èµ„æºï¼š" + progress);
+                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                            ProgressText.text = "åŠ è½½è¿›åº¦: " + (progress * 100).ToString("f2") + "%";
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.LogError("å‘ç”Ÿé”™è¯¯ï¼š" + error);
                 }
             });
     }
