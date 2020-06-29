@@ -11,24 +11,17 @@ using Frankfort.Threading.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace KSwordKit.Core.ResourcesManagement
 {
-    public class LoadingAssetBundle
-    {
-        public bool isDone;
-        public string error;
-        public float progress;
-    }
-
 	/// <summary>
 	/// 资源异步加载器
 	/// </summary>
     public class ResourcesAsyncLoader<T> where T : UnityEngine.Object
 	{
-		public const string KSwordKitName = "KSwordKit";
 		public const string ClassName = "ResourcesAsyncLoader";
 		public const string AsyncLoader = "asyncloader";
 
@@ -67,16 +60,17 @@ namespace KSwordKit.Core.ResourcesManagement
 		/// AssetBundle 缓冲字典
 		/// </summary>
 		public static Dictionary<string, AssetBundle> CacheAssetBunbleDic { get { return _CacheAssetBunbleDic; } }
-		static Dictionary<string, LoadingAssetBundle> _CacheLoadingAssetBundleDic = new Dictionary<string, LoadingAssetBundle>();
-		/// <summary>
-		/// 正在加载 AssetBundle 的缓冲字典
-		/// </summary>
-		public static Dictionary<string, LoadingAssetBundle> CacheLoadingAssetBundleDic { get { return _CacheLoadingAssetBundleDic; } }
-        static Dictionary<string, LoadingAssetBundle> _CacheLoadingAssetBundleRequestDic = new Dictionary<string, LoadingAssetBundle>();
-        /// <summary>
-        /// 正在加载 AssetBundleRequest 的缓冲字典
-        /// </summary>
-        public static Dictionary<string, LoadingAssetBundle> CacheLoadingAssetBundleRequestDic { get { return _CacheLoadingAssetBundleRequestDic; } }
+
+		//static Dictionary<string, LoadingAssetBundle> _CacheLoadingAssetBundleDic = new Dictionary<string, LoadingAssetBundle>();
+		///// <summary>
+		///// 正在加载 AssetBundle 的缓冲字典
+		///// </summary>
+		//public static Dictionary<string, LoadingAssetBundle> CacheLoadingAssetBundleDic { get { return _CacheLoadingAssetBundleDic; } }
+  //      static Dictionary<string, LoadingAssetBundle> _CacheLoadingAssetBundleRequestDic = new Dictionary<string, LoadingAssetBundle>();
+  //      /// <summary>
+  //      /// 正在加载 AssetBundleRequest 的缓冲字典
+  //      /// </summary>
+  //      public static Dictionary<string, LoadingAssetBundle> CacheLoadingAssetBundleRequestDic { get { return _CacheLoadingAssetBundleRequestDic; } }
         private static int _timeoutIfCanBeApplied;
 		/// <summary>
 		/// 如果能被应用的话，设置或获取超时时间
@@ -112,8 +106,22 @@ namespace KSwordKit.Core.ResourcesManagement
 			ResourcesLoadingLocation resourcesLoadingLocation, 
 			System.Action<bool, float, string, T> asyncAction)
         {
-			// 检查缓存内容, 缓存中存在时，加载缓存中的资源
-			if(CacheDic.ContainsKey(assetPath))
+            // 总共需要3步
+            // 1. 初始化资源包，只需执行一次
+            // 2. 加载资源包
+            // 3. 从资源包中加载资源
+
+
+            // 资源包对象须存在
+            if (_ResourcePackage == null)
+            {
+                asyncAction(true, 1, ResourcesManagement.KSwordKitName + ": 请先调用 SetResourcePackage 方法设置资源包", null);
+                return;
+            }
+
+
+            // 检查缓存内容, 缓存中存在时，加载缓存中的资源
+            if (CacheDic.ContainsKey(assetPath))
             {
 				if (asyncAction != null)
                 {
@@ -137,28 +145,101 @@ namespace KSwordKit.Core.ResourcesManagement
 				case ResourcesLoadingLocation.StreamingAssetsPath:
 				case ResourcesLoadingLocation.PersistentDataPath:
 				case ResourcesLoadingLocation.RemotePath:
-					// 资源包对象须存在
-					if(_ResourcePackage != null)
+
+                    if (ResourcesManagement.Instance.ResourceObjectPath_ResourceObjectDic.ContainsKey(assetPath))
                     {
-						// 从资源包中查找目标资源并开始加载
-						var rm = _ResourcePackage.AssetBundleInfos.Find((rmanifest) => rmanifest.ResourceObjects.Find((ro) => 
-						{
-							// 找到目标资源
-							if (ro.ResourcePath == assetPath)
-							{
-                                _loadResourcesByLocal(assetPath, rmanifest, ro, asyncAction);
-								return true;
-							}
-							else
-								return false;
+                        var ro = ResourcesManagement.Instance.ResourceObjectPath_ResourceObjectDic[assetPath];
+                        var rm = ResourcesManagement.Instance.AssetbundleName_AssetBundlePathDic[ro.AssetBundleName];
+                        // 加载资源
+                        System.Action abloadedAction = () => {
+                            float _progress = 0;
+                            _loader.StartCoroutine(ro.AsyncLoad(assetPath, rm.AssetBundle, (isdone, progress, error, obj) => {
+                                
+                                if (isdone)
+                                {
+                                    System.Action action = () => {
+                                        string asyncLoadAbr_error = null;
+                                        try
+                                        {
+                                            T t = null;
+                                            if (_TypeIsSprite)
+                                            {
+                                                var t2d = obj as Texture2D;
+                                                t = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), Vector2.zero) as T;
+                                            }
+                                            else
+                                                t = obj as T;
 
-						}) != null);
+                                            if (t != null)
+                                            {
+                                                // 资源加载成功后，存入资源缓存中
+                                                CacheDic[assetPath] = t;
+                                                asyncAction(true, 1, null, t);
+                                            }
+                                            else
+                                            {
+                                                asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型。\nassetPath="+assetPath;
+                                                asyncAction(true, 1, asyncLoadAbr_error, null);
+                                            }
+                                        }
+                                        catch (System.Exception e)
+                                        {
+                                            asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型, " + e.Message + "\nassetPath=" + assetPath;;
+                                            asyncAction(true, 1, asyncLoadAbr_error, null);
+                                        }
+                                    };
+                                    if (_progress != 1)
+                                    {
+                                        if (asyncAction != null)
+                                            asyncAction(false, 1, error, null);
+                                        NextFrame(action);
+                                    }
+                                    else
+                                        action();
 
-						if (rm == null)
-							asyncAction(true, 1, KSwordKitName + ": 资源不存在！请检查参数 assetPath 是否正确，assetPath=" + assetPath, null);
-					}
+                                    return;
+                                }
+
+                                _progress = 2f / 3f + 1f / 3f * progress;
+                                if (asyncAction != null && _progress > 2f/3f)
+                                    asyncAction(false, _progress, error, null);
+                            }));
+                        };
+
+                        if (rm.AssetBundle == null)
+                        {
+                            // 加载资源包
+                            rm.AsyncLoadTimeout = timeoutIfCanBeApplied;
+                            _loader.StartCoroutine(rm.AsyncLoad((isdone, progress, error, obj) =>
+                            {
+                                if (isdone)
+                                {
+                                    if (string.IsNullOrEmpty(error))
+                                    {
+                                        if (asyncAction != null)
+                                            asyncAction(false, 2f / 3f, null, null);
+                                        abloadedAction();
+                                    }
+                                    else if (asyncAction != null)
+                                        asyncAction(false, 1, error, null);
+
+                                    return;
+                                }
+                                if (asyncAction != null)
+                                    asyncAction(false, 1f / 3f + 1f / 3f * progress, error, null);
+                            }));
+                        }
+                        else
+                            abloadedAction();
+                    }
                     else
-						asyncAction(true, 1, KSwordKitName + ": 请先调用 SetResourcePackage 方法设置资源包", null);
+                    {
+                        if (asyncAction != null)
+                        {
+                            asyncAction(false, 1, null, null);
+                            NextFrame(() => asyncAction(true, 1, ResourcesManagement.KSwordKitName + ": 资源不存在！请检查参数 assetPath 是否正确，assetPath=" + assetPath, null));
+                        }
+                    }
 
 					break;
 			}
@@ -171,192 +252,9 @@ namespace KSwordKit.Core.ResourcesManagement
             var index = assetPath.IndexOf(str);
             str = assetPath.Substring(index + str.Length);
             str = str.Replace(System.IO.Path.GetExtension(str), "");
-            _loader.StartCoroutine(Async(assetPath, Resources.LoadAsync(str), asyncAction));
+            _loader.StartCoroutine(AsyncByResources(assetPath, Resources.LoadAsync(str), asyncAction));
         }
-        static void _loadResourcesByLocal(string assetPath, ResourceManifest rmanifest, ResourceObject ro, System.Action<bool, float, string, T> asyncAction)
-        {
-            // 资源包所在根目录
-            var rootDir = System.IO.Path.Combine(ResourcesManagement.GetResourcesFileRootDirectory(), ResourcesManagement.ResourceRootDirectoryName);
-            // 先加载依赖的资源包
-            float c = rmanifest.Dependencies.Count;
-            float cc = 0;
-            string error = null;
-            bool haveError = false;
-            for (var i = 0; i < c; i++)
-            {
-                var d = rmanifest.Dependencies[i];
-                // 资源包缓存中存在时，加载下一个依赖项
-                if (CacheAssetBunbleDic.ContainsKey(d))
-                {
-                    cc++;
-                    // 正在加载依赖项...
-                    asyncAction(false, (1f / 3f) * (cc / c), null, null);
-                    continue;
-                }
-                if (CacheLoadingAssetBundleDic.ContainsKey(d))
-                {
-                    var _www = CacheLoadingAssetBundleDic[d];
-                    string _error = null;
-                    WaitWhile(() => {
-                        if (_www.isDone)
-                        {
-                            cc++;
-                            haveError = true;
-                            _error = _www.error;
-                            error = _error;
-                            asyncAction(false, (1f / 3f) * (cc / c), null, null);
-                            return true;
-                        }
-
-                        asyncAction(false, (1f / 3f) * (cc / c) * _www.progress, null, null);
-                        return false;
-                    }, () => {
-                        asyncAction(false, (1f / 3f) * (cc / c), _error, null);
-                    });
-                    continue;
-                }
-                // 加载依赖的资源包
-                CacheLoadingAssetBundleDic[d] = new LoadingAssetBundle();
-                var www = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle("file://" +
-                    System.IO.Path.Combine(rootDir, _ResourcePackage.AssetBundleInfos.Find((r) => r.AssetBundleName == d).AssetBundlePath)
-                    );
-                www.timeout = timeoutIfCanBeApplied;
-                _loader.StartCoroutine(AsyncLoadAssetBundle(d, www, (isdone, progress, _error) =>
-                {
-                    // 加载其他依赖项时已经发生了错误时，不在继续处理
-                    if (haveError)
-                    {
-                        c++;
-                        return;
-                    }
-
-                    // 依赖加载完成
-                    if (isdone)
-                    {
-                        cc++;
-                        if (!string.IsNullOrEmpty(_error))
-                        {
-                            haveError = true;
-                            error = _error;
-                            return;
-                        }
-                        return;
-                    }
-                    // 正在加载依赖项...
-                    asyncAction(false, (1f / 3f) * (cc / c) * progress, null, null);
-                }));
-            }
-            // 等待所有依赖加载完成之后
-            // 加载目标资源所在的资源包
-            WaitWhile(() => cc == c, () => {
-                // 依赖加载过程中发生了错误时，返回错误信息。
-                if (haveError)
-                {
-                    asyncAction(true, 1, error, null);
-                    return;
-                }
-                System.Action actionCacheLoadingABR = () => {
-                    if (CacheLoadingAssetBundleRequestDic.ContainsKey(assetPath))
-                    {
-                        var _www = CacheLoadingAssetBundleRequestDic[assetPath];
-                        string _error = null;
-                        WaitWhile(
-                            () => {
-                                if (_www.isDone)
-                                {
-                                    _error = _www.error;
-                                    asyncAction(false, 1, null, null);
-                                    return true;
-                                }
-
-                                asyncAction(false, (2f / 3f) + (1f / 3f) * _www.progress, null, null);
-                                return false;
-                            },
-                            () => {
-                                if (string.IsNullOrEmpty(_error))
-                                    asyncAction(true, 1, null, CacheDic[assetPath]);
-                                else
-                                    asyncAction(true, 1, _error, null);
-                            }
-                        );
-                        return;
-                    }
-
-                    CacheLoadingAssetBundleRequestDic[assetPath] = new LoadingAssetBundle();
-                    _loader.StartCoroutine(AsyncLoadAssetBundleRequest(
-                        assetPath,
-                        CacheAssetBunbleDic[rmanifest.AssetBundleName].LoadAssetAsync(ro.ObjectName),
-                        asyncAction)
-                    );
-                };
-
-                // 缓存的资源包中存在的话，就从缓存中加载
-                if (CacheAssetBunbleDic.ContainsKey(rmanifest.AssetBundleName))
-                {
-                    actionCacheLoadingABR();
-                    return;
-                }
-                if (CacheLoadingAssetBundleDic.ContainsKey(rmanifest.AssetBundleName))
-                {
-                    var _www = CacheLoadingAssetBundleDic[ro.AssetBundleName];
-                    string _error = null;
-                    WaitWhile(
-                        () => {
-                        if (_www.isDone)
-                        {
-                            _error = _www.error;
-                            asyncAction(false, (2f / 3f), null, null);
-                            return true;
-                        }
-
-                        asyncAction(false, (1f / 3f) + (1f / 3f) * _www.progress, null, null);
-                        return false;
-                    },
-                        () => {
-                            if (string.IsNullOrEmpty(_error))
-                                actionCacheLoadingABR();
-                            else
-                                asyncAction(true, 1, _error, null);
-                    }
-                    );
-                    return;
-                }
-                if(CacheLoadingAssetBundleRequestDic.ContainsKey(assetPath))
-                {
-                    var _www = CacheLoadingAssetBundleRequestDic[assetPath];
-                    string _error = null;
-                    WaitWhile(
-                        () => {
-                            if (_www.isDone)
-                            {
-                                _error = _www.error;
-                                asyncAction(false, 1, null, null);
-                                return true;
-                            }
-
-                            asyncAction(false, (2f / 3f) + (1f / 3f) * _www.progress, null, null);
-                            return false;
-                        },
-                        () => {
-                            if (string.IsNullOrEmpty(_error))
-                                asyncAction(true, 1, null, CacheDic[assetPath]);
-                            else
-                                asyncAction(true, 1, _error, null);
-                        }
-                    );
-                    return;
-                }
-
-                // 加载资源包中的资源
-                CacheLoadingAssetBundleDic[rmanifest.AssetBundleName] = new LoadingAssetBundle();
-                var www = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle("file://" +
-                    System.IO.Path.Combine(rootDir, rmanifest.AssetBundlePath));
-                www.timeout = timeoutIfCanBeApplied;
-                _loader.StartCoroutine(Async(assetPath, ro, www, asyncAction));
-            });
-        }
-
-        static IEnumerator Async(string path, ResourceRequest resourceRequest, System.Action<bool, float, string, T> asyncAction)
+        static IEnumerator AsyncByResources(string path, ResourceRequest resourceRequest, System.Action<bool, float, string, T> asyncAction)
         {
 			while (!resourceRequest.isDone)
 			{
@@ -369,7 +267,7 @@ namespace KSwordKit.Core.ResourcesManagement
 			yield return null;
 
 			if (resourceRequest.asset == null)
-				asyncAction(true, 1, KSwordKitName + ": 资源加载失败或者文件不存在! 请检查参数 assetPath 是否正确, assetPath=" + path, null);
+				asyncAction(true, 1, ResourcesManagement.KSwordKitName + ": 资源加载失败或者文件不存在! 请检查参数 assetPath 是否正确, assetPath=" + path, null);
             else
             {
                 try
@@ -392,202 +290,16 @@ namespace KSwordKit.Core.ResourcesManagement
 						asyncAction(true, 1, null, t);
 					}
 					else
-						asyncAction(true, 1, KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型", null);
+						asyncAction(true, 1, ResourcesManagement.KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型", null);
 				}
 				catch (System.Exception e)
                 {
-					asyncAction(true, 1, KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型, " + e.Message, null);
+					asyncAction(true, 1, ResourcesManagement.KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型, " + e.Message, null);
 				}
 			}
 		}
-		static IEnumerator Async(string path,
-            ResourceObject resourceObject,
-            UnityEngine.Networking.UnityWebRequest unityWebRequest,
-            System.Action<bool, float, string, T> asyncAction)
-        {
-            yield return AsyncLoadAssetBundle(resourceObject.AssetBundleName, unityWebRequest, (isdone, progress, error) => {
-                if(isdone)
-                {
-                    asyncAction(false, (2f / 3f), error, null);
-                    NextFrame(() => {
-                        if (string.IsNullOrEmpty(error))
-                        {
-                            CacheLoadingAssetBundleRequestDic[path] = new LoadingAssetBundle();
-                            _loader.StartCoroutine(AsyncLoadAssetBundleRequest(
-                                path,
-                                CacheAssetBunbleDic[resourceObject.AssetBundleName].LoadAssetAsync(resourceObject.ObjectName),
-                                (_isdone, _progress, _error, obj) => {
-                                    if (_isdone)
-                                    {
-                                        asyncAction(true, 1, _error, obj);
-                                        return;
-                                    }
-                                    asyncAction(false, (2f / 3f) + (1f / 3f) * _progress, error, null);
-                                })
-                            );
-                        }
-                        else
-                            asyncAction(true, 1, error, null);
-                    });
-                    return;
-                }
-                asyncAction(false, (1f / 3f) + (1f / 3f) * progress, error, null);
-            });
-		}
 
-
-		static IEnumerator AsyncLoadAssetBundleRequest(string path,
-            AssetBundleRequest assetBundleRequest,
-            System.Action<bool, float, string, T> asyncAction)
-        {
-			while (!assetBundleRequest.isDone)
-			{
-                if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                    CacheLoadingAssetBundleRequestDic[path].progress = assetBundleRequest.progress;
-                asyncAction(false, assetBundleRequest.progress, null, null);
-				yield return null;
-			}
-			if (assetBundleRequest.progress != 1)
-            {
-                if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                    CacheLoadingAssetBundleRequestDic[path].progress = 1;
-                asyncAction(false, 1, null, null);
-            }
-			yield return null;
-
-            if (assetBundleRequest.asset == null)
-            {
-                if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                {
-                    var loading = CacheLoadingAssetBundleRequestDic[path];
-                    loading.isDone = true;
-                    loading.error = KSwordKitName + ": 资源加载失败或者文件不存在! 请检查参数 assetPath 是否正确, assetPath=" + path;
-                }
-                asyncAction(true, 1, KSwordKitName + ": 资源加载失败或者文件不存在! 请检查参数 assetPath 是否正确, assetPath=" + path, null);
-            }
-            else
-            {
-                try
-                {
-                    T t = null;
-                    if (_TypeIsTexture2D)
-                    {
-                        var Sprite = assetBundleRequest.asset as Sprite;
-                        t = Sprite.texture as T;
-                    }
-                    else
-                        t = assetBundleRequest.asset as T;
-                    if (t != null)
-                    {
-                        // 资源加载成功后，存入资源缓存中
-                        CacheDic[path] = t;
-                        if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                            CacheLoadingAssetBundleRequestDic[path].isDone = true;
-
-                        asyncAction(true, 1, null, t);
-                    }
-                    else
-                    {
-                        if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                        {
-                            var loading = CacheLoadingAssetBundleRequestDic[path];
-                            loading.isDone = true;
-                            loading.error = KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型";
-                        }
-                        asyncAction(true, 1, KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型", null);
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    if (CacheLoadingAssetBundleRequestDic.ContainsKey(path))
-                    {
-                        var loading = CacheLoadingAssetBundleRequestDic[path];
-                        loading.isDone = true;
-                        loading.error = KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型, " + e.Message;
-                    }
-                    asyncAction(true, 1, KSwordKitName + ": 资源加载成功，但该资源无法转换为 " + _Type.FullName + " 类型, " + e.Message, null);
-                }
-            }
-		}
-		static IEnumerator AsyncLoadAssetBundle(string assetBundleName,
-            UnityEngine.Networking.UnityWebRequest unityWebRequest,
-            System.Action<bool, float, string> action)
-        {
-			var op = unityWebRequest.SendWebRequest();
-			while (!op.isDone)
-            {
-                if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                    CacheLoadingAssetBundleDic[assetBundleName].progress = op.progress;
-
-                action(false, op.progress, null);
-				yield return null;
-			}
-            if (op.progress != 1f)
-            {
-                if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                    CacheLoadingAssetBundleDic[assetBundleName].progress = 1;
-                action(false, 1, null);
-            }
-			yield return null;
-            if (string.IsNullOrEmpty(unityWebRequest.error))
-            {
-                try
-                {
-                    AssetBundle ab = null;
-                    if (CacheAssetBunbleDic.ContainsKey(assetBundleName))
-                        ab = CacheAssetBunbleDic[assetBundleName];
-                    else
-                    {
-                        ab = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(unityWebRequest);
-                        if (ab != null)
-                            // 依赖加载成功后，存入资源包的缓冲中
-                            CacheAssetBunbleDic[assetBundleName] = ab;
-                    }
-
-                    if (ab != null)
-                    {
-                        if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                        {
-                            var loading = CacheLoadingAssetBundleDic[assetBundleName];
-                            loading.isDone = true;
-                            loading.error = null;
-                        }
-                        action(true, 1, null);
-                    }
-                    else
-                    {
-                        if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                        {
-                            var loading = CacheLoadingAssetBundleDic[assetBundleName];
-                            loading.isDone = true;
-                            loading.error = KSwordKitName + ": 获取资源包失败！\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url;
-                        }
-                        action(true, 1, KSwordKitName + ": 获取资源包失败！\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url);
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                    {
-                        var loading = CacheLoadingAssetBundleDic[assetBundleName];
-                        loading.isDone = true;
-                        loading.error = KSwordKitName + ": 获取资源包失败！" + e.Message + "\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url;
-                    }
-                    action(true, 1, KSwordKitName + ": 获取资源包失败！" + e.Message + "\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url);
-                }
-            }
-            else
-            {
-                if (CacheLoadingAssetBundleDic.ContainsKey(assetBundleName))
-                {
-                    var loading = CacheLoadingAssetBundleDic[assetBundleName];
-                    loading.isDone = true;
-                    loading.error = KSwordKitName + ": 获取资源包失败！" + unityWebRequest.error + "\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url;
-                }
-                action(true, 1, KSwordKitName + ": 获取资源包失败！" + unityWebRequest.error + "\nassetBunbleName=" + assetBundleName + "\nurl=" + unityWebRequest.url);
-            }
-		}
-
+  
 
         static void WaitWhile(Func<bool> waitFunc, System.Action completedAction)
         {
@@ -609,7 +321,6 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="asyncAction">异步回调；参数是异步结果，内部包含进度、错误信息、加载结果等内容。 </param>
         public static void LoadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, System.Action<bool, float, string, T[]> asyncAction)
         {
-			// 剔除重复元素
 			int c = assetPaths.Length;
 			int cc = 0;
 			string error = null;

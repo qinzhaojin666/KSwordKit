@@ -51,7 +51,10 @@ namespace KSwordKit.Core.ResourcesManagement
             }
         }
 
-
+        static Dictionary<string, ResourceObject> _ResourceObjectPath_ResourceObjectDic = new Dictionary<string, ResourceObject>();
+        static Dictionary<string, ResourceManifest> _AssetbundleName_AssetBundlePathDic = new Dictionary<string, ResourceManifest>();
+        public Dictionary<string, ResourceObject> ResourceObjectPath_ResourceObjectDic { get { return _ResourceObjectPath_ResourceObjectDic; } }
+        public Dictionary<string, ResourceManifest> AssetbundleName_AssetBundlePathDic { get { return _AssetbundleName_AssetBundlePathDic; } }
 
         /// <summary>
         /// 初始化资源管理器
@@ -75,6 +78,16 @@ namespace KSwordKit.Core.ResourcesManagement
                     Instance._isInitd = true;
                     Instance._initProgress = 1;
                     Instance._initError = error;
+
+                    if (string.IsNullOrEmpty(Instance._initError))
+                    {
+                        Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
+                            Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
+                            rm.ResourceObjects.ForEach((ro) => {
+                                Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
+                            });
+                        });
+                    }
 
                     if (Instance._OnInitCompleted != null)
                         Instance._OnInitCompleted(Instance, Instance._initError);
@@ -106,6 +119,17 @@ namespace KSwordKit.Core.ResourcesManagement
             {
                 Instance._initError = KSwordKitName + ": " + e.Message;
             }
+            
+            if (string.IsNullOrEmpty(Instance._initError))
+            {
+                Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
+                    Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
+                    rm.ResourceObjects.ForEach((ro) => {
+                        Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
+                    });
+                });
+            }
+
             if (Instance._OnInitializing != null)
                 Instance._OnInitializing(Instance, 1);
             if (Instance._OnInitCompleted != null)
@@ -138,7 +162,15 @@ namespace KSwordKit.Core.ResourcesManagement
                     Instance._isInitd = true;
                     Instance._initProgress = 1;
                     Instance._initError = error;
-
+                    if (string.IsNullOrEmpty(Instance._initError))
+                    {
+                        Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
+                            Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
+                            rm.ResourceObjects.ForEach((ro) => {
+                                Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
+                            });
+                        });
+                    }
                     if (Instance._OnInitCompleted != null)
                         Instance._OnInitCompleted(Instance, Instance._initError);
                 }
@@ -157,12 +189,13 @@ namespace KSwordKit.Core.ResourcesManagement
             _OnInitCompleted += action;
             if (_isInitd)
                 action(this, _initError);
-            return Instance;
+            return this;
         }
         /// <summary>
         /// 初始化完成事件
         /// </summary>
         event System.Action<ResourcesManagement, string> _OnInitCompleted;
+
         bool _isInitd;
         float _initProgress;
         string _initError = null;
@@ -319,13 +352,12 @@ namespace KSwordKit.Core.ResourcesManagement
             path = System.IO.Path.Combine(path, 
             UnityEditor.EditorUserBuildSettings.activeBuildTarget.ToString());
 #endif
-            if (!Application.isEditor)
-            {
-                if (Application.platform == RuntimePlatform.IPhonePlayer)
-                    path = System.IO.Path.Combine(path, "iOS");
-                else
-                    path = System.IO.Path.Combine(path, Application.platform.ToString());
-            }
+#if !UNITY_EDITOR
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+                path = System.IO.Path.Combine(path, "iOS");
+            else
+                path = System.IO.Path.Combine(path, Application.platform.ToString());
+#endif
             switch (ResourcesLoadingLocation)
             {
                 case ResourcesLoadingLocation.StreamingAssetsPath:
@@ -407,6 +439,17 @@ namespace KSwordKit.Core.ResourcesManagement
                     asyncAction(this, isdone, progress, error, objs);
             });
             return this;
+        }
+
+
+        public static void NextFrame(System.Action action)
+        {
+            Instance.StartCoroutine(_ThreadWaitForNextFrame(action));
+        }
+        static IEnumerator _ThreadWaitForNextFrame(System.Action action)
+        {
+            yield return null;
+            action();
         }
     }
 }

@@ -79,7 +79,7 @@ public class Launch : MonoBehaviour
                                 Instantiate(obj, UIRoot.transform).name = obj.name;
                             }
                             else
-                                Debug.LogError("加载预制体 loadSceneButton 失败：" + _error);
+                                Debug.LogError("加载预制体 loadSceneButton 失败！\n" + _error);
                         }
                         else
                         {
@@ -88,14 +88,15 @@ public class Launch : MonoBehaviour
                             ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                         }
                     });
-                    management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (_management, isdone, progress, _error, obj) =>{
+                    management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (_management, isdone, progress, _error, obj) =>
+                    {
                         if (isdone)
                         {
                             if (string.IsNullOrEmpty(_error))
                             {
                                 Debug.Log("加载 背景图片 成功：" + obj.name);
                                 var t = obj as Texture2D;
-                                TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = Sprite.Create(t, new Rect(0,0,t.width,t.height), Vector2.zero);
+                                TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), Vector2.zero);
                                 // TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = t;
                             }
                             else
@@ -115,8 +116,9 @@ public class Launch : MonoBehaviour
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/1.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/2.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/5.png"
-                    }, (_management, isdone, progress, _error, objs) => {
-                        if(isdone)
+                    }, (_management, isdone, progress, _error, objs) =>
+                    {
+                        if (isdone)
                         {
                             if (!string.IsNullOrEmpty(_error))
                             {
@@ -126,7 +128,7 @@ public class Launch : MonoBehaviour
 
                             Debug.Log("第一组资源全部加载成功");
 
-                            for(var i =0; i < objs.Length; i++)
+                            for (var i = 0; i < objs.Length; i++)
                             {
                                 var t = objs[i] as Texture2D;
                                 var image = TestLoadAssetsPanel.transform.GetChild(i + 1).GetComponent<Image>();
@@ -168,7 +170,8 @@ public class Launch : MonoBehaviour
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/8.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/项目升级按钮动画.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png"
-                    }, (_management, isdone, progress, _error, objs) => {
+                    }, (_management, isdone, progress, _error, objs) =>
+                    {
                         if (isdone)
                         {
                             if (!string.IsNullOrEmpty(_error))

@@ -74,5 +74,127 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <para>链表项表示依赖的包名，可在主包<see cref="AssetBundleManifest"/>中链表<see cref="AssetBundleManifest.AssetBundleInfos"/>中查找。</para>
         /// </summary>
         public List<string> Dependencies = null;
+        /// <summary>
+        /// 资源包引用计数
+        /// </summary>
+        [NonSerialized]
+        int AssetBundleCount;
+        /// <summary>
+        /// 异步加载时设置超时时间
+        /// </summary>
+        [NonSerialized]
+        public int AsyncLoadTimeout;
+        [NonSerialized]
+        string error;
+        [NonSerialized]
+        bool isDone;
+        [NonSerialized]
+        bool asyncloaded;
+        /// <summary>
+        /// 加载状态事件
+        /// </summary>
+        event System.Action<bool, float, string, AssetBundle> LoadingStatusEvent;
+        /// <summary>
+        /// 加载资源包方法
+        /// </summary>
+        /// <param name="action">回调动作</param>
+        /// <returns>协程</returns>
+        public IEnumerator AsyncLoad(System.Action<bool, float, string, AssetBundle> action)
+        {
+            if(asyncloaded)
+            {
+                if (isDone)
+                {
+                    action(false, 1, null, null);
+                    ResourcesManagement.NextFrame(() => action(isDone, 1, error, AssetBundle));
+                }
+                else
+                    LoadingStatusEvent += action;
+
+                yield break;
+            }
+
+            if (!asyncloaded)
+                asyncloaded = true;
+            LoadingStatusEvent += action;
+
+
+            float dc = Dependencies.Count;
+            float cc = 0;
+            for (var i = 0; i < dc; i++)
+            {
+                yield return ResourcesManagement.Instance.AssetbundleName_AssetBundlePathDic[Dependencies[i]].AsyncLoad((isdone, progress, _error, obj) => {
+
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        cc++;
+                        return;
+                    }
+                    if(isdone)
+                    {   
+                        error = _error;
+                        cc++;
+                        return;
+                    }
+                    LoadingStatusEvent(false, 0.5f * progress, null, null);
+                });
+            }
+
+
+            while (cc != dc)
+                yield return null;
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                LoadingStatusEvent(false, 1, error, null);
+                yield break;
+            }
+
+            var rootDir = System.IO.Path.Combine(ResourcesManagement.GetResourcesFileRootDirectory(), ResourcesManagement.ResourceRootDirectoryName);
+            var unityWebRequest = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle("file://" + System.IO.Path.Combine(rootDir, AssetBundlePath));
+            unityWebRequest.timeout = AsyncLoadTimeout;
+            var op = unityWebRequest.SendWebRequest();
+            while (!op.isDone)
+            {
+                isDone = op.isDone;
+                LoadingStatusEvent(false, op.progress, null, null);
+                yield return null;
+            }
+
+            isDone = op.isDone;
+            if (op.progress != 1f)
+                LoadingStatusEvent(false, 1, null, null);
+
+            yield return null;
+
+            if (string.IsNullOrEmpty(unityWebRequest.error))
+            {
+                try
+                {
+                    AssetBundle ab = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(unityWebRequest);
+
+                    if (ab != null)
+                    {
+                        AssetBundle = ab;
+                        LoadingStatusEvent(true, 1, null, ab);
+                    }
+                    else
+                    {
+                        error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                        LoadingStatusEvent(true, 1, error, null);
+                    }
+            }
+                catch (System.Exception e)
+            {
+                error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！" + e.Message + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                LoadingStatusEvent(true, 1, error, null);
+            }
+        }
+            else
+            {
+                error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！" + unityWebRequest.error + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                LoadingStatusEvent(true, 1, error, null);
+            }
+        }
     }
 }

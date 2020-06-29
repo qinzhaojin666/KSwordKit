@@ -51,5 +51,71 @@ namespace KSwordKit.Core.ResourcesManagement
         [NonSerialized]
         public UnityEngine.Object Object = null;
 
+        bool asyncLoadAbr_isdone;
+        string asyncLoadAbr_error;
+        bool asyncloaded;
+        event System.Action<bool, float, string, UnityEngine.Object> asyncLoadAbrEvent;
+        AssetBundleRequest assetBundleRequest;
+
+        public IEnumerator AsyncLoad(string path, AssetBundle assetBundle, System.Action<bool, float, string, UnityEngine.Object> asyncAction)
+        {
+            if (asyncloaded)
+            {
+                if (asyncLoadAbr_isdone)
+                {
+                    asyncAction(false, 1, null, null);
+                    if (!string.IsNullOrEmpty(asyncLoadAbr_error))
+                        ResourcesManagement.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoadAbr_error, null));
+                    else
+                        ResourcesManagement.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
+                }
+                else
+                    asyncLoadAbrEvent += asyncAction;
+                yield break;
+            }
+            if (!asyncloaded)
+                asyncloaded = true;
+
+            asyncLoadAbrEvent += asyncAction;
+
+            assetBundleRequest = assetBundle.LoadAssetAsync(ObjectName);
+            while (!assetBundleRequest.isDone)
+            {
+                asyncLoadAbrEvent(false, assetBundleRequest.progress, null, null);
+                yield return null;
+            }
+            if (assetBundleRequest.progress != 1)
+                asyncLoadAbrEvent(false, 1, null, null);
+
+            yield return null;
+
+            if (assetBundleRequest.asset == null)
+            {
+                asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+            }
+            else
+            {
+                try
+                {
+                    if (assetBundleRequest.asset != null)
+                    {
+                        // 资源加载成功后，存入资源缓存中
+                        Object = assetBundleRequest.asset;
+                        asyncLoadAbrEvent(true, 1, null, Object);
+                    }
+                    else
+                    {
+                        asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                        asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                    asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+                }
+            }
+        }
     }
 }
