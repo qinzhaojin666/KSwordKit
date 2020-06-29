@@ -37,7 +37,17 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         public const string KSwordKitName = "KSwordKit";
 
+        static bool instanceExists;
+        private void Awake()
+        {
+            if (instanceExists)
+                Destroy(gameObject);
+        }
+
         static ResourcesManagement _Instance;
+        /// <summary>
+        /// ResourcesManagement类单例
+        /// </summary>
         public static ResourcesManagement Instance
         {
             get
@@ -45,7 +55,8 @@ namespace KSwordKit.Core.ResourcesManagement
                 if (_Instance == null)
                 {
                     _Instance = new GameObject(NAME).AddComponent<ResourcesManagement>();
-                    GameObject.DontDestroyOnLoad(_Instance.gameObject);
+                    instanceExists = true;
+                    DontDestroyOnLoad(_Instance.gameObject);
                 }
                 return _Instance;
             }
@@ -53,7 +64,13 @@ namespace KSwordKit.Core.ResourcesManagement
 
         static Dictionary<string, ResourceObject> _ResourceObjectPath_ResourceObjectDic = new Dictionary<string, ResourceObject>();
         static Dictionary<string, ResourceManifest> _AssetbundleName_AssetBundlePathDic = new Dictionary<string, ResourceManifest>();
+        /// <summary>
+        /// 资源对象路径与资源对象之间的映射关系
+        /// </summary>
         public Dictionary<string, ResourceObject> ResourceObjectPath_ResourceObjectDic { get { return _ResourceObjectPath_ResourceObjectDic; } }
+        /// <summary>
+        /// 资源包名与资源包之间的映射关系
+        /// </summary>
         public Dictionary<string, ResourceManifest> AssetbundleName_AssetBundlePathDic { get { return _AssetbundleName_AssetBundlePathDic; } }
 
         /// <summary>
@@ -62,36 +79,22 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         /// <param name="resourcesLoadingLocation">加载资源的位置</param>
         /// <returns>自身实例对象</returns>
-        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation)
+        public ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation = ResourcesLoadingLocation.Resources, System.Action<bool, float, string> initAction = null)
         {
-            Instance._isInitd = false;
+            if (initAction != null)
+                Instance.OnInitEvent += initAction;
+
+            if (Instance._isInitializing || _Instance._isInitDone)
+                return Instance;
+
+            Instance._isInitializing = true;
+            Instance._isInitDone = false;
             Instance._initProgress = 0;
             Instance._initError = null;
             _resourcesLoadingLocation = resourcesLoadingLocation;
 
-            LoadResourcesListAsync((progress, error, rbm) => {
-                if (Instance._OnInitializing != null)
-                    Instance._OnInitializing(Instance, progress);
-
-                if(progress == 1)
-                {
-                    Instance._isInitd = true;
-                    Instance._initProgress = 1;
-                    Instance._initError = error;
-
-                    if (string.IsNullOrEmpty(Instance._initError))
-                    {
-                        Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
-                            Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
-                            rm.ResourceObjects.ForEach((ro) => {
-                                Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
-                            });
-                        });
-                    }
-
-                    if (Instance._OnInitCompleted != null)
-                        Instance._OnInitCompleted(Instance, Instance._initError);
-                }
+            NextFrame(() => {
+                Instance.StartCoroutine(loadResourcesList(onInitFunc));
             });
 
             return Instance;
@@ -100,41 +103,35 @@ namespace KSwordKit.Core.ResourcesManagement
         /// 资源管理器的初始化
         /// <para>针对可以直接提供资源清单文本内容的情况</para>
         /// </summary>
-        /// <param name="resourcesLoadingLocation">资源位置</param>
         /// <param name="resourceslist_jsonString">资源清单的文本内容</param>
         /// <returns>自身实例对象</returns>
-        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, string resourceslist_jsonString)
+        public ResourcesManagement Init(string resourceslist_jsonString, System.Action<bool, float, string> initAction = null)
         {
-            Instance._isInitd = false;
+            return Init(ResourcesLoadingLocation.Resources, resourceslist_jsonString, initAction);
+        }
+        /// <summary>
+        /// 资源管理器的初始化
+        /// <para>针对可以直接提供资源清单文本内容的情况</para>
+        /// </summary>
+        /// <param name="resourcesLoadingLocation">资源加载位置</param>
+        /// <param name="resourceslist_jsonString">资源清单的文本内容</param>
+        /// <returns>自身实例对象</returns>
+        public ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, string resourceslist_jsonString, System.Action<bool, float, string> initAction = null)
+        {
+            if (initAction != null)
+                Instance.OnInitEvent += initAction;
+
+            if (Instance._isInitializing || _Instance._isInitDone)
+                return Instance;
+
+            Instance._isInitializing = true;
+            Instance._isInitDone = false;
             Instance._initProgress = 0;
             Instance._initError = null;
-            _resourcesLoadingLocation = resourcesLoadingLocation;
-            try
-            {
-                var r = JsonUtility.FromJson<AssetBundleManifest>(resourceslist_jsonString);
-                if (r != null)
-                    _AssetBundleManifest = r;
-            }
-            catch (System.Exception e)
-            {
-                Instance._initError = KSwordKitName + ": " + e.Message;
-            }
-            
-            if (string.IsNullOrEmpty(Instance._initError))
-            {
-                Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
-                    Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
-                    rm.ResourceObjects.ForEach((ro) => {
-                        Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
-                    });
-                });
-            }
 
-            if (Instance._OnInitializing != null)
-                Instance._OnInitializing(Instance, 1);
-            if (Instance._OnInitCompleted != null)
-                Instance._OnInitCompleted(Instance, Instance._initError);
-
+            NextFrame(() => {
+                Instance.StartCoroutine(startThreadHandleResourcePackage(resourceslist_jsonString, onInitFunc));
+            });
             return Instance;
         }
         /// <summary>
@@ -142,189 +139,386 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <para>针对提供自定义资源清单文件json数据的加载请求的情况</para>
         /// <para>大多用于资源清单位于服务器的时候</para>
         /// </summary>
-        /// <param name="resourcesLoadingLocation">资源位置</param>
         /// <param name="resourceslistJsonFileWebRequest">配置好了的加载资源清单json数据的请求对象</param>
         /// <returns>自身实例对象</returns>
-        public static ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, UnityEngine.Networking.UnityWebRequest resourceslistJsonFileWebRequest)
+        public ResourcesManagement Init(UnityEngine.Networking.UnityWebRequest resourceslistJsonFileWebRequest, System.Action<bool, float, string> initAction = null)
         {
-            Instance._isInitd = false;
+            return Init(ResourcesLoadingLocation.Resources, resourceslistJsonFileWebRequest, initAction);
+        }
+        /// <summary>
+        /// 资源管理器的初始化
+        /// <para>针对提供自定义资源清单文件json数据的加载请求的情况</para>
+        /// <para>大多用于资源清单位于服务器的时候</para>
+        /// </summary>
+        /// <param name="resourcesLoadingLocation">资源加载位置</param>
+        /// <param name="resourceslistJsonFileWebRequest">配置好了的加载资源清单json数据的请求对象</param>
+        /// <returns>自身实例对象</returns>
+        public ResourcesManagement Init(ResourcesLoadingLocation resourcesLoadingLocation, UnityEngine.Networking.UnityWebRequest resourceslistJsonFileWebRequest, System.Action<bool, float, string> initAction = null)
+        {
+            if (initAction != null)
+                Instance.OnInitEvent += initAction;
+
+            if (Instance._isInitializing || _Instance._isInitDone)
+                return Instance;
+
+            Instance._isInitializing = true;
+            Instance._isInitDone = false;
             Instance._initProgress = 0;
             Instance._initError = null;
             _resourcesLoadingLocation = resourcesLoadingLocation;
 
-            Instance.StartCoroutine(loadResourcesList(resourceslistJsonFileWebRequest, (progress, error, rbm) =>
-            {
-                if (Instance._OnInitializing != null)
-                    Instance._OnInitializing(Instance, progress);
-
-                if (progress == 1)
-                {
-                    Instance._isInitd = true;
-                    Instance._initProgress = 1;
-                    Instance._initError = error;
-                    if (string.IsNullOrEmpty(Instance._initError))
-                    {
-                        Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) => {
-                            Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
-                            rm.ResourceObjects.ForEach((ro) => {
-                                Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
-                            });
-                        });
-                    }
-                    if (Instance._OnInitCompleted != null)
-                        Instance._OnInitCompleted(Instance, Instance._initError);
-                }
-            }));
+            NextFrame(() => {
+                Instance.StartCoroutine(loadResourcesList(resourceslistJsonFileWebRequest, onInitFunc));
+            });
 
             return Instance;
         }
         /// <summary>
-        /// 初始化完成
-        /// <para>如果初始化过程中发生错误时，完成时带有错误信息回调。</para>
-        /// <para>如果初始化过程中没有任何错误，完成时带有null回调。</para>
+        /// 正在初始化
+        /// <para>参数为初始化情况回调</para>
+        /// <para>回调参数分别为：是否完成、初始化进度、错误信息</para>
         /// </summary>
-        /// <returns>自身实例对象</returns>
-        public ResourcesManagement OnInitCompleted(System.Action<ResourcesManagement, string> action)
+        event System.Action<bool, float, string> _OnInit;
+        /// <summary>
+        /// 初始化进度事件
+        /// <para>回调参数为：初始化进度</para>
+        /// </summary>
+        event System.Action<float> _OnInitializing;
+        /// <summary>
+        /// 初始化成功了
+        /// </summary>
+        event System.Action _OnInitializedSuccessfully;
+        /// <summary>
+        /// 初始化失败了
+        /// </summary>
+        event System.Action<string> _OnInitializationFailed;
+        public event System.Action<bool ,float,string> OnInitEvent
         {
-            _OnInitCompleted += action;
-            if (_isInitd)
-                action(this, _initError);
-            return this;
+            add
+            {
+                _OnInit += value;
+                if(_isInitDone)
+                {
+                    value(false, 1, null);
+                    NextFrame(() => value(true, 1, _initError));
+                }
+            }
+            remove
+            {
+                _OnInit -= value;
+            }
         }
         /// <summary>
-        /// 初始化完成事件
+        /// 正在初始化
+        /// <para>参数为初始化情况回调</para>
+        /// <para>回调参数为：初始化进度</para>
         /// </summary>
-        event System.Action<ResourcesManagement, string> _OnInitCompleted;
+        public event System.Action<float> OnInitializingEvent
+        {
+            add
+            {
+                _OnInitializing += value;
+                if (_isInitDone)
+                {
+                    value(1);
+                }
+            }
+            remove
+            {
+                _OnInitializing -= value;
+            }
+        }
+        /// <summary>
+        /// 初始化成功了
+        /// <para>当初始化成功时会触发该事件</para>
+        /// </summary>
+        public event System.Action OnInitializedSuccessfullyEvent
+        {
+            add
+            {
+                _OnInitializedSuccessfully += value;
+                if(_isInitDone && string.IsNullOrEmpty(_initError))
+                {
+                    value();
+                }
+            }
+            remove
+            {
+                _OnInitializedSuccessfully -= value;
+            }
+        }
+        /// <summary>
+        /// 初始化失败了
+        /// <para>参数为失败信息</para>
+        /// <para>当初始化失败时会触发该事件</para>
+        /// </summary>
+        public event System.Action<string> OnInitializationFailedEvent
+        {
+            add
+            {
+                _OnInitializationFailed += value;
+                if (_isInitDone && !string.IsNullOrEmpty(_initError))
+                {
+                    value(_initError);
+                }
+            }
+            remove
+            {
+                _OnInitializationFailed -= value;
+            }
+        }
+        /// <summary>
+        /// 初始化函数
+        /// <para>该函数充当一个内部回调函数，统一处理初始化相关事件。</para>
+        /// </summary>
+        /// <param name="isdone">是否完成</param>
+        /// <param name="progress">初始化进度</param>
+        /// <param name="error">错误信息</param>
+        void onInitFunc(bool isdone, float progress, string error)
+        {
+            if (isdone)
+            {
+                Instance._isInitDone = true;
+                Instance._isInitializing = false;
+                Instance._initProgress = 1;
+                Instance._initError = error;
 
-        bool _isInitd;
+                if (Instance._OnInit != null)
+                    Instance._OnInit(true, 1, error);
+
+                if (string.IsNullOrEmpty(Instance._initError))
+                {
+                    if (Instance._OnInitializedSuccessfully != null)
+                        Instance._OnInitializedSuccessfully();
+                }
+                else
+                {
+                    if (Instance._OnInitializationFailed != null)
+                        Instance._OnInitializationFailed(Instance._initError);
+                }
+
+                return;
+            }
+
+            if (Instance._OnInit != null)
+                Instance._OnInit(false, progress, null);
+            if (Instance._OnInitializing != null)
+                Instance._OnInitializing(progress);
+        }
+
+        bool _isInitializing;
+        bool _isInitDone;
         float _initProgress;
         string _initError = null;
         /// <summary>
         /// 正在初始化
-        /// <para>参数为初始化进度回调</para>
+        /// <para>参数为初始化情况回调</para>
+        /// <para>回调参数分别为：初始化进度</para>
         /// </summary>
-        /// <param name="progressAction">初始化进度回调</param>
+        /// <param name="initializingAction">初始化情况回调</param>
         /// <returns>自身实例对象</returns>
-        public ResourcesManagement OnInitializing(System.Action<ResourcesManagement, float> progressAction)
+        public ResourcesManagement OnInitializing(System.Action<float> initializingAction)
         {
-            _OnInitializing += progressAction;
-            if (_isInitd)
-                progressAction(this, 1);
-
+            OnInitializingEvent += initializingAction;
             return Instance;
         }
         /// <summary>
-        /// 初始化进度事件
+        /// 注册一个初始化成功时的回调
+        /// <para>当初始化成功时，会回调<paramref name="initializedSuccessfully"/></para>
         /// </summary>
-        event System.Action<ResourcesManagement, float> _OnInitializing;
-        static UnityEngine.Networking.UnityWebRequest _UnityWebRequest;
-        static ResourcesLoadingLocation _resourcesLoadingLocation = ResourcesLoadingLocation.Resources;
+        public ResourcesManagement OnInitializedSuccessfully(System.Action initializedSuccessfully)
+        {
+            OnInitializedSuccessfullyEvent += initializedSuccessfully;
+            return Instance;
+        }
+        /// <summary>
+        /// 初始化失败了
+        /// <para>当初始化失败时，会回调<paramref name="initializationFailed"/></para>
+        /// <para>回调<paramref name="initializationFailed"/> 中的参数为失败信息</para>
+        /// </summary>
+        public ResourcesManagement OnInitializationFailed(System.Action<string> initializationFailed)
+        {
+            OnInitializationFailedEvent += initializationFailed;
+            return Instance;
+        }
+
+        UnityEngine.Networking.UnityWebRequest _UnityWebRequest;
+        ResourcesLoadingLocation _resourcesLoadingLocation = ResourcesLoadingLocation.Resources;
         /// <summary>
         /// 获得资源加载位置
         /// </summary>
-        public static ResourcesLoadingLocation ResourcesLoadingLocation { get { return _resourcesLoadingLocation; } }
+        public ResourcesLoadingLocation ResourcesLoadingLocation {
+            get { return _resourcesLoadingLocation; }
+            set { _resourcesLoadingLocation = value; }
+        }
         static AssetBundleManifest _AssetBundleManifest;
         /// <summary>
         /// 资源清单
         /// </summary>
         public AssetBundleManifest ResourcePackage { get { return _AssetBundleManifest; } }
-        static void LoadResourcesListAsync(System.Action<float, string, AssetBundleManifest> action)
-        {
-            if(_AssetBundleManifest != null)
-            {
-                action(1, null, _AssetBundleManifest);
-                return;
-            }
 
+        IEnumerator loadResourcesList(System.Action<bool, float, string> action)
+        {
             var path = GetResourceListFilePath();
             // 不是 StreamingAssetsPath 都可以使用System.IO.File读取资源清单
             if (ResourcesLoadingLocation != ResourcesLoadingLocation.StreamingAssetsPath)
             {
-                var text = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
+                string text = null;
+                string error = null;
+                float progress = 0f;
                 try
                 {
-                    var r = JsonUtility.FromJson<AssetBundleManifest>(text);
-                    if (r != null)
-                    {
-                        _AssetBundleManifest = r;
-                        action(1, null, _AssetBundleManifest);
-                    }
-                    else throw new IOException("解析资源清单失败，filepath = " + path);
+                    text = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
+                    progress = 0.25f;
+                    action(false, progress, null);
                 }
                 catch (System.Exception e)
                 {
-                    action(1, KSwordKitName + ": " + e.Message, null);
+                    error = KSwordKitName + ": " + e.Message;
+                }
+
+                if (string.IsNullOrEmpty(error))
+                {
+                    yield return startThreadHandleResourcePackage(text, (isdone, _progress, _error) => {
+                        if (isdone)
+                        {
+                            action(true, 1, _error);
+                            return;
+                        }
+                        action(false, 0.25f + 0.75f * _progress, null);
+                    });
+                }
+                else
+                {
+                    action(false, 1, null);
+                    yield return null;
+
+                    action(true, 1, error);
                 }
             }
             else
             {
                 if (IsNeedAddLocalFilePathPrefix())
                     path = "file://" + path;
-                Instance.StartCoroutine(loadResourcesList(path, action));
+
+                yield return loadResourcesList(path, action);
             }
         }
-        static IEnumerator loadResourcesList(string path, System.Action<float, string, AssetBundleManifest> action)
+        IEnumerator loadResourcesList(string path, System.Action<bool, float, string> action)
         {
             var www = UnityEngine.Networking.UnityWebRequest.Get(path);
             var op = www.SendWebRequest();
             while(!op.isDone)
             {
-                action(op.progress, null, null);
+                action(false, 0.5f * op.progress, null);
                 yield return null;
             }
-
+            
             if(string.IsNullOrEmpty(www.error))
             {
-                try
-                {
-                    var text = www.downloadHandler.text;
-                    var r = JsonUtility.FromJson<AssetBundleManifest>(text);
-                    if (r != null)
-                        _AssetBundleManifest = r;
-
-                    action(1, null, r);
-                }
-                catch (System.Exception e)
-                {
-                    action(1, KSwordKitName + ": " + e.Message, null);
-                }
+                var text = www.downloadHandler.text;
+                yield return startThreadHandleResourcePackage(text, (isdone, progress, error) => {
+                    if (isdone)
+                    {
+                        action(true, 1, error);
+                        return;
+                    }
+                    action(false, 0.5f + 0.5f * progress, null);
+                });
             }
             else
-            {
-                action(1, KSwordKitName + ": " + www.error, null);
-            }
+                action(true, 1, KSwordKitName + ": " + www.error);
         }
-        static IEnumerator loadResourcesList(UnityEngine.Networking.UnityWebRequest www, System.Action<float, string, AssetBundleManifest> action)
+        IEnumerator loadResourcesList(UnityEngine.Networking.UnityWebRequest www, System.Action<bool, float, string> action)
         {
             var op = www.SendWebRequest();
             while (!op.isDone)
             {
-                action(op.progress, null, null);
+                action(false, 0.5f * op.progress, null);
                 yield return null;
             }
 
             if (string.IsNullOrEmpty(www.error))
             {
+                var text = www.downloadHandler.text;
+                yield return startThreadHandleResourcePackage(text, (isdone, progress, error) => {
+                    if (isdone)
+                    {
+                        action(true, 1, error);
+                        return;
+                    }
+                    action(false, 0.5f + 0.5f * progress, null);
+                });
+            }
+            else
+            {
+                action(false, 1, null);
+                NextFrame(() => action(true, 1, KSwordKitName + ": " + www.error));
+            }
+        }
+        IEnumerator startThreadHandleResourcePackage(string jsonContent, System.Action<bool, float, string> action)
+        {
+            var text = jsonContent;
+            bool isdone = false;
+            var progress = 0f;
+            string error = null;
+
+            var _Thread = new System.Threading.Thread(() =>
+            {
                 try
                 {
-                    var text = www.downloadHandler.text;
                     var r = JsonUtility.FromJson<AssetBundleManifest>(text);
                     if (r != null)
                     {
                         _AssetBundleManifest = r;
-                        action(1, null, _AssetBundleManifest);
+                        progress = 0.5f;
                     }
-                    else throw new IOException("解析资源清单失败，url=" + www.url);
+                    else
+                    {
+                        progress = 1;
+                        error = KSwordKitName + ": 资源清单解析失败！请检查资源清单 json 格式是否正确。或者可以重新生成资源包。（点击：KSwordKit/资源管理/生成资源包）";
+                        isdone = true;
+                    }
                 }
                 catch (System.Exception e)
                 {
-                    action(1, KSwordKitName + ": " + e.Message, null);
+                    error = KSwordKitName + ": " + e.Message;
+                    progress = 1;
+                    isdone = true;
                 }
-            }
-            else
+
+                if (Instance.ResourcePackage != null)
+                {
+                    var dc = Instance.ResourcePackage.AssetBundleInfos.Count;
+                    float cc = 0;
+                    Instance.ResourcePackage.AssetBundleInfos.ForEach((rm) =>
+                    {
+                        Instance.AssetbundleName_AssetBundlePathDic[rm.AssetBundleName] = rm;
+                        rm.ResourceObjects.ForEach((ro) =>
+                        {
+                            Instance.ResourceObjectPath_ResourceObjectDic[ro.ResourcePath] = ro;
+                        });
+                        cc++;
+                        progress = 0.5f + 0.5f * cc / dc;
+                    });
+                    isdone = true;
+                }
+            });
+            _Thread.Start();
+
+            var p = 0f;
+            while (!isdone)
             {
-                action(1, KSwordKitName + ": " + www.error, null);
+                p = progress;
+                action(false, progress, null);
+                yield return null;
             }
+            if (p != 1)
+            {
+                action(false, 1, null);
+                yield return null;
+            }
+            action(true, 1, error);
         }
         /// <summary>
         /// 获取资源清单路径
@@ -333,11 +527,11 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <para>在资源位置是<see cref="ResourcesLoadingLocation.Resources"/>时，则默认返回由 资源包生成的位置 拼接而成的路径</para>
         /// </summary>
         /// <returns>资源清单路径</returns>
-        public static string GetResourceListFilePath()
+        public string GetResourceListFilePath()
         {
             return System.IO.Path.Combine(GetResourcesFileRootDirectory(), ResourcesFileName);
         }
-        public static bool IsNeedAddLocalFilePathPrefix(){
+        public bool IsNeedAddLocalFilePathPrefix(){
             return (!Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer) || 
                 Application.platform == RuntimePlatform.OSXEditor;
         }
@@ -345,7 +539,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// 获得资源路径根目录
         /// </summary>
         /// <returns>资源根目录</returns>
-        public static string GetResourcesFileRootDirectory()
+        public string GetResourcesFileRootDirectory()
         {
             var path = AssetBundles;
 #if UNITY_EDITOR
@@ -442,7 +636,7 @@ namespace KSwordKit.Core.ResourcesManagement
         }
 
 
-        public static void NextFrame(System.Action action)
+        public void NextFrame(System.Action action)
         {
             Instance.StartCoroutine(_ThreadWaitForNextFrame(action));
         }
@@ -450,6 +644,17 @@ namespace KSwordKit.Core.ResourcesManagement
         {
             yield return null;
             action();
+        }
+
+        public void WaitWhile(Func<bool> conditionFunc, System.Action action)
+        {
+            if (conditionFunc())
+                NextFrame(() =>
+                {
+                    WaitWhile(conditionFunc, action);
+                });
+            else
+                action();
         }
     }
 }

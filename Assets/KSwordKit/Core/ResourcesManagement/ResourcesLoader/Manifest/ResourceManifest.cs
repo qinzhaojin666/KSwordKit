@@ -106,7 +106,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 if (isDone)
                 {
                     action(false, 1, null, null);
-                    ResourcesManagement.NextFrame(() => action(isDone, 1, error, AssetBundle));
+                    ResourcesManagement.Instance.NextFrame(() => action(isDone, 1, error, AssetBundle));
                 }
                 else
                     LoadingStatusEvent += action;
@@ -150,7 +150,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 yield break;
             }
 
-            var rootDir = System.IO.Path.Combine(ResourcesManagement.GetResourcesFileRootDirectory(), ResourcesManagement.ResourceRootDirectoryName);
+            var rootDir = System.IO.Path.Combine(ResourcesManagement.Instance.GetResourcesFileRootDirectory(), ResourcesManagement.ResourceRootDirectoryName);
             var unityWebRequest = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle("file://" + System.IO.Path.Combine(rootDir, AssetBundlePath));
             unityWebRequest.timeout = AsyncLoadTimeout;
             var op = unityWebRequest.SendWebRequest();

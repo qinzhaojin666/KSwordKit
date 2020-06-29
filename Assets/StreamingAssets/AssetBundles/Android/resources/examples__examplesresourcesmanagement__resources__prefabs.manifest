@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1726795060
+CRC: 1927951338
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: fae2bb0fb72a17823d7e797bc690130e
+    Hash: 003c46a9238353d4be77a25a3e9f6efe
   TypeTreeHash:
     serializedVersion: 2
     Hash: 41c7a6fefc0df9dfe9532f6e29eeaab4
@@ -36,4 +36,4 @@ ClassTypes:
 Assets:
 - Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab
 Dependencies:
-- "D:/repo/git/ks/projects/private/KSwordKit/KSwordKitUnityProject/KSwordKit/AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__\u6309\u94AE"
+- "/Users/zhangzhengxi/git/server/ks/projects/private/KSwordKit/KSwordKitUnityProject/AssetBundles/Android/resources/examples__examplesresourcesmanagement__resources__texture__\u6309\u94AE"

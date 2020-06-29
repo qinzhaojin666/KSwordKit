@@ -544,7 +544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1962162d2ee4241c6b1019e81f7d41f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResourcesLoadingLocation: 3
+  ResourcesLoadingLocation: 1
   UIRoot: {fileID: 712131815}
   ProgressPanel: {fileID: 1942675698}
   ProgressParentRT: {fileID: 356679898}

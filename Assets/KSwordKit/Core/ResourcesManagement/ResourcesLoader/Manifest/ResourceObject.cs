@@ -65,9 +65,9 @@ namespace KSwordKit.Core.ResourcesManagement
                 {
                     asyncAction(false, 1, null, null);
                     if (!string.IsNullOrEmpty(asyncLoadAbr_error))
-                        ResourcesManagement.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoadAbr_error, null));
+                        ResourcesManagement.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoadAbr_error, null));
                     else
-                        ResourcesManagement.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
+                        ResourcesManagement.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
                 }
                 else
                     asyncLoadAbrEvent += asyncAction;

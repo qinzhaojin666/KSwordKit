@@ -39,78 +39,106 @@ public class Launch : MonoBehaviour
     {
         ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
         // 初始化
-        KSwordKit.Core.ResourcesManagement.ResourcesManagement.Init(ResourcesLoadingLocation)
-            .OnInitializing
-            ((management, progress) =>
-            {
-                Debug.Log("正在初始化：进度 -> " + progress);
-                ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
-            })
-            .OnInitCompleted
-            ((management, error) =>
-            {
-                Debug.Log("初始化完成：error = " + (string.IsNullOrEmpty(error) ? "null" : error));
-                if (string.IsNullOrEmpty(error))
-                {
-                    Debug.Log("当前资源CRC：" + management.ResourcePackage.CRC);
-                    foreach (var r in management.ResourcePackage.AssetBundleInfos)
-                    {
-                        Debug.Log("资源包：" + r.AssetBundleName + "，路径：" + r.AssetBundlePath);
-                        foreach (var d in r.Dependencies)
-                        {
-                            Debug.Log("\t依赖包：" + d);
-                        }
-                        foreach (var item in r.ResourceObjects)
-                        {
-                            Debug.Log("\t内部的资源对象：" + item.ObjectName + "\n\t\t路径：" + item.ResourcePath);
-                        }
-                    }
 
-                    ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
-                    // 加载资源并实例化
-                    management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (_management, isdone, progress, _error, obj) =>
+        // 使用资源管理器默认位置的资源清单内容进行初始化
+        // 默认位置有枚举参数 ResourcesLoadingLocation 指定具体位置
+        // 如果没有设置资源加载位置的值，默认是使用 Resources 的方式进行加载。
+        var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.Init(ResourcesLoadingLocation);
+
+        //// 使用自定义位置(本地某位置)的资源清单文件内容进行初始化
+        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance;
+        //var path = rmi.GetResourceListFilePath();
+        //if (ResourcesLoadingLocation != KSwordKit.Core.ResourcesManagement.ResourcesLoadingLocation.StreamingAssetsPath)
+        //{
+        //    string text = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8);
+        //    rmi.Init(text);
+        //}
+        //else
+        //{
+        //    path = Application.dataPath.Replace("Assets", path);
+        //    if (rmi.IsNeedAddLocalFilePathPrefix())
+        //        path = "file://" + path;
+        //    StartCoroutine(getfile(path, (text) =>
+        //    {
+        //        rmi.Init(text);
+        //    }));
+        //}
+        //rmi.ResourcesLoadingLocation = ResourcesLoadingLocation;
+
+        ////使用自定义位置(网络位置)的资源清单内容进行初始化（实例代码是使用本地文件模拟）
+        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance;
+        //var path = rmi.GetResourceListFilePath();
+        //path = Application.dataPath.Replace("Assets", path);
+        //if (rmi.IsNeedAddLocalFilePathPrefix())
+        //    path = "file://" + path;
+        //var www = UnityEngine.Networking.UnityWebRequest.Get(path);
+        //rmi.Init(www);
+        //rmi.ResourcesLoadingLocation = ResourcesLoadingLocation;
+
+        doSomething(rmi);
+    }
+
+    void doSomething(KSwordKit.Core.ResourcesManagement.ResourcesManagement rmi)
+    {
+        rmi.OnInitializedSuccessfully(() => {
+            Debug.Log("初始化成功！当前资源CRC：" + rmi.ResourcePackage.CRC);
+            foreach (var r in KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.ResourcePackage.AssetBundleInfos)
+            {
+                Debug.Log("资源包：" + r.AssetBundleName + "，路径：" + r.AssetBundlePath);
+                foreach (var d in r.Dependencies)
+                {
+                    Debug.Log("\t依赖包：" + d);
+                }
+                foreach (var item in r.ResourceObjects)
+                {
+                    Debug.Log("\t内部的资源对象：" + item.ObjectName + "\n\t\t路径：" + item.ResourcePath);
+                }
+            }
+
+            ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
+            // 加载资源并实例化
+            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (_management, isdone, progress, _error, obj) =>
+            {
+                if (isdone)
+                {
+                    if (string.IsNullOrEmpty(_error))
                     {
-                        if (isdone)
-                        {
-                            if (string.IsNullOrEmpty(_error))
-                            {
-                                Debug.Log("加载预制体 loadSceneButton 成功：" + obj.name);
-                                Instantiate(obj, UIRoot.transform).name = obj.name;
-                            }
-                            else
-                                Debug.LogError("加载预制体 loadSceneButton 失败！\n" + _error);
-                        }
-                        else
-                        {
-                            Debug.Log("正在加载预制体 loadSceneButton ：" + progress);
-                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                            ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
-                        }
-                    });
-                    management.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (_management, isdone, progress, _error, obj) =>
+                        Debug.Log("加载预制体 loadSceneButton 成功：" + obj.name);
+                        Instantiate(obj, UIRoot.transform).name = obj.name;
+                    }
+                    else
+                        Debug.LogError("加载预制体 loadSceneButton 失败！\n" + _error);
+                }
+                else
+                {
+                    Debug.Log("正在加载预制体 loadSceneButton ：" + progress);
+                    ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                    ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
+                }
+            });
+            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (_management, isdone, progress, _error, obj) =>
+            {
+                if (isdone)
+                {
+                    if (string.IsNullOrEmpty(_error))
                     {
-                        if (isdone)
-                        {
-                            if (string.IsNullOrEmpty(_error))
-                            {
-                                Debug.Log("加载 背景图片 成功：" + obj.name);
-                                var t = obj as Texture2D;
-                                TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), Vector2.zero);
-                                // TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = t;
-                            }
-                            else
-                                Debug.LogError("加载 背景图片 失败：" + _error);
-                        }
-                        else
-                        {
-                            Debug.Log("正在加载 背景图片 ：" + progress);
-                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                            ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
-                        }
-                    });
-                    // 加载第一组资源，并赋值
-                    management.LoadAssetAsync(new string[] {
+                        Debug.Log("加载 背景图片 成功：" + obj.name);
+                        var t = obj as Texture2D;
+                        TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), Vector2.zero);
+                        // TestLoadAssetsPanel.transform.GetChild(0).GetComponent<Image>().sprite = t;
+                    }
+                    else
+                        Debug.LogError("加载 背景图片 失败：" + _error);
+                }
+                else
+                {
+                    Debug.Log("正在加载 背景图片 ：" + progress);
+                    ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                    ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
+                }
+            });
+            // 加载第一组资源，并赋值
+            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync(new string[] {
                          "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息修改名字.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/1.png",
@@ -143,29 +171,29 @@ public class Launch : MonoBehaviour
                             ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                         }
                     });
-                    // 使用泛型加载资源
-                    management.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png", (_management, isdone, progress, _error, obj) =>
+            // 使用泛型加载资源
+            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png", (_management, isdone, progress, _error, obj) =>
+            {
+                if (isdone)
+                {
+                    if (string.IsNullOrEmpty(_error))
                     {
-                        if (isdone)
-                        {
-                            if (string.IsNullOrEmpty(_error))
-                            {
-                                Debug.Log("加载 按钮 成功：" + obj.name);
-                                TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().sprite = obj;
-                                TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().SetNativeSize();
-                            }
-                            else
-                                Debug.LogError("加载 按钮 失败：" + _error);
-                        }
-                        else
-                        {
-                            Debug.Log("正在加载 按钮 ：" + progress);
-                            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
-                            ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
-                        }
-                    });
-                    // 加载第二组资源
-                    management.LoadAssetAsync<Sprite>(new string[] {
+                        Debug.Log("加载 按钮 成功：" + obj.name);
+                        TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().sprite = obj;
+                        TestLoadAssetsPanel.transform.GetChild(6).GetComponent<Image>().SetNativeSize();
+                    }
+                    else
+                        Debug.LogError("加载 按钮 失败：" + _error);
+                }
+                else
+                {
+                    Debug.Log("正在加载 按钮 ：" + progress);
+                    ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                    ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
+                }
+            });
+            // 加载第二组资源
+            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync<Sprite>(new string[] {
                          "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/视屏.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/8.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/项目升级按钮动画.png",
@@ -196,11 +224,35 @@ public class Launch : MonoBehaviour
                             ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                         }
                     });
-                }
-                else
-                {
-                    Debug.LogError("发生错误：" + error);
-                }
-            });
+
+        });
+        rmi.OnInitializationFailed((error) => {
+            Debug.LogError("Launch -> 初始化时发生错误 -> " + error);
+        });
+        rmi.OnInitializing((progress) => {
+            Debug.Log("正在初始化：进度 -> " + progress);
+            ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+            ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
+        });
+    }
+
+    static IEnumerator getfile(string path, System.Action<string> action)
+    {
+        var www = UnityEngine.Networking.UnityWebRequest.Get(path);
+        var op = www.SendWebRequest();
+        while (!op.isDone)
+        {
+            yield return null;
+        }
+
+        if (string.IsNullOrEmpty(www.error))
+        {
+            var text = www.downloadHandler.text;
+            action(text);
+        }
+        else
+        {
+            Debug.LogError("加载失败："+ www.error+"\nurl="+www.url);
+        }
     }
 }

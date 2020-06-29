@@ -22,24 +22,13 @@ namespace KSwordKit.Core.ResourcesManagement
 	/// </summary>
     public class ResourcesAsyncLoader<T> where T : UnityEngine.Object
 	{
-		public const string ClassName = "ResourcesAsyncLoader";
-		public const string AsyncLoader = "asyncloader";
-
 		static ResourcesAsyncLoader()
         {
-			if (_asyncLoaderParent == null)
+			if (_loader == null)
 			{
-                var o = GameObject.Find(ClassName);
-                if (o != null)
-                    _asyncLoaderParent = o.transform;
-                else
-                {
-                    _asyncLoaderParent = new GameObject(ClassName).transform;
-                    GameObject.DontDestroyOnLoad(_asyncLoaderParent);
-                }
-				o = new GameObject(AsyncLoader);
-				_loader = o.AddComponent<LoaderMonoBehaviour>();
-			}
+                var o = ResourcesManagement.Instance.gameObject;
+                _loader = o.GetComponent<ResourcesManagement>() as MonoBehaviour;
+            }
 			_Type = typeof(T);
             _TypeIsSprite = _Type == typeof(Sprite);
             _TypeIsTexture2D = _Type == typeof(Texture2D);
@@ -47,8 +36,7 @@ namespace KSwordKit.Core.ResourcesManagement
         static bool _TypeIsSprite;
         static bool _TypeIsTexture2D;
         static System.Type _Type;
-		private static Transform _asyncLoaderParent;
-		private static LoaderMonoBehaviour _loader;
+		private static MonoBehaviour _loader;
 
 		static Dictionary<string, T> _CacheDic = new Dictionary<string, T>();
 		/// <summary>

@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace KSwordKit.Core.ResourcesManagement
 {
+    /// <summary>
+    /// 用于协程加载资源
+    /// </summary>
     public class LoaderMonoBehaviour : MonoBehaviour
     {
 
