@@ -1,0 +1,21 @@
+ManifestFileVersion: 0
+CRC: 3367735559
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 81beebef703849de60ad75319f8fccfb
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u4E2A\u4EBA\u4FE1\u606F/\u6539\u540D.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u4E2A\u4EBA\u4FE1\u606F/\u4E2A\u4EBA\u4FE1\u606F\u56FE\u6807.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u4E2A\u4EBA\u4FE1\u606F/\u4E2A\u4EBA\u4FE1\u606F\u4FEE\u6539\u540D\u5B57.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u4E2A\u4EBA\u4FE1\u606F/\u4E2A\u4EBA\u4FE1\u606F\u80CC\u666F.png"
+Dependencies: []

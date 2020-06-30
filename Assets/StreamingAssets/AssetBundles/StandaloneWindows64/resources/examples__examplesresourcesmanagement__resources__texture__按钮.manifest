@@ -1,0 +1,32 @@
+ManifestFileVersion: 0
+CRC: 968342326
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ef1ef946a8e11be667ff48937249fd23
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9e6ad29cbd2df8fbe1a15315db0e51ab
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/7.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/4.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/2.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u6309\u94AE.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/8.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u89C6\u5C4F.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/3.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u6253\u5361\u4EFB\u52A1\u6309\u94AE.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/6.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/fudai.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/4\u5B57\u5E7F\u544A.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/1.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u968F\u673A\u4E8B\u4EF6\u540D\u5B57.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u9879\u76EE\u5347\u7EA7\u6309\u94AE\u52A8\u753B.png"
+- "Assets/Examples/ExamplesResourcesManagement/Resources/texture/\u6309\u94AE/\u56FE\u6807/5.png"
+Dependencies: []

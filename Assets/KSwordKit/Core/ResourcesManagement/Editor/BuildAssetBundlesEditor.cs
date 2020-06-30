@@ -489,6 +489,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 {
                     EditorUtility.DisplayProgressBar("清理资源包", "正在清理...", 0.5f);
                     var outputPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+
                     if (System.IO.Directory.Exists(outputPath))
                         FileUtil.DeleteFileOrDirectory(outputPath);
                     AssetDatabase.Refresh();
@@ -496,7 +497,6 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-
                     UnityEngine.Debug.LogError(e.Message);
                 }
             });
