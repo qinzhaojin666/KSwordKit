@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3898b8da8a7cdc44f9dbcae4f06cdfdd
+guid: ae3b0435ce06ad342853753fb4487e70
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -88,5 +88,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: examples/examplesresourcesmanagement/screenshot/screenshot
+  assetBundleName: 
   assetBundleVariant: 
