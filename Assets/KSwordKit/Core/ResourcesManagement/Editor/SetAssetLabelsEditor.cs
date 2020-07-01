@@ -29,19 +29,19 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// </summary>
         public const int DirectoryNameMaxLength = 248;
 
-        [MenuItem("Assets/KSwordKit/资源管理/自动设置资源标签🏷", false, -10)]
-        [MenuItem("KSwordKit/资源管理/自动设置资源标签🏷", false, -10)]
+        [MenuItem("Assets/KSwordKit/资源管理/自动设置资源标签（须选中某些资源）", false, -10)]
+        [MenuItem("KSwordKit/资源管理/自动设置资源标签（须选中某些资源）", false, -10)]
         public static void SetAssetLabels()
         {
             var objects = Selection.objects;
             // 没有选中任何资源
             if(objects.Length == 0)
             {
-                UnityEngine.Debug.LogWarning(KSwordKitName + ": 未选中任何资源，无法自动设置标签🏷！");
+                UnityEngine.Debug.LogWarning(KSwordKitName + ": 未选中任何资源，无法自动设置标签！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("自动设置资源标签🏷", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("自动设置资源标签（须选中某些资源）", "程序执行中...", 0);
             bool isError = false;
 
             var watch = Watch.Do(() =>
@@ -53,7 +53,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     foreach (var o in objects)
                     {
                         var path = AssetDatabase.GetAssetPath(o);
-                        EditorUtility.DisplayProgressBar("自动设置资源标签🏷..", "正在处理：" + path, Random.Range(0f, 1f));
+                        EditorUtility.DisplayProgressBar("自动设置资源标签（须选中某些资源）", "正在处理：" + path, Random.Range(0f, 1f));
 
                         if (System.IO.File.Exists(path) && System.IO.Path.GetFileName(path) != AssetBundleRuleEditor.AssetBundleGeneratesRuleFileName)
                         {
@@ -67,7 +67,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     foreach (var o in objects)
                     {
                         var path = AssetDatabase.GetAssetPath(o);
-                        EditorUtility.DisplayProgressBar("自动设置资源标签🏷..", "正在处理：" + path, Random.Range(0f, 1f));
+                        EditorUtility.DisplayProgressBar("自动设置资源标签（须选中某些资源）", "正在处理：" + path, Random.Range(0f, 1f));
                         if(System.IO.Path.GetFileName(path) == AssetBundleRuleEditor.AssetBundleGeneratesRuleFileName)
                         {
                             AssetImporter assetImporter = AssetImporter.GetAtPath(path);  //得到Asset
@@ -116,13 +116,13 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-                    Debug.LogError(KSwordKitName + ": 发生错误，" + e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `自动设置资源标签（须选中某些资源）` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/自动设置资源标签🏷 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/自动设置资源标签（须选中某些资源） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
         }
 
@@ -253,29 +253,20 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             assetImporter.assetBundleName = abName;    //最终设置assetBundleName
             assetImporter.assetBundleVariant = null;
 
-            // if(ext.StartsWith("."))
-            //     ext = "._" + ext.Substring(1);
-            // assetImporter.assetBundleVariant = ext;
-
-            //abNameDic[assetFilePath] = abName;
-            // UnityEngine.Debug.Log("KSwordKit: 包名：" + assetImporter.assetBundleName + " 文件路径：" + assetFilePath);
         }
 
 
-
-
-        [MenuItem("Assets/KSwordKit/资源管理/清理资源标签🏷", false, 1001)]
-        [MenuItem("KSwordKit/资源管理/清理资源标签🏷", false, 1001)]
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源标签（全部的或指定资源的）", false, 1001)]
+        [MenuItem("KSwordKit/资源管理/清理资源标签（全部的或指定资源的）", false, 1001)]
         public static void ClearAssetLabels()
         {
-            if (!EditorUtility.DisplayDialog("是否要清理资源标签🏷 ？", "清理后无法恢复！", "确认清理", "取消操作"))
+            if (!EditorUtility.DisplayDialog("是否要清理资源标签（全部的或指定资源的）？", "清理后无法恢复！", "确认清理", "取消操作"))
             {
-                Debug.Log(KSwordKitName + ": 资源管理/清理资源标签🏷 -> 已取消！");
+                Debug.Log(KSwordKitName + ": 资源管理/清理资源标签（全部的或指定资源的） -> 已取消！");
                 return;
             }
 
-
-            EditorUtility.DisplayProgressBar("清理资源标签🏷", "等待程序执行..", 0);
+            EditorUtility.DisplayProgressBar("清理资源标签（全部的或指定资源的）", "等待程序执行..", 0);
             try
             {
                 var watch = Watch.Do(() => {
@@ -294,7 +285,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     foreach (var o in objects)
                     {
                         var path = AssetDatabase.GetAssetPath(o);
-                        EditorUtility.DisplayProgressBar("清理资源标签🏷", "正在处理：" + path, Random.Range(0f, 1));
+                        EditorUtility.DisplayProgressBar("清理资源标签（全部的或指定资源的）", "正在处理：" + path, Random.Range(0f, 1));
                         if (System.IO.Directory.Exists(path))
                             continue;
 
@@ -306,11 +297,11 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     }
                     AssetDatabase.Refresh();
                 });
-                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源标签🏷 -> 完成! (" + watch.ElapsedMilliseconds + "ms)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源标签（全部的或指定资源的） -> 完成! (" + watch.ElapsedMilliseconds + "ms)");
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError(e.Message);
+                UnityEngine.Debug.LogError(KSwordKitName+ ": 执行 `清理资源标签（全部的或指定资源的）` 时，发生错误 -> " + e.Message);
             }
             EditorUtility.ClearProgressBar();
         }

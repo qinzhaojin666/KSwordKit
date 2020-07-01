@@ -32,8 +32,8 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
 
 
-        [MenuItem("Assets/KSwordKit/资源管理/创建规则文件", false, -10)]
-        [MenuItem("KSwordKit/资源管理/创建规则文件", false, -10)]
+        [MenuItem("Assets/KSwordKit/资源管理/创建规则文件（须选中某位置）", false, -10)]
+        [MenuItem("KSwordKit/资源管理/创建规则文件（须选中某位置）", false, -10)]
         public static void SetMakeAllResourcesMerge()
         {
             var objects = Selection.objects;
@@ -44,7 +44,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("创建规则文件", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("创建规则文件（须选中某位置）", "程序执行中...", 0);
             bool isError = false;
             var watch = Watch.Do(() => {
                 try
@@ -56,7 +56,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                         i++;
                         var path = AssetDatabase.GetAssetPath(_object);
 
-                        EditorUtility.DisplayProgressBar("创建规则文件", "正在处理：" + path, i / objects.Length);
+                        EditorUtility.DisplayProgressBar("创建规则文件（须选中某位置）", "正在处理：" + path, i / objects.Length);
 
                         if (System.IO.File.Exists(path))
                         {
@@ -74,6 +74,10 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             file.Write(AssetBundleGeneratesRuleFileContent);
                             file.Close();
                         }
+                        else
+                        {
+                            UnityEngine.Debug.LogWarning(KSwordKitName + ": 该目录下已存在规则文件，无需再次创建！RuleFilePath: " + rulefilepath);
+                        }
                     }
 
                     AssetDatabase.Refresh();
@@ -81,27 +85,27 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-                    Debug.LogError(KSwordKitName + ": 发生错误，" + e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `资源管理/创建规则文件（须选中某位置）` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/创建规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/创建规则文件（须选中某位置） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
         }
 
 
-        [MenuItem("Assets/KSwordKit/资源管理/清理规则文件", false, 1000)]
-        [MenuItem("KSwordKit/资源管理/清理规则文件", false, 1000)]
+        [MenuItem("Assets/KSwordKit/资源管理/清理规则文件（全部的或者指定目录的）", false, 1000)]
+        [MenuItem("KSwordKit/资源管理/清理规则文件（全部的或者指定目录的）", false, 1000)]
         public static void ClearMakeAllResourcesMerge()
         {
-            if (!EditorUtility.DisplayDialog("是否要清理 rule 文件？", "清理后无法恢复！", "确认清理", "取消操作"))
+            if (!EditorUtility.DisplayDialog("是否要清理规则文件（全部的或者指定目录的）？", "清理后无法恢复！", "确认清理", "取消操作"))
             {
-                Debug.Log(KSwordKitName + ": 资源管理/清理规则文件 -> 已取消！");
+                Debug.Log(KSwordKitName + ": 资源管理/清理规则文件（全部的或者指定目录的） -> 已取消！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("清理规则文件", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("清理规则文件（全部的或者指定目录的）", "程序执行中...", 0);
             bool isError = false;
 
             var watch = Watch.Do(() => {
@@ -112,7 +116,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     if (objects.Length == 0)
                     {
                         eachFile(Application.dataPath, (dir) => {
-                            EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + dir.Name, Random.Range(0f,1f));
+                            EditorUtility.DisplayProgressBar("清理规则文件（全部的或者指定目录的）", "正在处理：" + dir.Name, Random.Range(0f,1f));
 
                             var rule = System.IO.Path.Combine(dir.FullName, AssetBundleGeneratesRuleFileName);
                             if (System.IO.File.Exists(rule))
@@ -131,7 +135,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             i++;
                             var path = AssetDatabase.GetAssetPath(_object);
 
-                            EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + path, i / objects.Length);
+                            EditorUtility.DisplayProgressBar("清理规则文件（全部的或者指定目录的）", "正在处理：" + path, i / objects.Length);
 
                             if (System.IO.File.Exists(path))
                             {
@@ -145,7 +149,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                             {
                                 eachFile(path, (dirinfo) => {
 
-                                    EditorUtility.DisplayProgressBar("清理规则文件", "正在处理：" + dirinfo.Name, Random.Range(0f, 1f));
+                                    EditorUtility.DisplayProgressBar("清理规则文件（全部的或者指定目录的）", "正在处理：" + dirinfo.Name, Random.Range(0f, 1f));
                                     var rule = System.IO.Path.Combine(dirinfo.FullName, AssetBundleGeneratesRuleFileName);
                                     if (System.IO.File.Exists(rule))
                                         FileUtil.DeleteFileOrDirectory(rule);
@@ -162,13 +166,13 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-                    Debug.LogError(KSwordKitName + ": 发生错误，" + e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `清理规则文件（全部的或者指定目录的）` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/清理规则文件 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log(KSwordKitName + ": 资源管理/清理规则文件（全部的或者指定目录的） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
         }
         private static void eachFile(string dirPath = null, System.Action<System.IO.DirectoryInfo> action = null)

@@ -1,6 +1,6 @@
 {
     "ManifestFileVersion": "0",
-    "CRC": "3544842109",
+    "CRC": "965381049",
     "AssetBundleName": "resources",
     "AssetBundlePath": "AssetBundles/StandaloneWindows64/resources/resources",
     "AssetBundleInfos": [
@@ -125,6 +125,69 @@
         },
         {
             "ManifestFileVersion": "0",
+            "CRC": "2242075784",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "5f5f374cc29c5d5caf385c137214edd4",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
+            "HashAppended": "0",
+            "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__背景",
+            "ResourceObjects": [
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "背景光效"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/海天背景.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "海天背景"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/扩张背景.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "扩张背景"
+                }
+            ],
+            "Dependencies": []
+        },
+        {
+            "ManifestFileVersion": "0",
+            "CRC": "794619444",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "2e659e68e4805e287d49c708e37aea38",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
+            "HashAppended": "0",
+            "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
+            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__进度条",
+            "ResourceObjects": [
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/进度条/lod-2.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "lod-2"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/进度条/lod-1.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "lod-1"
+                }
+            ],
+            "Dependencies": []
+        },
+        {
+            "ManifestFileVersion": "0",
             "CRC": "3367735559",
             "AssetFileHashSerializedVersion": "2",
             "AssetFileHash": "81beebef703849de60ad75319f8fccfb",
@@ -167,74 +230,11 @@
         },
         {
             "ManifestFileVersion": "0",
-            "CRC": "794619444",
-            "AssetFileHashSerializedVersion": "2",
-            "AssetFileHash": "2e659e68e4805e287d49c708e37aea38",
-            "TypeTreeHashSerializedVersion": "2",
-            "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
-            "HashAppended": "0",
-            "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
-            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__进度条",
-            "ResourceObjects": [
-                {
-                    "IsScene": false,
-                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
-                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/进度条/lod-2.png",
-                    "FileExtensionName": ".png",
-                    "ObjectName": "lod-2"
-                },
-                {
-                    "IsScene": false,
-                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__进度条",
-                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/进度条/lod-1.png",
-                    "FileExtensionName": ".png",
-                    "ObjectName": "lod-1"
-                }
-            ],
-            "Dependencies": []
-        },
-        {
-            "ManifestFileVersion": "0",
-            "CRC": "2242075784",
-            "AssetFileHashSerializedVersion": "2",
-            "AssetFileHash": "5f5f374cc29c5d5caf385c137214edd4",
-            "TypeTreeHashSerializedVersion": "2",
-            "TypeTreeHash": "9e6ad29cbd2df8fbe1a15315db0e51ab",
-            "HashAppended": "0",
-            "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
-            "AssetBundlePath": "examples__examplesresourcesmanagement__resources__texture__背景",
-            "ResourceObjects": [
-                {
-                    "IsScene": false,
-                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
-                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png",
-                    "FileExtensionName": ".png",
-                    "ObjectName": "背景光效"
-                },
-                {
-                    "IsScene": false,
-                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
-                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/海天背景.png",
-                    "FileExtensionName": ".png",
-                    "ObjectName": "海天背景"
-                },
-                {
-                    "IsScene": false,
-                    "AssetBundleName": "examples__examplesresourcesmanagement__resources__texture__背景",
-                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/扩张背景.png",
-                    "FileExtensionName": ".png",
-                    "ObjectName": "扩张背景"
-                }
-            ],
-            "Dependencies": []
-        },
-        {
-            "ManifestFileVersion": "0",
             "CRC": "3804216210",
             "AssetFileHashSerializedVersion": "2",
             "AssetFileHash": "560dc72eee81c3bcea16918545d9a170",
             "TypeTreeHashSerializedVersion": "2",
-            "TypeTreeHash": "693fa87c58a84d2d4d9fc036e4a98bac",
+            "TypeTreeHash": "41c7a6fefc0df9dfe9532f6e29eeaab4",
             "HashAppended": "0",
             "AssetBundleName": "examples__examplesresourcesmanagement__resources__prefabs",
             "AssetBundlePath": "examples__examplesresourcesmanagement__resources__prefabs",
