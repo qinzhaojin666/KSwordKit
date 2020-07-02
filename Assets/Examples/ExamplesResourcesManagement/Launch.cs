@@ -43,10 +43,10 @@ public class Launch : MonoBehaviour
         // 使用资源管理器默认位置的资源清单内容进行初始化
         // 默认位置有枚举参数 ResourcesLoadingLocation 指定具体位置
         // 如果没有设置资源加载位置的值，默认是使用 Resources 的方式进行加载。
-        var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.Init(ResourcesLoadingLocation);
+        var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.Init(ResourcesLoadingLocation);
 
         //// 使用自定义位置(本地某位置)的资源清单文件内容进行初始化
-        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance;
+        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance;
         //var path = rmi.GetResourceListFilePath();
         //if (ResourcesLoadingLocation != KSwordKit.Core.ResourcesManagement.ResourcesLoadingLocation.StreamingAssetsPath)
         //{
@@ -66,7 +66,7 @@ public class Launch : MonoBehaviour
         //rmi.ResourcesLoadingLocation = ResourcesLoadingLocation;
 
         ////使用自定义位置(网络位置)的资源清单内容进行初始化（实例代码是使用本地文件模拟）
-        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance;
+        //var rmi = KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance;
         //var path = rmi.GetResourceListFilePath();
         //path = Application.dataPath.Replace("Assets", path);
         //if (rmi.IsNeedAddLocalFilePathPrefix())
@@ -76,13 +76,14 @@ public class Launch : MonoBehaviour
         //rmi.ResourcesLoadingLocation = ResourcesLoadingLocation;
 
         doSomething(rmi);
+
     }
 
-    void doSomething(KSwordKit.Core.ResourcesManagement.ResourcesManagement rmi)
+    void doSomething(KSwordKit.Core.ResourcesManagement.ResourcesManager rmi)
     {
         rmi.OnInitializedSuccessfully(() => {
             Debug.Log("初始化成功！当前资源CRC：" + rmi.ResourcePackage.CRC);
-            foreach (var r in KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.ResourcePackage.AssetBundleInfos)
+            foreach (var r in KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.ResourcePackage.AssetBundleInfos)
             {
                 Debug.Log("资源包：" + r.AssetBundleName + "，路径：" + r.AssetBundlePath);
                 foreach (var d in r.Dependencies)
@@ -97,14 +98,20 @@ public class Launch : MonoBehaviour
 
             ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
             // 加载资源并实例化
-            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (_management, isdone, progress, _error, obj) =>
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<GameObject>("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
                     if (string.IsNullOrEmpty(_error))
                     {
-                        Debug.Log("加载预制体 loadSceneButton 成功：" + obj.name);
-                        Instantiate(obj, UIRoot.transform).name = obj.name;
+                        Debug.Log("加载预制体 loadSceneButton 成功, 名称：" + obj.name);
+                        var go = Instantiate(obj, UIRoot.transform);
+                        go.name = obj.name;
+                        go.GetComponent<Button>().onClick.AddListener(() => {
+                            rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_isdone, _progress, __error, sceneinfo) => { 
+                                
+                            });
+                        });
                     }
                     else
                         Debug.LogError("加载预制体 loadSceneButton 失败！\n" + _error);
@@ -116,7 +123,7 @@ public class Launch : MonoBehaviour
                     ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                 }
             });
-            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (_management, isdone, progress, _error, obj) =>
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
@@ -138,13 +145,13 @@ public class Launch : MonoBehaviour
                 }
             });
             // 加载第一组资源，并赋值
-            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync(new string[] {
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync(new string[] {
                          "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息修改名字.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/1.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/2.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/5.png"
-                    }, (_management, isdone, progress, _error, objs) =>
+                    }, (isdone, progress, _error, objs) =>
                     {
                         if (isdone)
                         {
@@ -172,7 +179,7 @@ public class Launch : MonoBehaviour
                         }
                     });
             // 使用泛型加载资源
-            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png", (_management, isdone, progress, _error, obj) =>
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png", (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
@@ -193,12 +200,12 @@ public class Launch : MonoBehaviour
                 }
             });
             // 加载第二组资源
-            KSwordKit.Core.ResourcesManagement.ResourcesManagement.Instance.LoadAssetAsync<Sprite>(new string[] {
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<Sprite>(new string[] {
                          "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/视屏.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/8.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/项目升级按钮动画.png",
                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png"
-                    }, (_management, isdone, progress, _error, objs) =>
+                    }, (isdone, progress, _error, objs) =>
                     {
                         if (isdone)
                         {

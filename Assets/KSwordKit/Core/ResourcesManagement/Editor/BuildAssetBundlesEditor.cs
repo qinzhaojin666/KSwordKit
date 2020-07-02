@@ -55,91 +55,25 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 try
                 {
                     var outputPath = assetBundleOutputDirectory();
-                    if (Selection.objects.Length == 0)
+                    string error = null;
+                    try
                     {
-                        string error = null;
-                        try
-                        {
-                            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-                        }catch(System.Exception e)
-                        {
-                            error = e.Message;
-                        }
-                        if (string.IsNullOrEmpty(error))
-                        {
-                            GenResourceList();
-                            EditorUtility.RevealInFinder(outputPath);
-                            loginfo = "（全部生成）";
-                        }
-                        else
-                        {
-                            Debug.LogError(KSwordKitName + ": 执行 `生成资源包（默认位置）（当前编译平台）（选中的资源）` 时，发生错误 -> " + error);
-                        }
+                        BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+                    }
+                    catch (System.Exception e)
+                    {
+                        error = e.Message;
+                    }
+
+                    if (string.IsNullOrEmpty(error))
+                    {
+                        GenResourceList();
+                        loginfo = "（全部生成）";
                     }
                     else
                     {
-                        var objects = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets);
-                        Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-                        foreach (var o in objects)
-                        {
-                            var path = AssetDatabase.GetAssetPath(o);
-                            if (System.IO.File.Exists(path))
-                            {
-                                AssetImporter assetImporter = AssetImporter.GetAtPath(path);
-                                if (string.IsNullOrEmpty(assetImporter.assetBundleName))
-                                    continue;
-
-                                if (dic.ContainsKey(assetImporter.assetBundleName))
-                                {
-                                    dic[assetImporter.assetBundleName].Add(path);
-                                }
-                                else
-                                {
-                                    var list = new List<string>();
-                                    list.Add(path);
-                                    dic[assetImporter.assetBundleName] = list;
-                                }
-                            }
-                        }
-
-                        if (dic.Count != 0)
-                        {
-                            var map = new List<AssetBundleBuild>();
-                            foreach (var kv in dic)
-                            {
-                                var build = new AssetBundleBuild();
-                                build.assetBundleName = kv.Key;
-                                build.assetNames = kv.Value.ToArray();
-
-                                map.Add(build);
-                            }
-                            string error = null;
-                            try
-                            {
-                                BuildPipeline.BuildAssetBundles(outputPath, map.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-                            }
-                            catch (System.Exception e)
-                            {
-                                error = e.Message;
-                            }
-
-                            if (string.IsNullOrEmpty(error))
-                            {
-                                GenResourceList();
-                                EditorUtility.RevealInFinder(outputPath);
-                                loginfo = "（选中的资源）";
-                            }
-                            else
-                            {
-                                Debug.LogError(KSwordKitName + ": 执行 `生成资源包（默认位置）（当前编译平台）（选中的资源）` 时，发生错误 -> " + error);
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning(KSwordKitName + ": 您选中了一些不可用的资源对象！请检查它们的资源标签是否设置妥当。");
-                        }
+                        Debug.LogError(KSwordKitName + ": 执行 `生成资源包（默认位置）（当前编译平台）（选中的资源）` 时，发生错误 -> " + error);
                     }
-
                     AssetDatabase.Refresh();
                 }
                 catch (System.Exception e)
@@ -482,7 +416,6 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                     var sPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
                     CopyFolder(sPath, outputPath);
                     AssetDatabase.Refresh();
-                    EditorUtility.RevealInFinder(outputPath);
                 }
                 catch (System.Exception e)
                 {

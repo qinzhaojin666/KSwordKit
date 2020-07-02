@@ -1,23 +1,23 @@
 ManifestFileVersion: 0
-CRC: 965381049
+CRC: 432549115
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: "examples__examplesresourcesmanagement__resources__texture__\u6309\u94AE"
+      Name: "examples/examplesresourcesmanagement/resources/texture/\u6309\u94AE/\u6309\u94AE"
       Dependencies: {}
     Info_1:
-      Name: "examples__examplesresourcesmanagement__resources__texture__\u80CC\u666F"
+      Name: "examples/examplesresourcesmanagement/resources/texture/\u80CC\u666F/\u80CC\u666F"
       Dependencies: {}
     Info_2:
-      Name: "examples__examplesresourcesmanagement__resources__texture__\u8FDB\u5EA6\u6761"
+      Name: "examples/examplesresourcesmanagement/resources/texture/\u8FDB\u5EA6\u6761/\u8FDB\u5EA6\u6761"
       Dependencies: {}
     Info_3:
-      Name: "examples__examplesresourcesmanagement__resources__texture__\u4E2A\u4EBA\u4FE1\u606F"
+      Name: "examples/examplesresourcesmanagement/resources/texture/\u4E2A\u4EBA\u4FE1\u606F/\u4E2A\u4EBA\u4FE1\u606F"
       Dependencies: {}
     Info_4:
-      Name: examples__examplesresourcesmanagement__resources__prefabs
+      Name: examples/examplesresourcesmanagement/resources/prefabs/prefabs
       Dependencies:
-        Dependency_0: "examples__examplesresourcesmanagement__resources__texture__\u6309\u94AE"
+        Dependency_0: "examples/examplesresourcesmanagement/resources/texture/\u6309\u94AE/\u6309\u94AE"
     Info_5:
-      Name: examples__examplesresourcesmanagement__test_unity
+      Name: examples/examplesresourcesmanagement/test_unity
       Dependencies: {}
