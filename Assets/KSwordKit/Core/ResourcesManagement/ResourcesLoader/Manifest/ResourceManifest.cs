@@ -23,6 +23,14 @@ namespace KSwordKit.Core.ResourcesManagement
     public class ResourceManifest
     {
         /// <summary>
+        /// 资源版本号
+        /// </summary>
+        public string ResourceVersion = "1.0.0.1";
+        /// <summary>
+        /// 资源编译版本号
+        /// </summary>
+        public string ResourceBuildVersion = "1";
+        /// <summary>
         /// .manifest 文件版本号
         /// </summary>
         public string ManifestFileVersion = null;
