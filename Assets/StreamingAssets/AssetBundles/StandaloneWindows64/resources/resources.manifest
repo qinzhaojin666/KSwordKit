@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 432549115
+CRC: 4241881824
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -20,4 +20,19 @@ AssetBundleManifest:
         Dependency_0: "examples/examplesresourcesmanagement/resources/texture/\u6309\u94AE/\u6309\u94AE"
     Info_5:
       Name: examples/examplesresourcesmanagement/test_unity
+      Dependencies: {}
+    Info_6:
+      Name: examples/examplesresourcesmanagement/screenshot/screenshot
+      Dependencies: {}
+    Info_7:
+      Name: examples/examplesresourcesmanagement/launch_unity
+      Dependencies:
+        Dependency_0: "examples/examplesresourcesmanagement/resources/texture/\u6309\u94AE/\u6309\u94AE"
+        Dependency_1: "examples/examplesresourcesmanagement/resources/texture/\u80CC\u666F/\u80CC\u666F"
+        Dependency_2: "examples/examplesresourcesmanagement/resources/texture/\u8FDB\u5EA6\u6761/\u8FDB\u5EA6\u6761"
+    Info_8:
+      Name: examples/examplesresourcesmanagement/test2_unity
+      Dependencies: {}
+    Info_9:
+      Name: examples/examplesresourcesmanagement/test3_unity
       Dependencies: {}

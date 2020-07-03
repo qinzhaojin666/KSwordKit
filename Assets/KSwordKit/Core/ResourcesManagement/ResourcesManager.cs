@@ -583,8 +583,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// 异步加载资源
         /// <para>即便 ResourcesLoadingLocation == ResourcesLoadingLocation.Resources, 参数 <paramref name="assetPath"/> 也需要输入资源在项目中的相对路径</para>
         /// <para>路径开头 'Assets' 可省略，如 'Assets/Resources/test.png' 可简写为 'Resources/test.png'</para>
-        /// <para>路径分隔符统一为 '/'</para>
-        /// <para>当资源存在依赖时，将会自动加载依赖。</para>
+        /// <para>路径分隔符统一为 '/';当资源存在依赖时，将会自动加载依赖。</para>
         /// </summary>
         /// <param name="assetPath">资产路径</param>
         /// <param name="asyncAction">加载过程中的回调信息</param>
@@ -646,21 +645,7 @@ namespace KSwordKit.Core.ResourcesManagement
             });
             return this;
         }
-        /// <summary>
-        /// 异步加载场景
-        /// </summary>
-        /// <param name="scenePath">场景资源路径</param>
-        /// <param name="asyncAction">异步数据回调</param>
-        /// <returns></returns>
-        public ResourcesManager LoadSceneAsync(string[] scenePaths, Func<string, AsyncOperation>[] scnenAsyncRequestFunc, System.Action<bool, float, string, SceneInfo[]> asyncAction)
-        {
-            ResourcesAsyncLoader<SceneInfo>.ResourcePackage = ResourcePackage;
-            ResourcesAsyncLoader<SceneInfo>.LoadSceneAsync(scenePaths, _resourcesLoadingLocation, scnenAsyncRequestFunc, (isdone, progress, error, objs) => {
-                if (asyncAction != null)
-                    asyncAction(isdone, progress, error, objs);
-            });
-            return this;
-        }
+
         public static void NextFrame(System.Action action)
         {
             Instance.StartCoroutine(_ThreadWaitForNextFrame(action));

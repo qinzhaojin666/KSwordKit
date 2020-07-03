@@ -108,6 +108,8 @@ public class Launch : MonoBehaviour
                         Debug.Log("加载预制体 loadSceneButton 成功, 名称：" + obj.name);
                         var go = Instantiate(obj, UIRoot.transform);
                         go.name = obj.name;
+                        go.GetComponentInChildren<Text>().text = "加载Test场景";
+
                         string sceneName = null;
                         go.GetComponent<Button>().onClick.AddListener(() => {
                             rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_sceneName)=> {

@@ -14,8 +14,6 @@ using UnityEditor;
 using System.Text;
 using System;
 using System.Text.RegularExpressions;
-using System.Security.Cryptography;
-
 namespace KSwordKit.Core.ResourcesManagement.Editor
 {
     public class BuildAssetBundlesEditor
@@ -36,7 +34,10 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// 框架名称
         /// </summary>
         public const string KSwordKitName = "KSwordKit";
-
+        /// <summary>
+        /// 生成的资源名称路径等相关Const字段文件存放路径
+        /// </summary>
+        public const string BuildConstFilePath = "Assets/KSwordKit/Core/ResourcesManagement/BuidConst/BuildConst.cs";
 
 
         /// <summary>

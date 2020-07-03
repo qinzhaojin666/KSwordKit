@@ -83,7 +83,7 @@ namespace KSwordKit.Core.ResourcesManagement
 			set { _ResourcePackage = value; }
 		}
 
-        static void loadAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation> scnenAsyncRequestFunc, System.Action<bool, float, string, T> asyncAction)
+        static void loadAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation> sceneAsyncRequestFunc, System.Action<bool, float, string, T> asyncAction)
         {
             // 总共需要3步
             // 1. 初始化资源包，只需执行一次
@@ -149,7 +149,7 @@ namespace KSwordKit.Core.ResourcesManagement
                                 }
                                 T _sceneinfo = null;
                                 bool isset__sceneinfo = false;
-                                _loader.StartCoroutine(ro.AsyncLoadScene(assetPath, scnenAsyncRequestFunc, (isdone, progress, error, sceneinfo) =>
+                                _loader.StartCoroutine(ro.AsyncLoadScene(assetPath, sceneAsyncRequestFunc, (isdone, progress, error, sceneinfo) =>
                                 {
                                     if (isdone)
                                     {
@@ -275,11 +275,11 @@ namespace KSwordKit.Core.ResourcesManagement
                     break;
             }
         }
-        static void loadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation>[] scnenAsyncRequestFuncs, System.Action<bool, float, string, T[]> asyncAction)
+        static void loadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation>[] sceneAsyncRequestFuncs, System.Action<bool, float, string, T[]> asyncAction)
         {
             // 如果意图加载异步，但是场景场景异步请求回调数量和输入的场景资源路径数量不一样时
             // 直接返回错误
-            if (isLoadScene && (assetPaths == null || scnenAsyncRequestFuncs == null || assetPaths.Length != scnenAsyncRequestFuncs.Length))
+            if (isLoadScene && (assetPaths == null || sceneAsyncRequestFuncs == null || assetPaths.Length != sceneAsyncRequestFuncs.Length))
             {
                 asyncAction(false, 1, null, null);
                 ResourcesManager.NextFrame(() => asyncAction(true, 1, ResourcesManager.KSwordKitName + ": 加载失败！视图加载异步，但是提供的场景异步请求回调数量和输入的场景资源路径数量不一致。\n请检查参数 `assetPaths` 和参数 `scnenAsyncRequestFuncs`。\n如不明白该API含义，请查阅相关文档。", null));
@@ -294,7 +294,7 @@ namespace KSwordKit.Core.ResourcesManagement
             for (var i = 0; i < c; i++)
             {
                 var index = i;
-                loadAsync(assetPaths[i], resourcesLoadingLocation, isLoadScene, isLoadScene? scnenAsyncRequestFuncs[i] : null, (isdone, progress, _error, obj) => {
+                loadAsync(assetPaths[i], resourcesLoadingLocation, isLoadScene, isLoadScene? sceneAsyncRequestFuncs[i] : null, (isdone, progress, _error, obj) => {
 
                     if (isdone)
                     {

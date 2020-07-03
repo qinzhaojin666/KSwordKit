@@ -1,0 +1,34 @@
+ManifestFileVersion: 0
+CRC: 1306109951
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ec32eac2da826a353c8eb7d67cb82f44
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2ed26e3ad9f6be9c24f85f5f5b54339d
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+Assets:
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u6B63\u5728\u521B\u5EFA\u89C4\u5219\u6587\u4EF6.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u8D44\u6E90\u7BA1\u7406\u7F16\u8F91\u5668\u5DE5\u5177\u56FE1.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62104.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u521B\u5EFA\u89C4\u5219\u6587\u4EF6.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62107.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u6210.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u8D44\u6E90\u5305\u751F\u6210\u5B8C\u6210.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u6B63\u5728\u751F\u6210\u8D44\u6E90\u5305.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62108.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62109.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u8D44\u6E90\u7BA1\u7406\u7F16\u8F91\u5668\u5DE5\u5177\u56FE2.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u6B63\u5728\u81EA\u52A8\u8BBE\u7F6E\u6807\u7B7E.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u751F\u6210\u8D44\u6E90\u5305.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u67E5\u770B\u5728\u9ED8\u8BA4\u4F4D\u7F6E\u751F\u6210\u7684\u5404\u4E2A\u8D44\u6E90\u5305.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62105.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u521B\u5EFA\u89C4\u5219\u6587\u4EF6\u5B8C\u6BD5.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62102.png"
+- "Assets/Examples/ExamplesResourcesManagement/Screenshot/\u81EA\u52A8\u8BBE\u7F6E\u8D44\u6E90\u6807\u7B7E\u5B8C\u62106.png"
+Dependencies: []

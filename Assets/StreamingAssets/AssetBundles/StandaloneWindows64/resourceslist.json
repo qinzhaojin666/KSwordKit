@@ -1,6 +1,6 @@
 {
     "ManifestFileVersion": "0",
-    "CRC": "432549115",
+    "CRC": "4241881824",
     "AssetBundleName": "resources",
     "AssetBundlePath": "AssetBundles/StandaloneWindows64/resources/resources",
     "AssetBundleInfos": [
@@ -253,11 +253,11 @@
         },
         {
             "ManifestFileVersion": "0",
-            "CRC": "624149084",
+            "CRC": "4143344078",
             "AssetFileHashSerializedVersion": "2",
-            "AssetFileHash": "5aef6b7278221071e2a0a1a116464dda",
+            "AssetFileHash": "3d3ce280da1e5b4c7397c7c86d167415",
             "TypeTreeHashSerializedVersion": "2",
-            "TypeTreeHash": "162d151e7534a7beafeacae96290ebdd",
+            "TypeTreeHash": "b5e41c1969a3373330e5fbdd97d64eaf",
             "HashAppended": "0",
             "AssetBundleName": "examples/examplesresourcesmanagement/test_unity",
             "AssetBundlePath": "examples/examplesresourcesmanagement/test_unity",
@@ -268,6 +268,220 @@
                     "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Test.unity",
                     "FileExtensionName": ".unity",
                     "ObjectName": "Test"
+                }
+            ],
+            "Dependencies": []
+        },
+        {
+            "ManifestFileVersion": "0",
+            "CRC": "1306109951",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "ec32eac2da826a353c8eb7d67cb82f44",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "2ed26e3ad9f6be9c24f85f5f5b54339d",
+            "HashAppended": "0",
+            "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+            "AssetBundlePath": "examples/examplesresourcesmanagement/screenshot/screenshot",
+            "ResourceObjects": [
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/正在创建规则文件.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "正在创建规则文件"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/资源管理编辑器工具图1.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "资源管理编辑器工具图1"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成4.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成4"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/创建规则文件.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "创建规则文件"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成7.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成7"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/资源包生成完成.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "资源包生成完成"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/正在生成资源包.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "正在生成资源包"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成8.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成8"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成9.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成9"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/资源管理编辑器工具图2.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "资源管理编辑器工具图2"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/正在自动设置标签.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "正在自动设置标签"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/生成资源包.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "生成资源包"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/查看在默认位置生成的各个资源包.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "查看在默认位置生成的各个资源包"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成5.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成5"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/创建规则文件完毕.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "创建规则文件完毕"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成2.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成2"
+                },
+                {
+                    "IsScene": false,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/screenshot/screenshot",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Screenshot/自动设置资源标签完成6.png",
+                    "FileExtensionName": ".png",
+                    "ObjectName": "自动设置资源标签完成6"
+                }
+            ],
+            "Dependencies": []
+        },
+        {
+            "ManifestFileVersion": "0",
+            "CRC": "4085891368",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "cf30bc7ab001ed0fd11941c511ee1dee",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "2cbe1b324f9a1fe178867a147323db4e",
+            "HashAppended": "0",
+            "AssetBundleName": "examples/examplesresourcesmanagement/launch_unity",
+            "AssetBundlePath": "examples/examplesresourcesmanagement/launch_unity",
+            "ResourceObjects": [
+                {
+                    "IsScene": true,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/launch_unity",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Launch.unity",
+                    "FileExtensionName": ".unity",
+                    "ObjectName": "Launch"
+                }
+            ],
+            "Dependencies": [
+                "examples/examplesresourcesmanagement/resources/texture/按钮/按钮",
+                "examples/examplesresourcesmanagement/resources/texture/背景/背景",
+                "examples/examplesresourcesmanagement/resources/texture/进度条/进度条"
+            ]
+        },
+        {
+            "ManifestFileVersion": "0",
+            "CRC": "994180462",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "76fa8ff9af8f8ede01a617199f7839ed",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "162d151e7534a7beafeacae96290ebdd",
+            "HashAppended": "0",
+            "AssetBundleName": "examples/examplesresourcesmanagement/test2_unity",
+            "AssetBundlePath": "examples/examplesresourcesmanagement/test2_unity",
+            "ResourceObjects": [
+                {
+                    "IsScene": true,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/test2_unity",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Test2.unity",
+                    "FileExtensionName": ".unity",
+                    "ObjectName": "Test2"
+                }
+            ],
+            "Dependencies": []
+        },
+        {
+            "ManifestFileVersion": "0",
+            "CRC": "2393600031",
+            "AssetFileHashSerializedVersion": "2",
+            "AssetFileHash": "e38acb201688ca6dfe4a52b0507cf09c",
+            "TypeTreeHashSerializedVersion": "2",
+            "TypeTreeHash": "162d151e7534a7beafeacae96290ebdd",
+            "HashAppended": "0",
+            "AssetBundleName": "examples/examplesresourcesmanagement/test3_unity",
+            "AssetBundlePath": "examples/examplesresourcesmanagement/test3_unity",
+            "ResourceObjects": [
+                {
+                    "IsScene": true,
+                    "AssetBundleName": "examples/examplesresourcesmanagement/test3_unity",
+                    "ResourcePath": "Assets/Examples/ExamplesResourcesManagement/Test3.unity",
+                    "FileExtensionName": ".unity",
+                    "ObjectName": "Test3"
                 }
             ],
             "Dependencies": []

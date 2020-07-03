@@ -10,8 +10,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Management.Instrumentation;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
 
