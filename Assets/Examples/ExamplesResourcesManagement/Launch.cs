@@ -103,13 +103,27 @@ public class Launch : MonoBehaviour
                 if (isdone)
                 {
                     if (string.IsNullOrEmpty(_error))
-                    {
+                    {                       
+                        
                         Debug.Log("加载预制体 loadSceneButton 成功, 名称：" + obj.name);
                         var go = Instantiate(obj, UIRoot.transform);
                         go.name = obj.name;
+                        string sceneName = null;
                         go.GetComponent<Button>().onClick.AddListener(() => {
-                            rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_isdone, _progress, __error, sceneinfo) => { 
-                                
+                            rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_sceneName)=> {
+                                sceneName = _sceneName;
+                                return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_sceneName);
+
+                            }, (_isdone, _progress, __error, sceneinfo) => {
+                                if (_isdone)
+                                {
+                                    Debug.Log("场景" + sceneName + "加载完成：" + (__error == null?"NULL":__error));
+                                    return;
+                                }
+
+                                Debug.Log("正在加载场景 ：" + progress);
+                                ProgressImage.rectTransform.sizeDelta = new Vector2(progress * ProgressParentRT.rect.width, ProgressImage.rectTransform.sizeDelta.y);
+                                ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                             });
                         });
                     }

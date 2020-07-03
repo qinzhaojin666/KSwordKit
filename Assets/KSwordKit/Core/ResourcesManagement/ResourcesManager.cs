@@ -637,10 +637,10 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="scenePath">场景资源路径</param>
         /// <param name="asyncAction">异步数据回调</param>
         /// <returns></returns>
-        public ResourcesManager LoadSceneAsync(string scenePath, System.Action<bool, float, string, SceneInfo> asyncAction)
+        public ResourcesManager LoadSceneAsync(string scenePath, Func<string, AsyncOperation> scnenAsyncRequestFunc, System.Action<bool, float, string, SceneInfo> asyncAction)
         {
             ResourcesAsyncLoader<SceneInfo>.ResourcePackage = ResourcePackage;
-            ResourcesAsyncLoader<SceneInfo>.LoadSceneAsync(scenePath, _resourcesLoadingLocation, (isdone, progress, error, obj) => {
+            ResourcesAsyncLoader<SceneInfo>.LoadSceneAsync(scenePath, _resourcesLoadingLocation, scnenAsyncRequestFunc, (isdone, progress, error, obj) => {
                 if (asyncAction != null)
                     asyncAction(isdone, progress, error, obj);
             });
@@ -652,16 +652,16 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="scenePath">场景资源路径</param>
         /// <param name="asyncAction">异步数据回调</param>
         /// <returns></returns>
-        public ResourcesManager LoadSceneAsync(string[] scenePaths, System.Action<bool, float, string, SceneInfo[]> asyncAction)
+        public ResourcesManager LoadSceneAsync(string[] scenePaths, Func<string, AsyncOperation>[] scnenAsyncRequestFunc, System.Action<bool, float, string, SceneInfo[]> asyncAction)
         {
             ResourcesAsyncLoader<SceneInfo>.ResourcePackage = ResourcePackage;
-            ResourcesAsyncLoader<SceneInfo>.LoadSceneAsync(scenePaths, _resourcesLoadingLocation, (isdone, progress, error, objs) => {
+            ResourcesAsyncLoader<SceneInfo>.LoadSceneAsync(scenePaths, _resourcesLoadingLocation, scnenAsyncRequestFunc, (isdone, progress, error, objs) => {
                 if (asyncAction != null)
                     asyncAction(isdone, progress, error, objs);
             });
             return this;
         }
-        public void NextFrame(System.Action action)
+        public static void NextFrame(System.Action action)
         {
             Instance.StartCoroutine(_ThreadWaitForNextFrame(action));
         }

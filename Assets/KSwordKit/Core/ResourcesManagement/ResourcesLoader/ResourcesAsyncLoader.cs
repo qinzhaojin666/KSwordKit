@@ -83,7 +83,7 @@ namespace KSwordKit.Core.ResourcesManagement
 			set { _ResourcePackage = value; }
 		}
 
-        static void loadAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, System.Action<bool, float, string, T> asyncAction, bool allowSceneActivation)
+        static void loadAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation> scnenAsyncRequestFunc, System.Action<bool, float, string, T> asyncAction)
         {
             // 总共需要3步
             // 1. 初始化资源包，只需执行一次
@@ -102,7 +102,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 if (asyncAction != null)
                 {
                     asyncAction(false, 1, null, null);
-                    ResourcesManager.Instance.NextFrame(() => asyncAction(true, 1, null, CacheDic[assetPath]));
+                    ResourcesManager.NextFrame(() => asyncAction(true, 1, null, CacheDic[assetPath]));
                 }
 
                 return;
@@ -131,7 +131,7 @@ namespace KSwordKit.Core.ResourcesManagement
                             if (ro.IsScene && !isLoadScene)
                             {
                                 asyncAction(false, 1, null, null);
-                                ResourcesManager.Instance.NextFrame(
+                                ResourcesManager.NextFrame(
                                     () => asyncAction(
                                         true,
                                         1,
@@ -149,7 +149,7 @@ namespace KSwordKit.Core.ResourcesManagement
                                 }
                                 T _sceneinfo = null;
                                 bool isset__sceneinfo = false;
-                                _loader.StartCoroutine(ro.AsyncLoadScene(assetPath, (isdone, progress, error, sceneinfo) =>
+                                _loader.StartCoroutine(ro.AsyncLoadScene(assetPath, scnenAsyncRequestFunc, (isdone, progress, error, sceneinfo) =>
                                 {
                                     if (isdone)
                                     {
@@ -160,8 +160,7 @@ namespace KSwordKit.Core.ResourcesManagement
                                     if (!isset__sceneinfo)
                                     {
                                         isset__sceneinfo = true;
-                                        sceneinfo.AllowSceneActivation = allowSceneActivation;
-                                        if (_TypeIsSceneInfo) // 只有在泛型类型为 SceneInfo 时，在回调中的场景信息才有效。
+                                        if (_TypeIsSceneInfo) // 只有在泛型类型为 SceneInfo 时，在回调中的参数 `SceneInfo` 数据才有效。
                                             _sceneinfo = sceneinfo as T;
                                     }
 
@@ -172,7 +171,7 @@ namespace KSwordKit.Core.ResourcesManagement
                             if(!ro.IsScene && isLoadScene)
                             {
                                 asyncAction(false, 1, null, null);
-                                ResourcesManager.Instance.NextFrame(
+                                ResourcesManager.NextFrame(
                                     () => asyncAction(
                                         true,
                                         1,
@@ -224,7 +223,7 @@ namespace KSwordKit.Core.ResourcesManagement
                                         {
                                             if (asyncAction != null)
                                                 asyncAction(false, 1, error, null);
-                                            ResourcesManager.Instance.NextFrame(action);
+                                            ResourcesManager.NextFrame(action);
                                         }
                                         else
                                             action();
@@ -269,15 +268,24 @@ namespace KSwordKit.Core.ResourcesManagement
                         if (asyncAction != null)
                         {
                             asyncAction(false, 1, null, null);
-                            ResourcesManager.Instance.NextFrame(() => asyncAction(true, 1, ResourcesManager.KSwordKitName + ": 资源不存在！请检查参数 assetPath 是否正确，assetPath=" + assetPath, null));
+                            ResourcesManager.NextFrame(() => asyncAction(true, 1, ResourcesManager.KSwordKitName + ": 资源不存在！请检查参数 assetPath 是否正确，assetPath=" + assetPath, null));
                         }
                     }
 
                     break;
             }
         }
-        static void loadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, System.Action<bool, float, string, T[]> asyncAction, bool allowSceneActivation)
+        static void loadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, bool isLoadScene, Func<string, AsyncOperation>[] scnenAsyncRequestFuncs, System.Action<bool, float, string, T[]> asyncAction)
         {
+            // 如果意图加载异步，但是场景场景异步请求回调数量和输入的场景资源路径数量不一样时
+            // 直接返回错误
+            if (isLoadScene && (assetPaths == null || scnenAsyncRequestFuncs == null || assetPaths.Length != scnenAsyncRequestFuncs.Length))
+            {
+                asyncAction(false, 1, null, null);
+                ResourcesManager.NextFrame(() => asyncAction(true, 1, ResourcesManager.KSwordKitName + ": 加载失败！视图加载异步，但是提供的场景异步请求回调数量和输入的场景资源路径数量不一致。\n请检查参数 `assetPaths` 和参数 `scnenAsyncRequestFuncs`。\n如不明白该API含义，请查阅相关文档。", null));
+                return;
+            }
+
             int c = assetPaths.Length;
             int cc = 0;
             string error = null;
@@ -286,7 +294,7 @@ namespace KSwordKit.Core.ResourcesManagement
             for (var i = 0; i < c; i++)
             {
                 var index = i;
-                loadAsync(assetPaths[i], resourcesLoadingLocation, isLoadScene, (isdone, progress, _error, obj) => {
+                loadAsync(assetPaths[i], resourcesLoadingLocation, isLoadScene, isLoadScene? scnenAsyncRequestFuncs[i] : null, (isdone, progress, _error, obj) => {
 
                     if (isdone)
                     {
@@ -307,16 +315,17 @@ namespace KSwordKit.Core.ResourcesManagement
                             else
                             {
                                 asyncAction(false, 1, null, null);
-                                ResourcesManager.Instance.NextFrame(() => {
+                                ResourcesManager.NextFrame(() => {
                                     asyncAction(true, 1, error, objs);
                                 });
                             }
                         }
                         return;
                     }
+
                     _progress = (float)cc / c + 1f / (float)c * progress;
                     asyncAction(false, _progress, null, null);
-                }, allowSceneActivation);
+                });
             }
         }
         static void _loadResourcesByResources(string assetPath, System.Action<bool, float, string, T> asyncAction)
@@ -377,7 +386,7 @@ namespace KSwordKit.Core.ResourcesManagement
             if (waitFunc())
                 completedAction();
             else
-                ResourcesManager.Instance.NextFrame(() =>
+                ResourcesManager.NextFrame(() =>
                 {
                     WaitWhile(waitFunc, completedAction);
                 });
@@ -393,7 +402,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="asyncAction">异步回调；参数是异步结果，内部包含进度、错误信息、加载结果等内容。</param>
         public static void LoadAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, System.Action<bool, float, string, T> asyncAction)
         {
-            loadAsync(assetPath, resourcesLoadingLocation, false, asyncAction, true);
+            loadAsync(assetPath, resourcesLoadingLocation, false, null, asyncAction);
         }
         /// <summary>
         /// 根据资源路径数组 <paramref name="assetPaths"/> 异步加载一组资源
@@ -405,7 +414,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <param name="asyncAction">异步回调；参数是异步结果，内部包含进度、错误信息、加载结果等内容。 </param>
         public static void LoadAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, System.Action<bool, float, string, T[]> asyncAction)
         {
-            loadAsync(assetPaths, resourcesLoadingLocation, false, asyncAction, false);
+            loadAsync(assetPaths, resourcesLoadingLocation, false, null, asyncAction);
         }
         /// <summary>
         /// 给定的路径（文件夹或文件）中加载所有资源
@@ -437,9 +446,9 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         /// <param name="assetPath">场景资源路径</param>
         /// <param name="asyncAction">异步加载回调动作</param>
-        public static void LoadSceneAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, System.Action<bool, float, string, T> asyncAction)
+        public static void LoadSceneAsync(string assetPath, ResourcesLoadingLocation resourcesLoadingLocation, Func<string, AsyncOperation> scnenAsyncRequestFunc, System.Action<bool, float, string, T> asyncAction)
         {
-            loadAsync(assetPath, resourcesLoadingLocation, true, asyncAction);
+            loadAsync(assetPath, resourcesLoadingLocation, true, scnenAsyncRequestFunc, asyncAction);
         }
         /// <summary>
         /// 多个场景异步加载
@@ -448,9 +457,9 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         /// <param name="assetPaths">场景资源路径</param>
         /// <param name="asyncAction">异步加载回调动作</param>
-        public static void LoadSceneAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, System.Action<bool, float, string, T[]> asyncAction)
+        public static void LoadSceneAsync(string[] assetPaths, ResourcesLoadingLocation resourcesLoadingLocation, Func<string, AsyncOperation>[] scnenAsyncRequestFuncs, System.Action<bool, float, string, T[]> asyncAction)
         {
-            loadAsync(assetPaths, resourcesLoadingLocation, true, asyncAction);
+            loadAsync(assetPaths, resourcesLoadingLocation, true, scnenAsyncRequestFuncs, asyncAction);
         }
     }
 }

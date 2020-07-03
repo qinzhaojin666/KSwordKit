@@ -107,7 +107,7 @@ namespace KSwordKit.Core.ResourcesManagement
                 if (isDone)
                 {
                     action(false, 1, null, null);
-                    ResourcesManager.Instance.NextFrame(() => action(isDone, 1, error, AssetBundle));
+                    ResourcesManager.NextFrame(() => action(isDone, 1, error, AssetBundle));
                 }
                 else
                     LoadingStatusEvent += action;

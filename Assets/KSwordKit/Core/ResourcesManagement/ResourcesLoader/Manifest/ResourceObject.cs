@@ -66,8 +66,8 @@ namespace KSwordKit.Core.ResourcesManagement
                 if (_SceneInfo == null)
                 {
                     _SceneInfo = new SceneInfo();
-                    SceneInfo.SceneAssetPath = ResourcePath;
-                    SceneInfo.SceneName = ObjectName;
+                    _SceneInfo.SceneAssetPath = ResourcePath;
+                    _SceneInfo.SceneName = ObjectName;
                 }
                 return _SceneInfo;
             }
@@ -91,9 +91,9 @@ namespace KSwordKit.Core.ResourcesManagement
                 {
                     asyncAction(false, 1, null, null);
                     if (!string.IsNullOrEmpty(asyncLoad_error))
-                        ResourcesManager.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoad_error, null));
+                        ResourcesManager.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoad_error, null));
                     else
-                        ResourcesManager.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
+                        ResourcesManager.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
                 }
                 else
                     asyncLoadAbrEvent += asyncAction;
@@ -166,9 +166,10 @@ namespace KSwordKit.Core.ResourcesManagement
         /// 异步加载场景
         /// </summary>
         /// <param name="path">输入的路径</param>
+        /// <param name="sceneRequestFunc">执行可以获取异步加载场景异步请求对象的回调函数，输入的参数是场景的名称。查看<see cref="UnityEngine.SceneManagement.SceneManager"/>相关异步加载场景的更多API</param>
         /// <param name="asyncAction">回调动作</param>
         /// <returns></returns>
-        public IEnumerator AsyncLoadScene(string path, Func<AsyncOperation> sceneRequestFunc, System.Action<bool, float, string, SceneInfo> asyncAction)
+        public IEnumerator AsyncLoadScene(string path, Func<string, AsyncOperation> sceneRequestFunc, System.Action<bool, float, string, SceneInfo> asyncAction)
         {
             string error = null;
 
@@ -177,7 +178,7 @@ namespace KSwordKit.Core.ResourcesManagement
             {
                 asyncAction(false, 1, null, SceneInfo);
                 yield return null;
-                error = ResourcesManager.KSwordKitName + ": 资源加载失败! 该资源不是场景资源，无法加载! 请使用请检查参数 assetPath 是否正确, assetPath=" + path;
+                error = ResourcesManager.KSwordKitName + ": 资源加载失败! 该资源不是场景资源，无法加载! 请使用 `AsyncLoad` 重新尝试加载! 请检查参数 assetPath 是否正确, assetPath=" + path;
                 asyncAction(true, 1, error, SceneInfo);
                 yield break;
             }
@@ -185,17 +186,15 @@ namespace KSwordKit.Core.ResourcesManagement
             AsyncOperation sceneRequest = null;
             try
             {
-                sceneRequest = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(ObjectName);
-
-            }catch(System.Exception e)
+                sceneRequest = sceneRequestFunc(SceneInfo.SceneName);
+                SceneInfo.AsyncOperation = sceneRequest;
+            }
+            catch(System.Exception e)
             {
-                error = ResourcesManager.KSwordKitName + ": 资源加载失败! " + e.Message + "\n请使用请检查参数 assetPath 是否正确, assetPath=" + path;
+                error = ResourcesManager.KSwordKitName + ": 资源加载失败! 执行参数 `sceneRequestFunc()` 获得场景异步请求操作对象失败， " + e.Message + "\n请使用请检查参数 assetPath 是否正确, assetPath=" + path;
             }
             // 更新进度和场景信息数据
             asyncAction(false, 0, null, SceneInfo);
-            sceneRequest.allowSceneActivation = SceneInfo.AllowSceneActivation;
-            sceneRequest.priority = SceneInfo.Priority;
-            SceneInfo.SceneActivationStatus(false, 0, null);
             yield return null;
             // 检查加载情况
             if (string.IsNullOrEmpty(error))
@@ -204,32 +203,23 @@ namespace KSwordKit.Core.ResourcesManagement
                     if (isdone)
                     {
                         asyncAction(true, progress, null, SceneInfo);
-                        sceneRequest.allowSceneActivation = SceneInfo.AllowSceneActivation;
-                        sceneRequest.priority = SceneInfo.Priority;
-                        SceneInfo.SceneActivationStatus(true, 1, null);
                         return;
                     }
 
                     if (progress == 0)
                         return;
                     asyncAction(false, progress, null, SceneInfo);
-                    sceneRequest.allowSceneActivation = SceneInfo.AllowSceneActivation;
-                    sceneRequest.priority = SceneInfo.Priority;
-                    SceneInfo.SceneActivationStatus(false, progress, null);
                 });
             }
             else
             {
                 asyncAction(false, 1, null, SceneInfo);
-                SceneInfo.SceneActivationStatus(false, 0, null);
                 yield return null;
                 asyncAction(true, 1, error, SceneInfo);
-                SceneInfo.SceneActivationStatus(true, 1, error);
             }
         }
-        IEnumerator asyncLoadScene(Func<AsyncOperation> sceneRequestFunc, System.Action<bool,float> asyncAction)
+        IEnumerator asyncLoadScene(AsyncOperation sceneRequest, System.Action<bool,float> asyncAction)
         {
-            var sceneRequest = sceneRequestFunc();
             while (!sceneRequest.isDone)
             {
                 asyncAction(false, sceneRequest.progress);
