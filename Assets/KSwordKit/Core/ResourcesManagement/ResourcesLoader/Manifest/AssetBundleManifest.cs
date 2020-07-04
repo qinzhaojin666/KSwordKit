@@ -25,11 +25,11 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <summary>
         /// 版本号
         /// </summary>
-        public string Version = "1.0.0.0";
+        public string ResourceVersion = "1.0.0.0";
         /// <summary>
         /// 编译号
         /// </summary>
-        public string Build = "1";
+        public string ResourceBuildVersion = "1";
         /// <summary>
         /// .manifest 文件解析出来的版本号
         /// </summary>
