@@ -23,6 +23,14 @@ namespace KSwordKit.Core.ResourcesManagement
     public class ResourceManifest
     {
         /// <summary>
+        /// 资源版本号
+        /// </summary>
+        public string ResourceVersion = "1.0.0.1";
+        /// <summary>
+        /// 资源编译版本号
+        /// </summary>
+        public string ResourceBuildVersion = "1";
+        /// <summary>
         /// .manifest 文件版本号
         /// </summary>
         public string ManifestFileVersion = null;
@@ -101,12 +109,13 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <returns>协程</returns>
         public IEnumerator AsyncLoad(System.Action<bool, float, string, AssetBundle> action)
         {
-            if(asyncloaded)
+            // 如果该资源已经加载过了，程序返回该资源的加载情况
+            if (asyncloaded)
             {
                 if (isDone)
                 {
                     action(false, 1, null, null);
-                    ResourcesManagement.Instance.NextFrame(() => action(isDone, 1, error, AssetBundle));
+                    ResourcesManager.NextFrame(() => action(isDone, 1, error, AssetBundle));
                 }
                 else
                     LoadingStatusEvent += action;
@@ -114,63 +123,64 @@ namespace KSwordKit.Core.ResourcesManagement
                 yield break;
             }
 
-            if (!asyncloaded)
-                asyncloaded = true;
+            // 标记该资源已被加载
+            asyncloaded = true;
+            // 设置回调函数
             LoadingStatusEvent += action;
-
-
+            // 先加载依赖
             float dc = Dependencies.Count;
             float cc = 0;
             for (var i = 0; i < dc; i++)
             {
-                yield return ResourcesManagement.Instance.AssetbundleName_AssetBundlePathDic[Dependencies[i]].AsyncLoad((isdone, progress, _error, obj) => {
-
+                yield return ResourcesManager.Instance.AssetbundleName_AssetBundlePathDic[Dependencies[i]].AsyncLoad((isdone, progress, _error, obj) =>
+                {
                     if (!string.IsNullOrEmpty(error))
                     {
                         cc++;
                         return;
                     }
-                    if(isdone)
-                    {   
+                    if (isdone)
+                    {
                         error = _error;
                         cc++;
                         return;
                     }
-                    LoadingStatusEvent(false, 0.5f * progress, null, null);
+                    LoadingStatusEvent(false, 0.5f * (cc / dc +  (1 / dc) * progress), null, null);
                 });
             }
-
-
+            // 等待所有依赖加载完毕
             while (cc != dc)
                 yield return null;
-
+            // 如果加载依赖过程中发生了错误，则程序终止，返回错误信息。
             if (!string.IsNullOrEmpty(error))
             {
                 LoadingStatusEvent(false, 1, error, null);
                 yield break;
             }
-
-            var rootDir = System.IO.Path.Combine(ResourcesManagement.Instance.GetResourcesFileRootDirectory(), ResourcesManagement.ResourceRootDirectoryName);
+            // 所有依赖全部顺利加载完毕后，开始加载自身
+            var rootDir = System.IO.Path.Combine(ResourcesManager.Instance.GetResourcesFileRootDirectory(), ResourcesManager.ResourceRootDirectoryName);
             var unityWebRequest = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle("file://" + System.IO.Path.Combine(rootDir, AssetBundlePath));
             unityWebRequest.timeout = AsyncLoadTimeout;
             var op = unityWebRequest.SendWebRequest();
             while (!op.isDone)
             {
-                isDone = op.isDone;
-                LoadingStatusEvent(false, op.progress, null, null);
+                isDone = false;
+                LoadingStatusEvent(false, 0.5f + 0.5f * op.progress, null, null);
                 yield return null;
             }
 
-            isDone = op.isDone;
+            // 加载完成后更新进度信息
             if (op.progress != 1f)
+            {
                 LoadingStatusEvent(false, 1, null, null);
-
-            yield return null;
-
+                yield return null;
+            }
+            // 检查加载完成情况
             if (string.IsNullOrEmpty(unityWebRequest.error))
             {
                 try
                 {
+                    // 尝试加载将AssetBundle加载到内存中
                     AssetBundle ab = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(unityWebRequest);
 
                     if (ab != null)
@@ -180,21 +190,24 @@ namespace KSwordKit.Core.ResourcesManagement
                     }
                     else
                     {
-                        error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                        error = ResourcesManager.KSwordKitName + ": 获取资源包失败！\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
                         LoadingStatusEvent(true, 1, error, null);
                     }
-            }
+                }
                 catch (System.Exception e)
-            {
-                error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！" + e.Message + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
-                LoadingStatusEvent(true, 1, error, null);
+                {
+                    error = ResourcesManager.KSwordKitName + ": 获取资源包失败！" + e.Message + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                    LoadingStatusEvent(true, 1, error, null);
+                }
             }
-        }
             else
             {
-                error = ResourcesManagement.KSwordKitName + ": 获取资源包失败！" + unityWebRequest.error + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
+                error = ResourcesManager.KSwordKitName + ": 获取资源包失败！" + unityWebRequest.error + "\nassetBunbleName=" + AssetBundleName + "\nAssetBundlePath=" + AssetBundlePath + "\nurl=" + unityWebRequest.url;
                 LoadingStatusEvent(true, 1, error, null);
             }
+
+            LoadingStatusEvent -= action;
+            isDone = true;
         }
     }
 }

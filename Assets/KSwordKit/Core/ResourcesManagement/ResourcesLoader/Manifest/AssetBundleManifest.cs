@@ -23,7 +23,15 @@ namespace KSwordKit.Core.ResourcesManagement
     public class AssetBundleManifest
     {
         /// <summary>
-        /// .manifest 文件版本号
+        /// 版本号
+        /// </summary>
+        public string Version = "1.0.0.0";
+        /// <summary>
+        /// 编译号
+        /// </summary>
+        public string Build = "1";
+        /// <summary>
+        /// .manifest 文件解析出来的版本号
         /// </summary>
         public string ManifestFileVersion = null;
         /// <summary>

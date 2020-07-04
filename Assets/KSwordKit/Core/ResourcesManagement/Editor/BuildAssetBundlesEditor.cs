@@ -14,8 +14,6 @@ using UnityEditor;
 using System.Text;
 using System;
 using System.Text.RegularExpressions;
-using System.Security.Cryptography;
-
 namespace KSwordKit.Core.ResourcesManagement.Editor
 {
     public class BuildAssetBundlesEditor
@@ -36,91 +34,60 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// 框架名称
         /// </summary>
         public const string KSwordKitName = "KSwordKit";
-
+        /// <summary>
+        /// 生成的资源名称路径等相关Const字段文件存放路径
+        /// </summary>
+        public const string BuildConstFilePath = "Assets/KSwordKit/Core/ResourcesManagement/BuidConst/BuildConst.cs";
 
 
         /// <summary>
         /// 按当前目标平台生成AssetBundle
-        /// 如果有被选中的文件或文件夹，则对被选中的对象进行打包（如果已被AssetBundleName 有值）。
+        /// 如果有被选中的文件或文件夹，则对被选中的对象进行打包（如果相应的 AssetBundleName 有值）。
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源管理/生成资源包", false, 10)]
-        [MenuItem("KSwordKit/资源管理/生成资源包", false, 10)]
+        [MenuItem("Assets/KSwordKit/资源管理/生成资源包（默认位置）（当前编译平台）", false, 10)]
+        [MenuItem("KSwordKit/资源管理/生成资源包（默认位置）（当前编译平台）", false, 10)]
         public static void AssetBundleBuildAll()
         {
-            EditorUtility.DisplayProgressBar("生成资源包", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("生成资源包（默认位置）（当前编译平台）", "程序执行中...", 0);
             bool isError = false;
+            string loginfo = null;
             var watch = Watch.Do(() =>
             {
                 try
                 {
                     var outputPath = assetBundleOutputDirectory();
-                    if (Selection.objects.Length == 0)
+                    string error = null;
+                    try
                     {
                         BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+                    }
+                    catch (System.Exception e)
+                    {
+                        error = e.Message;
+                    }
+
+                    if (string.IsNullOrEmpty(error))
+                    {
                         GenResourceList();
+                        loginfo = "（全部生成）";
                     }
                     else
                     {
-
-                        var objects = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.DeepAssets);
-                        Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-                        foreach (var o in objects)
-                        {
-                            var path = AssetDatabase.GetAssetPath(o);
-                            if (System.IO.File.Exists(path))
-                            {
-                                AssetImporter assetImporter = AssetImporter.GetAtPath(path);
-                                if (string.IsNullOrEmpty(assetImporter.assetBundleName))
-                                    continue;
-
-                                if (dic.ContainsKey(assetImporter.assetBundleName))
-                                {
-                                    dic[assetImporter.assetBundleName].Add(path);
-                                }
-                                else
-                                {
-                                    var list = new List<string>();
-                                    list.Add(path);
-                                    dic[assetImporter.assetBundleName] = list;
-                                }
-                            }
-                        }
-
-                        if (dic.Count != 0)
-                        {
-                            var map = new List<AssetBundleBuild>();
-                            foreach (var kv in dic)
-                            {
-                                var build = new AssetBundleBuild();
-                                build.assetBundleName = kv.Key;
-                                build.assetNames = kv.Value.ToArray();
-
-                                map.Add(build);
-                            }
-
-                            BuildPipeline.BuildAssetBundles(outputPath, map.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-
-                            GenResourceList();
-                        }
-                        else
-                        {
-                            Debug.LogWarning(KSwordKitName + ": 您选中了一些不可用的资源对象！请检查它们的资源标签是否设置妥当。");
-                        }
+                        Debug.LogError(KSwordKitName + ": 执行 `生成资源包（默认位置）（当前编译平台）（选中的资源）` 时，发生错误 -> " + error);
                     }
-
                     AssetDatabase.Refresh();
                 }
                 catch (System.Exception e)
                 {
                     isError = true;
-                    UnityEngine.Debug.LogError(e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `生成资源包（默认位置）（当前编译平台）（选中的资源）` 时，发生错误 -> " + e.Message);
                 }
 
             });
 
             EditorUtility.ClearProgressBar();
             if (!isError)
-                UnityEngine.Debug.Log("KSwordKit: 资源管理/生成资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/生成资源包（默认位置）（当前编译平台）" + loginfo + " -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
         }
         /// <summary>
         /// 创建AssetBundle输出目录
@@ -397,11 +364,6 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
             return manifest;
         }
 
-
-
-        /// <summary>
-        /// 拷贝资源包到StreamingAssets中
-        /// </summary>
         [MenuItem("Assets/KSwordKit/资源管理/拷贝资源包到 StreamingAssets", false, 100)]
         [MenuItem("KSwordKit/资源管理/拷贝资源包到 StreamingAssets", false, 100)]
         public static void CopyResourcesToStreamingAssets()
@@ -426,13 +388,48 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-                    UnityEngine.Debug.LogError(e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `拷贝资源包到 StreamingAssets` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
             if(!isError)
                 UnityEngine.Debug.Log("KSwordKit: 资源管理/拷贝资源包到 StreamingAssets -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+        }
+
+        [MenuItem("Assets/KSwordKit/资源管理/拷贝资源包到 PersistentDataPath", false, 101)]
+        [MenuItem("KSwordKit/资源管理/拷贝资源包到 PersistentDataPath", false, 101)]
+        public static void CopyResourcesToPersistentDataPath()
+        {
+            EditorUtility.DisplayProgressBar("拷贝资源包到 PersistentDataPath", "程序执行中...", 0);
+            bool isError = false;
+            var watch = Watch.Do(() => {
+                try
+                {
+                    var outputPath = System.IO.Path.Combine(Application.persistentDataPath, AssetBundles);
+                    outputPath = System.IO.Path.Combine(outputPath, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    if (System.IO.Directory.Exists(outputPath))
+                        FileUtil.DeleteFileOrDirectory(outputPath);
+                    var metapath = outputPath + ".meta";
+                    if (System.IO.File.Exists(metapath))
+                        FileUtil.DeleteFileOrDirectory(metapath);
+
+                    var sPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    CopyFolder(sPath, outputPath);
+                    AssetDatabase.Refresh();
+                }
+                catch (System.Exception e)
+                {
+                    isError = true;
+                    Debug.LogError(KSwordKitName + ": 执行 `拷贝资源包到 PersistentDataPath` 时，发生错误 -> " + e.Message);
+                }
+            });
+
+            EditorUtility.ClearProgressBar();
+            if (!isError)
+            {
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/拷贝资源包到 PersistentDataPath -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+            }
         }
         /// <summary>
         /// 将源目录中的所有内容拷贝到目标目录中
@@ -471,24 +468,25 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 清理输出目录中的资源包（当前编译平台）
         /// </summary>
-        [MenuItem("Assets/KSwordKit/资源管理/清理资源包", false, 1002)]
-        [MenuItem("KSwordKit/资源管理/清理资源包", false, 1002)]
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源包（默认位置）（当前编译平台）", false, 1002)]
+        [MenuItem("KSwordKit/资源管理/清理资源包（默认位置）（当前编译平台）", false, 1002)]
         public static void AssetBundleCleanUpAssetBundles()
         {
             if (!EditorUtility.DisplayDialog("是否要清理资源包？", "清理后无法恢复！", "确认清理", "取消操作"))
             {
-                Debug.Log(KSwordKitName + ": 资源管理/清理资源包 -> 已取消！");
+                Debug.Log(KSwordKitName + ": 资源管理/清理资源包（默认位置）（当前编译平台） -> 已取消！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("清理资源包", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("清理资源包（默认位置）（当前编译平台）", "程序执行中...", 0);
             bool isError = false;
 
             var watch = Watch.Do(() => {
                 try
                 {
-                    EditorUtility.DisplayProgressBar("清理资源包", "正在清理...", 0.5f);
+                    EditorUtility.DisplayProgressBar("清理资源包（默认位置）（当前编译平台）", "正在清理...", 0.5f);
                     var outputPath = System.IO.Path.Combine(AssetBundles, EditorUserBuildSettings.activeBuildTarget.ToString());
+
                     if (System.IO.Directory.Exists(outputPath))
                         FileUtil.DeleteFileOrDirectory(outputPath);
                     AssetDatabase.Refresh();
@@ -496,37 +494,34 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-
-                    UnityEngine.Debug.LogError(e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `清理资源包（默认位置）（当前编译平台）` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
 
             if (!isError)
-                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包 -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包（默认位置）（当前编译平台） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
         }
-        /// <summary>
-        /// 清理StreamingAssets文件夹内的资源包（当前编译平台）
-        /// </summary>
-        [MenuItem("Assets/KSwordKit/资源管理/清理 StreamingAssets", false, 1003)]
-        [MenuItem("KSwordKit/资源管理/清理 StreamingAssets", false, 1003)]
+
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源包 (StreamingAssets)（当前编译平台）", false, 1003)]
+        [MenuItem("KSwordKit/资源管理/清理资源包 (StreamingAssets)（当前编译平台）", false, 1003)]
         public static void AssetBundleCleanUpStreamingAssets()
         {
-            if (!EditorUtility.DisplayDialog("是否要清理 StreamingAssets ？", "清理后无法恢复！", "确认清理", "取消操作"))
+            if (!EditorUtility.DisplayDialog("是否要清理资源包 (StreamingAssets)（当前编译平台） ？", "清理后无法恢复！", "确认清理", "取消操作"))
             {
-                Debug.Log(KSwordKitName + ": 资源管理/清理 StreamingAssets -> 已取消！");
+                Debug.Log(KSwordKitName + ": 资源管理/清理资源包 (StreamingAssets)（当前编译平台） -> 已取消！");
                 return;
             }
 
-            EditorUtility.DisplayProgressBar("清理 StreamingAssets", "程序执行中...", 0);
+            EditorUtility.DisplayProgressBar("清理资源包 (StreamingAssets)（当前编译平台）", "程序执行中...", 0);
             bool isError = false;
 
             var watch = Watch.Do(() => {
 
                 try
                 {
-                    EditorUtility.DisplayProgressBar("清理 StreamingAssets", "正在清理...", 0.5f);
+                    EditorUtility.DisplayProgressBar("清理资源包 (StreamingAssets)（当前编译平台）", "正在清理...", 0.5f);
                     var outputPath = System.IO.Path.Combine(Application.streamingAssetsPath, AssetBundles);
                     outputPath = System.IO.Path.Combine(outputPath, EditorUserBuildSettings.activeBuildTarget.ToString());
                     if (System.IO.Directory.Exists(outputPath))
@@ -539,15 +534,54 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 catch (System.Exception e)
                 {
                     isError = true;
-                    UnityEngine.Debug.LogError(e.Message);
+                    Debug.LogError(KSwordKitName + ": 执行 `清理资源包 (StreamingAssets)（当前编译平台）` 时，发生错误 -> " + e.Message);
                 }
             });
 
             EditorUtility.ClearProgressBar();
 
             if (!isError)
-                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理 StreamingAssets -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包 (StreamingAssets)（当前编译平台） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
 
+        }
+
+        [MenuItem("Assets/KSwordKit/资源管理/清理资源包 (PersistentDataPath)（当前编译平台）", false, 1003)]
+        [MenuItem("KSwordKit/资源管理/清理资源包 (PersistentDataPath)（当前编译平台）", false, 1003)]
+        public static void AssetBundleCleanUpPersistentDataPath()
+        {
+            if (!EditorUtility.DisplayDialog("是否要清理资源包 (PersistentDataPath)（当前编译平台） ？", "清理后无法恢复！", "确认清理", "取消操作"))
+            {
+                Debug.Log(KSwordKitName + ": 资源管理/清理资源包 (PersistentDataPath)（当前编译平台） -> 已取消！");
+                return;
+            }
+
+            EditorUtility.DisplayProgressBar("清理资源包 (PersistentDataPath)（当前编译平台）", "程序执行中...", 0);
+            bool isError = false;
+
+            var watch = Watch.Do(() => {
+                try
+                {
+                    EditorUtility.DisplayProgressBar("清理资源包 (PersistentDataPath)（当前编译平台）", "正在清理...", 0.5f);
+                    var outputPath = System.IO.Path.Combine(Application.persistentDataPath, AssetBundles);
+                    outputPath = System.IO.Path.Combine(outputPath, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    if (System.IO.Directory.Exists(outputPath))
+                        FileUtil.DeleteFileOrDirectory(outputPath);
+                    var metapath = outputPath + ".meta";
+                    if (System.IO.File.Exists(metapath))
+                        FileUtil.DeleteFileOrDirectory(metapath);
+                    AssetDatabase.Refresh();
+                }
+                catch (System.Exception e)
+                {
+                    isError = true;
+                    Debug.LogError(KSwordKitName + ": 执行 `清理资源包 (PersistentDataPath)（当前编译平台）` 时，发生错误 -> " + e.Message);
+                }
+            });
+
+            EditorUtility.ClearProgressBar();
+
+            if (!isError)
+                UnityEngine.Debug.Log("KSwordKit: 资源管理/清理资源包 (PersistentDataPath)（当前编译平台） -> 完成! (" + watch.Elapsed.TotalSeconds + "s)");
         }
     }
 }

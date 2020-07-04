@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace KSwordKit.Core.ResourcesManagement
@@ -42,7 +43,7 @@ namespace KSwordKit.Core.ResourcesManagement
         /// <summary>
         /// 对象名称
         /// <para>用于在AssetBundle中加载资源，在使用诸如 ab.LoadAsset 时当做参数.</para>
-        /// <para>当<see cref="IsScene"/> 为true时，改名字为场景名称，可用于方法 <see cref="UnityEngine.SceneManagement.SceneManager.LoadScene(string)"/>中作为参数，加载场景。</para>
+        /// <para>当<see cref="IsScene"/> 为true时，该名字为场景名称，可用于方法 <see cref="UnityEngine.SceneManagement.SceneManager.LoadScene(string)"/>中作为参数，加载场景。</para>
         /// </summary>
         public string ObjectName = null;
         /// <summary>
@@ -50,49 +51,89 @@ namespace KSwordKit.Core.ResourcesManagement
         /// </summary>
         [NonSerialized]
         public UnityEngine.Object Object = null;
-
+        [NonSerialized]
         bool asyncLoadAbr_isdone;
-        string asyncLoadAbr_error;
+        [NonSerialized]
+        string asyncLoad_error;
+        [NonSerialized]
         bool asyncloaded;
+        SceneInfo SceneInfo
+        {
+            get
+            {
+                if (_SceneInfo == null)
+                {
+                    _SceneInfo = new SceneInfo();
+                    _SceneInfo.SceneAssetPath = ResourcePath;
+                    _SceneInfo.SceneName = ObjectName;
+                }
+                return _SceneInfo;
+            }
+        }
+        [NonSerialized]
+        SceneInfo _SceneInfo;
         event System.Action<bool, float, string, UnityEngine.Object> asyncLoadAbrEvent;
-        AssetBundleRequest assetBundleRequest;
-
+        /// <summary>
+        /// 异步加载
+        /// </summary>
+        /// <param name="path">输入的路径</param>
+        /// <param name="assetBundle">资源包</param>
+        /// <param name="asyncAction">回调动作</param>
+        /// <returns>协程</returns>
         public IEnumerator AsyncLoad(string path, AssetBundle assetBundle, System.Action<bool, float, string, UnityEngine.Object> asyncAction)
         {
+            // 如果该资源已经加载过了，程序返回该资源的加载情况
             if (asyncloaded)
             {
                 if (asyncLoadAbr_isdone)
                 {
                     asyncAction(false, 1, null, null);
-                    if (!string.IsNullOrEmpty(asyncLoadAbr_error))
-                        ResourcesManagement.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoadAbr_error, null));
+                    if (!string.IsNullOrEmpty(asyncLoad_error))
+                        ResourcesManager.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, asyncLoad_error, null));
                     else
-                        ResourcesManagement.Instance.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
+                        ResourcesManager.NextFrame(() => asyncAction(asyncLoadAbr_isdone, 1, null, Object));
                 }
                 else
                     asyncLoadAbrEvent += asyncAction;
                 yield break;
             }
-            if (!asyncloaded)
-                asyncloaded = true;
 
+            // 标记该资源已被加载
+            asyncloaded = true;
+            asyncLoad_error = null;
+            // 设置回调函数
             asyncLoadAbrEvent += asyncAction;
+            // 如果是场景资源返回错误
+            if (IsScene)
+            {
+                asyncLoadAbrEvent(false, 1, null, null);
+                yield return null;
+                asyncLoad_error = ResourcesManager.KSwordKitName + ": 资源加载失败! 该资源是场景资源，无法加载! 请使用请检查参数 assetPath 是否正确, assetPath=" + path;
+                asyncLoadAbrEvent(true, 1, asyncLoad_error, null);
+                asyncLoadAbrEvent -= asyncAction;
 
-            assetBundleRequest = assetBundle.LoadAssetAsync(ObjectName);
+                asyncLoadAbr_isdone = true;
+                yield break;
+            }
+
+            // 开始加载
+            var assetBundleRequest = assetBundle.LoadAssetAsync(ObjectName);
             while (!assetBundleRequest.isDone)
             {
                 asyncLoadAbrEvent(false, assetBundleRequest.progress, null, null);
                 yield return null;
             }
+            // 加载完成后更新进度信息
             if (assetBundleRequest.progress != 1)
+            {
                 asyncLoadAbrEvent(false, 1, null, null);
-
-            yield return null;
-
+                yield return null;
+            }
+            // 检查加载完成情况
             if (assetBundleRequest.asset == null)
             {
-                asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
-                asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+                asyncLoad_error = ResourcesManager.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                asyncLoadAbrEvent(true, 1, asyncLoad_error, null);
             }
             else
             {
@@ -106,16 +147,89 @@ namespace KSwordKit.Core.ResourcesManagement
                     }
                     else
                     {
-                        asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
-                        asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+                        asyncLoad_error = ResourcesManager.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                        asyncLoadAbrEvent(true, 1, asyncLoad_error, null);
                     }
                 }
                 catch (System.Exception e)
                 {
-                    asyncLoadAbr_error = ResourcesManagement.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
-                    asyncLoadAbrEvent(true, 1, asyncLoadAbr_error, null);
+                    asyncLoad_error = ResourcesManager.KSwordKitName + ": 资源加载失败! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                    asyncLoadAbrEvent(true, 1, asyncLoad_error, null);
                 }
             }
+            asyncLoadAbrEvent -= asyncAction;
+            asyncLoadAbr_isdone = true;
+        }
+        /// <summary>
+        /// 异步加载场景
+        /// </summary>
+        /// <param name="path">输入的路径</param>
+        /// <param name="sceneRequestFunc">执行可以获取异步加载场景异步请求对象的回调函数，输入的参数是场景的名称。查看<see cref="UnityEngine.SceneManagement.SceneManager"/>相关异步加载场景的更多API</param>
+        /// <param name="asyncAction">回调动作</param>
+        /// <returns></returns>
+        public IEnumerator AsyncLoadScene(string path, Func<string, AsyncOperation> sceneRequestFunc, System.Action<bool, float, string, SceneInfo> asyncAction)
+        {
+            string error = null;
+
+            // 如果不是场景资源返回错误
+            if (!IsScene)
+            {
+                asyncAction(false, 1, null, SceneInfo);
+                yield return null;
+                error = ResourcesManager.KSwordKitName + ": 资源加载失败! 该资源不是场景资源，无法加载! 请使用 `AsyncLoad` 重新尝试加载! 请检查参数 assetPath 是否正确, assetPath=" + path;
+                asyncAction(true, 1, error, SceneInfo);
+                yield break;
+            }
+            // 开始尝试加载
+            AsyncOperation sceneRequest = null;
+            try
+            {
+                sceneRequest = sceneRequestFunc(SceneInfo.SceneName);
+                SceneInfo.AsyncOperation = sceneRequest;
+            }
+            catch(System.Exception e)
+            {
+                error = ResourcesManager.KSwordKitName + ": 资源加载失败! 执行参数 `sceneRequestFunc()` 获得场景异步请求操作对象失败， " + e.Message + "\n请使用请检查参数 assetPath 是否正确, assetPath=" + path;
+            }
+            // 更新进度和场景信息数据
+            asyncAction(false, 0, null, SceneInfo);
+            yield return null;
+            // 检查加载情况
+            if (string.IsNullOrEmpty(error))
+            {
+                yield return asyncLoadScene(sceneRequest, (isdone, progress) => {
+                    if (isdone)
+                    {
+                        asyncAction(true, progress, null, SceneInfo);
+                        return;
+                    }
+
+                    if (progress == 0)
+                        return;
+                    asyncAction(false, progress, null, SceneInfo);
+                });
+            }
+            else
+            {
+                asyncAction(false, 1, null, SceneInfo);
+                yield return null;
+                asyncAction(true, 1, error, SceneInfo);
+            }
+        }
+        IEnumerator asyncLoadScene(AsyncOperation sceneRequest, System.Action<bool,float> asyncAction)
+        {
+            while (!sceneRequest.isDone)
+            {
+                asyncAction(false, sceneRequest.progress);
+                yield return null;
+            }
+            // 加载完成后更新进度信息
+            if (sceneRequest.progress != 1)
+            {
+                asyncAction(false, 1);
+                yield return null;
+            }
+            asyncAction(true, 1);
         }
     }
 }
