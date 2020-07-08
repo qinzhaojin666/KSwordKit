@@ -14,6 +14,8 @@ using UnityEditor;
 using System.Text;
 using System;
 using System.Text.RegularExpressions;
+using System.Linq;
+
 namespace KSwordKit.Core.ResourcesManagement.Editor
 {
     public class BuildAssetBundlesEditor
@@ -37,7 +39,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
         /// <summary>
         /// 生成的资源名称路径等相关Const字段文件存放路径
         /// </summary>
-        public const string BuildConstFilePath = "Assets/KSwordKit/Core/ResourcesManagement/BuidConst/BuildConst.cs";
+        public const string BuildConstFilePath = "Assets/KSwordKit/Core/ResourcesManagement/GeneratedResourcePath/GeneratedResourcePath.cs";
 
 
         /// <summary>
@@ -158,6 +160,7 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 var outputdirpath = assetBundleOutputDirectory();
                 var manifest = ParseAssetBundleManifest(System.IO.Path.Combine(outputdirpath, ResourceRootDirectoryName + ".manifest"), ResourceRootDirectoryName);
                 sw.Write(JsonUtility.ToJson(manifest, true));
+                MakeBuildResourcesConst(manifest, BuildConstFilePath);
             }
             catch(System.Exception e)
             {
@@ -363,7 +366,109 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 
             return manifest;
         }
+        /// <summary>
+        /// 生成
+        /// </summary>
+        /// <param name="assetBundleManifest"></param>
+        static void MakeBuildResourcesConst(AssetBundleManifest assetBundleManifest, string filePath)
+        {
+            var dic = new Dictionary<string, List<string>>();
+            var list = new List<KeyValuePair<string, List<string>>>();
+            var maxCount = 0;
+            foreach(var item in assetBundleManifest.AssetBundleInfos)
+            {
+                foreach(var ro in item.ResourceObjects)
+                { 
+                    if (dic.ContainsKey(ro.ResourcePath))
+                        continue;
+                    var items = ro.ResourcePath.Split('/');
+                    if (items.Length > maxCount)
+                        maxCount = items.Length;
+                    dic.Add(ro.ResourcePath, new List<string>(items));
+                }
+            }
+            foreach (var kv in dic)
+                list.Add(kv);
+            list.Sort((kv1, kv2) => {
+                if (kv1.Value.Count > kv2.Value.Count) return 1;
+                if (kv1.Value.Count < kv2.Value.Count) return -1;
+                return 0;
+            });
 
+            var headStr = @"
+/*************************************************************************
+ *  Copyright (C), 2020-2021. All rights reserved.
+ *
+ *  FileName: BuildConst.cs
+ *  Author: ks   
+ *  Version: 1.0.0   
+ *  CreateDate: 2020-7-6
+ *  File Description: 
+ *      该文件由 KSwordKit 生成，每次生成资源包就会重新生成该文件，请勿修改里面的内容。
+ *      该文件用于快速查找资源对象的引用路径，编写代码时方便快捷。
+ *************************************************************************/
+";
+            var namespaceStr = @"
+namespace KSwordKit.Core.ResourcesManagement.{文件名}
+{
+    {字符串替换位置}
+}
+";
+            var filecontent = headStr;
+            namespaceStr = namespaceStr.Replace("{文件名}", System.IO.Path.GetFileNameWithoutExtension(filePath));
+
+            var AssetPathObject = new GeneratedResourcePathObject();
+            AssetPathObject.Name = "Assets";
+            AssetPathObject.Path = AssetPathObject.Name;
+            GeneratedResourcePathObject prePathObject = null;
+            string path = null;
+            foreach (var kv in list)
+            {
+                //Debug.Log("kv = " + kv.Key + ", " + kv.Value.Count);
+                prePathObject = AssetPathObject;
+                path = AssetPathObject.Name;
+                for (var i = 1; i < kv.Value.Count; i++)
+                {
+                    path += "/" + kv.Value[i];
+                    var name = kv.Value[i];
+                    name = name.Replace('.', '_');
+                    name = name.Replace("-", "中划线");
+                    if (name[0] == '0' ||
+                        name[0] == '1' ||
+                        name[0] == '2' ||
+                        name[0] == '3' ||
+                        name[0] == '4' ||
+                        name[0] == '5' ||
+                        name[0] == '6' ||
+                        name[0] == '7' ||
+                        name[0] == '8' ||
+                        name[0] == '9')
+                        name = "_" + name;
+                    
+                    var o = prePathObject.Objects.Find((grpo) => grpo.Name == name);
+                    if(o == null)
+                    {
+                        var pathObject = new GeneratedResourcePathObject();
+                        pathObject.Name = name;
+                        if (i == kv.Value.Count - 1)
+                            pathObject.Path = kv.Key;
+                        else
+                            pathObject.Path = path;
+                        prePathObject.Objects.Add(pathObject);
+                        o = pathObject;
+                    }
+                    prePathObject = o;
+                }
+            }
+            var allClassStr = AssetPathObject.ClassImplementation;
+            namespaceStr = namespaceStr.Replace("{字符串替换位置}", allClassStr);
+            filecontent += namespaceStr;
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
+            System.IO.File.WriteAllText(filePath, filecontent, System.Text.Encoding.UTF8);
+            AssetDatabase.Refresh();
+        }
+        
         [MenuItem("Assets/KSwordKit/资源管理/拷贝资源包到 StreamingAssets", false, 100)]
         [MenuItem("KSwordKit/资源管理/拷贝资源包到 StreamingAssets", false, 100)]
         public static void CopyResourcesToStreamingAssets()

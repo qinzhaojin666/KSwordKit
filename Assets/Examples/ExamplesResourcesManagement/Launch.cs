@@ -16,6 +16,8 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using KSwordKit.Core.ResourcesManagement.GeneratedResourcePath;
+using UnityEditor.VersionControl;
 
 public class Launch : MonoBehaviour
 {
@@ -98,28 +100,32 @@ public class Launch : MonoBehaviour
 
             ProgressImage.rectTransform.sizeDelta = new Vector2(0, ProgressImage.rectTransform.sizeDelta.y);
             // 加载资源并实例化
-            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<GameObject>("Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab", (isdone, progress, _error, obj) =>
+            // Assets/Examples/ExamplesResourcesManagement/Resources/prefabs/loadSceneButton.prefab
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<GameObject>(Assets.Examples.ExamplesResourcesManagement.Resources.prefabs.loadSceneButton_prefab.Path, (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
                     if (string.IsNullOrEmpty(_error))
-                    {                       
-                        
+                    {
+
                         Debug.Log("加载预制体 loadSceneButton 成功, 名称：" + obj.name);
                         var go = Instantiate(obj, UIRoot.transform);
                         go.name = obj.name;
                         go.GetComponentInChildren<Text>().text = "加载Test场景";
 
                         string sceneName = null;
-                        go.GetComponent<Button>().onClick.AddListener(() => {
-                            rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_sceneName)=> {
+                        go.GetComponent<Button>().onClick.AddListener(() =>
+                        {
+                            rmi.LoadSceneAsync("Assets/Examples/ExamplesResourcesManagement/Test.unity", (_sceneName) =>
+                            {
                                 sceneName = _sceneName;
                                 return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_sceneName);
 
-                            }, (_isdone, _progress, __error, sceneinfo) => {
+                            }, (_isdone, _progress, __error, sceneinfo) =>
+                            {
                                 if (_isdone)
                                 {
-                                    Debug.Log("场景" + sceneName + "加载完成：" + (__error == null?"NULL":__error));
+                                    Debug.Log("场景" + sceneName + "加载完成：" + (__error == null ? "NULL" : __error));
                                     return;
                                 }
 
@@ -139,7 +145,8 @@ public class Launch : MonoBehaviour
                     ProgressText.text = "加载进度: " + (progress * 100).ToString("f2") + "%";
                 }
             });
-            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync("Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png", (isdone, progress, _error, obj) =>
+            //"Assets/Examples/ExamplesResourcesManagement/Resources/texture/背景/背景光效.png"
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync(Assets.Examples.ExamplesResourcesManagement.Resources.texture.背景.背景光效_png.Path, (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
@@ -162,11 +169,11 @@ public class Launch : MonoBehaviour
             });
             // 加载第一组资源，并赋值
             KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync(new string[] {
-                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息修改名字.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/1.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/2.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/5.png"
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.个人信息.个人信息图标_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.个人信息.个人信息修改名字_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.图标._1_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.图标._2_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.图标._5_png.Path
                     }, (isdone, progress, _error, objs) =>
                     {
                         if (isdone)
@@ -195,7 +202,8 @@ public class Launch : MonoBehaviour
                         }
                     });
             // 使用泛型加载资源
-            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<Sprite>("Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png", (isdone, progress, _error, obj) =>
+            //"Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/6.png"
+            KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<Sprite>(Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.图标._6_png.Path, (isdone, progress, _error, obj) =>
             {
                 if (isdone)
                 {
@@ -217,10 +225,10 @@ public class Launch : MonoBehaviour
             });
             // 加载第二组资源
             KSwordKit.Core.ResourcesManagement.ResourcesManager.Instance.LoadAssetAsync<Sprite>(new string[] {
-                         "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/视屏.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/图标/8.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/按钮/项目升级按钮动画.png",
-                        "Assets/Examples/ExamplesResourcesManagement/Resources/texture/个人信息/个人信息图标.png"
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.视屏_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.图标._8_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.按钮.项目升级按钮动画_png.Path,
+                        Assets.Examples.ExamplesResourcesManagement.Resources.texture.个人信息.个人信息图标_png.Path
                     }, (isdone, progress, _error, objs) =>
                     {
                         if (isdone)

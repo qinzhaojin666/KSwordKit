@@ -1,4 +1,4 @@
-/*************************************************************************
+ï»¿/*************************************************************************
  *  Copyright (C), 2020-2021. All rights reserved.
  *
  *  FileName: OpenPathInFinderEditor.cs
@@ -15,23 +15,23 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
 {
     public class OpenPathInFinderEditor
     {
-        [MenuItem("Assets/KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨Ä¬ÈÏÎ»ÖÃ£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
-        [MenuItem("KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨Ä¬ÈÏÎ»ÖÃ£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
+        [MenuItem("Assets/KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆé»˜è®¤ä½ç½®ï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
+        [MenuItem("KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆé»˜è®¤ä½ç½®ï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
         public static void OpenResourcePackagePathInFinder()
         {
             try
             {
                 var outputPath = BuildAssetBundlesEditor.assetBundleOutputDirectory();
                 EditorUtility.RevealInFinder(outputPath);
-                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": ´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨Ä¬ÈÏÎ»ÖÃ£©£¨µ±Ç°±àÒëÆ½Ì¨£©-> Íê³É! ");
+                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆé»˜è®¤ä½ç½®ï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰-> å®Œæˆ! ");
             }
             catch (System.Exception e)
             {
-                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": Ö´ĞĞ `´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨Ä¬ÈÏÎ»ÖÃ£©£¨µ±Ç°±àÒëÆ½Ì¨£©` Ê±£¬·¢Éú´íÎó -> " + e.Message);
+                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": æ‰§è¡Œ `æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆé»˜è®¤ä½ç½®ï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰` æ—¶ï¼Œå‘ç”Ÿé”™è¯¯ -> " + e.Message);
             }
         }
-        [MenuItem("Assets/KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨StreamingAssets£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
-        [MenuItem("KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨StreamingAssets£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
+        [MenuItem("Assets/KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆStreamingAssetsï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
+        [MenuItem("KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆStreamingAssetsï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
         public static void OpenResourcePackageStreamingAssetsPathInFinder()
         {
             try
@@ -41,15 +41,15 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 outputPath = System.IO.Path.Combine(outputPath, BuildAssetBundlesEditor.ResourceRootDirectoryName);
 
                 EditorUtility.RevealInFinder(outputPath);
-                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": ´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨StreamingAssets£©£¨µ±Ç°±àÒëÆ½Ì¨£©-> Íê³É! ");
+                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆStreamingAssetsï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰-> å®Œæˆ! ");
             }
             catch (System.Exception e)
             {
-                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": Ö´ĞĞ `´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨StreamingAssets£©£¨µ±Ç°±àÒëÆ½Ì¨£©` Ê±£¬·¢Éú´íÎó -> " + e.Message);
+                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": æ‰§è¡Œ `æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆStreamingAssetsï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰` æ—¶ï¼Œå‘ç”Ÿé”™è¯¯ -> " + e.Message);
             }
         }
-        [MenuItem("Assets/KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨PersistentDataPath£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
-        [MenuItem("KSwordKit/×ÊÔ´¹ÜÀí/´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨PersistentDataPath£©£¨µ±Ç°±àÒëÆ½Ì¨£©", false, 2000)]
+        [MenuItem("Assets/KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆPersistentDataPathï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
+        [MenuItem("KSwordKit/èµ„æºç®¡ç†/æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆPersistentDataPathï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰", false, 2000)]
         public static void OpenResourcePackagePersistentDataPathPathInFinder()
         {
             try
@@ -59,11 +59,11 @@ namespace KSwordKit.Core.ResourcesManagement.Editor
                 outputPath = System.IO.Path.Combine(outputPath, BuildAssetBundlesEditor.ResourceRootDirectoryName);
 
                 EditorUtility.RevealInFinder(outputPath);
-                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": ´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨PersistentDataPath£©£¨µ±Ç°±àÒëÆ½Ì¨£©-> Íê³É! ");
+                UnityEngine.Debug.Log(BuildAssetBundlesEditor.KSwordKitName + ": æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆPersistentDataPathï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰-> å®Œæˆ! ");
             }
             catch (System.Exception e)
             {
-                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": Ö´ĞĞ `´ò¿ª×ÊÔ´°üËùÔÚÄ¿Â¼£¨PersistentDataPath£©£¨µ±Ç°±àÒëÆ½Ì¨£©` Ê±£¬·¢Éú´íÎó -> " + e.Message);
+                Debug.LogError(BuildAssetBundlesEditor.KSwordKitName + ": æ‰§è¡Œ `æ‰“å¼€èµ„æºåŒ…æ‰€åœ¨ç›®å½•ï¼ˆPersistentDataPathï¼‰ï¼ˆå½“å‰ç¼–è¯‘å¹³å°ï¼‰` æ—¶ï¼Œå‘ç”Ÿé”™è¯¯ -> " + e.Message);
             }
         }
     }
