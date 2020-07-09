@@ -1,0 +1,11 @@
+{
+    "Name":"DataProcessing",
+    "FileSettingList":[
+        {
+            "IsDir":false,
+            "Path":"",
+            "ImportPath":"",
+            "ExamplePath":"Example"
+        }
+    ]
+}

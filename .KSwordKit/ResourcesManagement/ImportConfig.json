@@ -1,0 +1,17 @@
+{
+    "Name":"ResourcesManagement",
+    "FileSettingList":[
+        {
+            "IsDir":false,
+            "Path": "",
+            "ImportPath":"",
+            "ExamplePath":"ExampleResourcesManagement"
+        },
+        {
+            "IsDir":false,
+            "Path": "GeneratedResourcePath/GeneratedResourcePath.cs",
+            "ImportPath":"Assets/GeneratedResourcePath/GeneratedResourcePath.cs",
+            "ExamplePath":""
+        }
+    ]
+}
