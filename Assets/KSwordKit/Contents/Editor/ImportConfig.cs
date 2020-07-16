@@ -1,4 +1,4 @@
-/*************************************************************************
+ï»¿/*************************************************************************
  *  Copyright (C), 2020-2021. All rights reserved.
  *
  *  FileName: ImportConfig.cs
@@ -19,7 +19,7 @@ namespace KSwordKit.Contents.Editor
     public class ImportFileSetting
     {
         /// <summary>
-        /// ÓÃÓÚÖ¸Ê¾ Path ÖµÊÇÎÄ¼þ»¹ÊÇÎÄ¼þÄ¿Â¼
+        /// ç”¨äºŽæŒ‡ç¤º Path å€¼æ˜¯æ–‡ä»¶è¿˜æ˜¯æ–‡ä»¶ç›®å½•
         /// </summary>
         public bool IsDir;
         public string Path;

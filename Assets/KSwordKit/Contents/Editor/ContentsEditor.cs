@@ -16,55 +16,60 @@ namespace KSwordKit.Contents.Editor
 {
     public class ContentsEditor
     {
+        public const string Update_Assets = "Assets/KSwordKit/框架/更新框架";
+        public const string Update = "KSwordKit/框架/更新框架 _%#U";
 
-        public const string ImportChild_Assets = "Assets/KSwordKit/框架开发/导入部件";
-        public const string ImportChild = "KSwordKit/框架开发/导入部件 _%#I";
+        public const string ImportChild_Assets = "Assets/KSwordKit/框架/导入部件";
+        public const string ImportChild = "KSwordKit/框架/导入部件 _%#I";
         public const string ImportWindowTitle = "导入部件";
         public const string ImportConfigFileName = "ImportConfig.json";
-        public const string Import_Tag_ProjectRootDirectory = "{ProjectRootDirectory}";
 
-        public const string DeleteChild_AlreadyImport_Assets = "Assets/KSwordKit/框架开发/删除已导入部件";
-        public const string DeleteChild_AlreadyImport = "KSwordKit/框架开发/删除已导入部件 _%#D";
+        public const string DeleteChild_AlreadyImport_Assets = "Assets/KSwordKit/框架/删除已导入部件";
+        public const string DeleteChild_AlreadyImport = "KSwordKit/框架/删除已导入部件 _%#D";
         public const string DeleteImportWindowTitle = "导入部件";
 
-        public const string ExportChild_Assets = "Assets/KSwordKit/框架开发/导出部件";
-        public const string ExportChild = "KSwordKit/框架开发/导出部件 _%&O";
-        public const string ExportWindowTitle = "导出部件";
+        public const string MakeNew_Assets = "Assets/KSwordKit/框架/制作新部件";
+        public const string MakeNew = "KSwordKit/框架/制作新部件 _%&N";
+        public const string MakeNewWindowTitle = "制作新部件";
 
-        public const string DeleteChild_AlreadyExport_Assets = "Assets/KSwordKit/框架开发/删除已导出部件";
-        public const string DeleteChild_AlreadyExport = "KSwordKit/框架开发/删除已导出部件 _%&D";
-        public const string DeleteExportWindowTitle = "删除已导出部件";
+        public const string About_Assets = "Assets/KSwordKit/框架/关于作者";
+        public const string AboutUs = "KSwordKit/框架/关于作者 _%&M";
+        public const string AboutUsWindowTitle = "关于作者";
 
 
-        [MenuItem(ImportChild_Assets, false,0)]
-        [MenuItem(ImportChild, false, 0)]
+        [MenuItem(Update_Assets, false, 0)]
+        [MenuItem(Update, false, 0)]
+        public static void UpdateFunction()
+        {
+            Application.OpenURL("https://github.com/keenlovelife/KSwordKit.git");
+        }
+
+        [MenuItem(ImportChild_Assets, false,20)]
+        [MenuItem(ImportChild, false, 20)]
         public static void ImportChildFunction()
         {
             ImportChildWindow.Open();
         }
         
-        [MenuItem(DeleteChild_AlreadyImport_Assets, false, 1)]
-        [MenuItem(DeleteChild_AlreadyImport, false, 1)]
+        [MenuItem(DeleteChild_AlreadyImport_Assets, false, 21)]
+        [MenuItem(DeleteChild_AlreadyImport, false, 21)]
         public static void DeleteChildFunction()
         {
             ImportChildWindow.Open();
         }
 
-        [MenuItem(ExportChild_Assets, false, 2)]
-        [MenuItem(ExportChild, false, 2)]
-        public static void ExportChildFunction()
+        [MenuItem(MakeNew_Assets, false, 40)]
+        [MenuItem(MakeNew, false, 40)]
+        public static void MakeNewFunction()
         {
-            ImportChildWindow.Open();
-
+            MakeNewComponentEditorWindow.Open();
         }
 
-        [MenuItem(DeleteChild_AlreadyExport_Assets, false, 3)]
-        [MenuItem(DeleteChild_AlreadyExport, false, 3)]
-        public static void DeleteExportChildFunction()
+        [MenuItem(About_Assets, false, 1000)]
+        [MenuItem(AboutUs, false, 1000)]
+        public static void AboutFunction()
         {
-            ImportChildWindow.Open();
-
+            Application.OpenURL("https://github.com/keenlovelife");
         }
-
     }
 }

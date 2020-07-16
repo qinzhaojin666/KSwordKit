@@ -1,4 +1,4 @@
-/*************************************************************************
+ï»¿/*************************************************************************
  *  Copyright (C), 2020-2021. All rights reserved.
  *
  *  FileName: ContentsWindow.cs
@@ -22,27 +22,19 @@ namespace KSwordKit.Contents.Editor
 
         public static void Open()
         {
+         
             window = GetWindow<ImportChildWindow>(false, KSwordKitConst.KSwordKitName+": "+ ContentsEditor.ImportWindowTitle);
+            window.list = new List<ImportConfig>();
+            window.initData();
             window.Show();
         }
 
         private void OnGUI()
-        {
-
-            GUILayout.Space(10);
-
+        { 
             EditorGUILayout.BeginHorizontal();
-            if(list == null)
-            {
-                GUILayout.Label("ÕıÔÚ³õÊ¼»¯Êı¾İ...", EditorStyles.boldLabel);
-                list = new List<ImportConfig>();
-                initData();
-            }
-            else
-            {
-                GUILayout.Label("ËùÓĞ¿ÉÓÃ²¿¼şÈçÏÂ£º");
-                GUILayout.Space(10);
-            }
+            GUILayout.Space(10);
+            GUILayout.Label("æ‰€æœ‰å¯ç”¨éƒ¨ä»¶å¦‚ä¸‹ï¼š");
+            GUILayout.Space(10);
             EditorGUILayout.EndHorizontal();
 
             if (list.Count > 9)
@@ -72,7 +64,7 @@ namespace KSwordKit.Contents.Editor
                     }
                     catch (System.Exception e)
                     {
-                        Debug.LogError(KSwordKitConst.KSwordKitName + ": µ¼Èë²¿¼şÊ±³ö´í, " + e.Message);
+                        Debug.LogError(KSwordKitConst.KSwordKitName + ": å¯¼å…¥éƒ¨ä»¶æ—¶å‡ºé”™, " + e.Message);
                     }
                 }
             }
@@ -88,17 +80,17 @@ namespace KSwordKit.Contents.Editor
             var isExists = System.IO.Directory.Exists(System.IO.Path.Combine(KSwordKitConst.KSwordKitContentsDirectory, name));
             if (isExists)
             {
-                if (GUILayout.Button("ÖØĞÂµ¼Èë", GUILayout.Width(110)))
+                if (GUILayout.Button("é‡æ–°å¯¼å…¥", GUILayout.Width(110)))
                     import(config, name, path);
             }
             else
             {
-                if (GUILayout.Button("µ¼Èë", GUILayout.Width(110)))
+                if (GUILayout.Button("å¯¼å…¥", GUILayout.Width(110)))
                     import(config, name, path);
             }
 
             EditorGUI.BeginDisabledGroup(!isExists);
-            if (GUILayout.Button("É¾³ı", GUILayout.Width(110)))
+            if (GUILayout.Button("åˆ é™¤", GUILayout.Width(110)))
                 delete(config, name, path);
             EditorGUI.EndDisabledGroup();
 
@@ -107,10 +99,10 @@ namespace KSwordKit.Contents.Editor
 
         void import(ImportConfig config, string name, string path)
         {            
-            Debug.Log(KSwordKitConst.KSwordKitName + ": Õı×¼±¸µ¼Èë²¿¼ş " + name + " ...");
+            Debug.Log(KSwordKitConst.KSwordKitName + ": æ­£å‡†å¤‡å¯¼å…¥éƒ¨ä»¶ " + name + " ...");
             if(!System.IO.Directory.Exists(path))
             {
-                Debug.Log(KSwordKitConst.KSwordKitName + ": µ¼Èë²¿¼ş " + name + " Ê§°Ü£¡Ô´´úÂë²»´æÔÚ¡£");
+                Debug.Log(KSwordKitConst.KSwordKitName + ": å¯¼å…¥éƒ¨ä»¶ " + name + " å¤±è´¥ï¼æºä»£ç ä¸å­˜åœ¨ã€‚");
                 return;
             }
             var cPath = System.IO.Path.Combine(KSwordKitConst.KSwordKitContentsDirectory, name);
@@ -141,7 +133,7 @@ namespace KSwordKit.Contents.Editor
                         {
                             System.IO.Directory.CreateDirectory(dirpath);
                         }
-                        EditorUtility.DisplayProgressBar(KSwordKitConst.KSwordKitName + ": ¿½±´²¿¼ş " + name, "ÕıÔÚ¿½±´£º" + fName, UnityEngine.Random.Range(0f, 1));
+                        EditorUtility.DisplayProgressBar(KSwordKitConst.KSwordKitName + ": æ‹·è´éƒ¨ä»¶ " + name, "æ­£åœ¨æ‹·è´ï¼š" + fName, UnityEngine.Random.Range(0f, 1));
                         System.IO.File.Copy(new System.IO.DirectoryInfo(System.IO.Path.Combine(spath, item.Path)).FullName, System.IO.Path.Combine(dirpath, fName), true);
                     }catch(System.Exception e)
                     {
@@ -153,7 +145,7 @@ namespace KSwordKit.Contents.Editor
             }
             AssetDatabase.Refresh();
             if (string.IsNullOrEmpty(error))
-                Debug.Log(KSwordKitConst.KSwordKitName + ": µ¼Èë²¿¼ş " + name + " ³É¹¦£¡");
+                Debug.Log(KSwordKitConst.KSwordKitName + ": å¯¼å…¥éƒ¨ä»¶ " + name + " æˆåŠŸï¼");
         }
 
         string CopyFolder(ImportConfig config, bool useConfig, string name, string sourceDir, string destDir)
@@ -189,7 +181,7 @@ namespace KSwordKit.Contents.Editor
                             continue;
                     }
 
-                    EditorUtility.DisplayProgressBar(KSwordKitConst.KSwordKitName + ": ¿½±´²¿¼ş "+ name, "ÕıÔÚ¿½±´£º" + fName, UnityEngine.Random.Range(0f, 1));
+                    EditorUtility.DisplayProgressBar(KSwordKitConst.KSwordKitName + ": æ‹·è´éƒ¨ä»¶ "+ name, "æ­£åœ¨æ‹·è´ï¼š" + fName, UnityEngine.Random.Range(0f, 1));
                     System.IO.File.Copy(System.IO.Path.Combine(sourceDir, fName), System.IO.Path.Combine(destDir, fName), true);
                 }
                 foreach (var dir in System.IO.Directory.GetDirectories(sourceDir, "*"))
@@ -220,7 +212,7 @@ namespace KSwordKit.Contents.Editor
 
         void delete(ImportConfig config, string name, string path)
         {
-            Debug.Log(KSwordKitConst.KSwordKitName + ": Õı×¼±¸É¾³ı²¿¼ş " + name + " ...");
+            Debug.Log(KSwordKitConst.KSwordKitName + ": æ­£å‡†å¤‡åˆ é™¤éƒ¨ä»¶ " + name + " ...");
 
             var cPath = System.IO.Path.Combine(KSwordKitConst.KSwordKitContentsDirectory, name);
             var spath = System.IO.Path.Combine(KSwordKitConst.KSwordKitContentsSourceDiretory, name);
@@ -247,7 +239,7 @@ namespace KSwordKit.Contents.Editor
                 }
             }
             AssetDatabase.Refresh();
-            Debug.Log(KSwordKitConst.KSwordKitName + ": ÒÑÉ¾³ı²¿¼ş " + name);
+            Debug.Log(KSwordKitConst.KSwordKitName + ": å·²åˆ é™¤éƒ¨ä»¶ " + name);
         }
     }
 }
