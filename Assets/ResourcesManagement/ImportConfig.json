@@ -1,0 +1,8 @@
+{
+    "Name":"新部件",
+    "Dependencies":[],
+    "ExampleFolderPaths":[
+	"Assets/ResourcesManagement/ExampleResourcesManagement"
+     ],
+    "FileSettingList":[]
+}
